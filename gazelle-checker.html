@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Børsen Gazelle Checker 🦌</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:        #2d6a4f;
+      --green-mid:    #40916c;
+      --green-light:  #52b788;
+      --green-pale:   #d8f3dc;
+      --green-ghost:  #f0faf3;
+      --red:          #c1121f;
+      --red-pale:     #ffe5e7;
+      --yellow:       #e07b00;
+      --yellow-pale:  #fff3cd;
+      --gray:         #6b7280;
+      --gray-light:   #f3f4f6;
+      --border:       #e5e7eb;
+      --text:         #111827;
+      --text-soft:    #6b7280;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: #f0f4f1;
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.55;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--green);
+      color: #fff;
+      padding: 2.5rem 1.5rem 2rem;
+      text-align: center;
+    }
+    header h1 { font-size: clamp(1.5rem, 4vw, 2.25rem); font-weight: 800; letter-spacing: -0.5px; }
+    header p  { opacity: .8; font-size: .95rem; margin-top: .4rem; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 920px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+    /* ── INPUT CARD ── */
+    .input-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      margin-bottom: 1.75rem;
+    }
+    .input-card p { font-size: .88rem; color: var(--text-soft); margin-bottom: .9rem; }
+    .input-card code { background: var(--gray-light); padding: .1em .4em; border-radius: 4px; font-size: .85em; }
+
+    .input-row { display: flex; gap: .65rem; }
+    .input-row input {
+      flex: 1;
+      padding: .85rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: 9px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color .2s;
+      min-width: 0;
+    }
+    .input-row input:focus { border-color: var(--green); }
+    .input-row input::placeholder { color: #b0b7c3; }
+
+    .btn-check {
+      padding: .85rem 1.4rem;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s, transform .1s;
+    }
+    .btn-check:hover:not(:disabled) { background: var(--green-mid); }
+    .btn-check:active:not(:disabled) { transform: scale(.97); }
+    .btn-check:disabled { background: #9ca3af; cursor: not-allowed; }
+
+    @media (max-width: 540px) {
+      .input-row { flex-direction: column; }
+      .btn-check { width: 100%; }
+    }
+
+    /* ── SPINNER ── */
+    .spinner-wrap {
+      display: none;
+      text-align: center;
+      padding: 3.5rem 1rem;
+      color: var(--text-soft);
+      font-size: .95rem;
+    }
+    .spinner {
+      width: 46px; height: 46px;
+      border: 4px solid var(--green-pale);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR ── */
+    .error-box {
+      display: none;
+      background: var(--red-pale);
+      border: 1.5px solid #f4978e;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      color: var(--red);
+      font-size: .9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── RESULTS ── */
+    #results { display: none; }
+
+    /* ── SECTION TITLES ── */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--green);
+      margin: 0 0 1rem;
+      padding-bottom: .5rem;
+      border-bottom: 2px solid var(--green-pale);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    /* ── COMPANY HEADER ── */
+    .company-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.4rem 1.75rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      margin-bottom: 1.75rem;
+      border-left: 5px solid var(--green);
+    }
+    .company-card h2 { font-size: 1.35rem; color: var(--green); font-weight: 700; }
+    .company-card p  { font-size: .86rem; color: var(--text-soft); margin-top: .3rem; }
+
+    /* ── SCORECARD ── */
+    .scorecard-wrap {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      margin-bottom: 1.5rem;
+    }
+    .criterion {
+      display: flex;
+      align-items: flex-start;
+      gap: .9rem;
+      padding: .9rem 1rem;
+      border-radius: 9px;
+      margin-bottom: .6rem;
+      border: 1.5px solid transparent;
+    }
+    .criterion:last-child { margin-bottom: 0; }
+    .criterion.pass { background: var(--green-ghost); border-color: #74c69d; }
+    .criterion.fail { background: var(--red-pale);   border-color: #f4978e; }
+    .criterion.unknown { background: var(--gray-light); border-color: var(--border); }
+
+    .c-icon { font-size: 1.35rem; line-height: 1; flex-shrink: 0; padding-top: .05rem; }
+    .c-body h3 { font-size: .93rem; font-weight: 700; margin-bottom: .2rem; }
+    .c-numbers  { font-size: .82rem; color: var(--text-soft); font-weight: 600; margin-bottom: .15rem; }
+    .c-explain  { font-size: .8rem;  color: #555; }
+
+    /* ── VERDICT ── */
+    .verdict {
+      border-radius: 14px;
+      padding: 1.6rem 2rem;
+      text-align: center;
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+    }
+    .verdict.success { background: var(--green-pale); color: var(--green); border: 2.5px solid var(--green-light); }
+    .verdict.fail    { background: var(--red-pale);   color: var(--red);   border: 2.5px solid #f4978e; }
+    .verdict .v-sub  { font-size: .88rem; font-weight: 500; margin-top: .5rem; opacity: .9; }
+
+    /* ── CHART ── */
+    .chart-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.5rem 1.75rem 1.25rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      margin-bottom: 2rem;
+    }
+    .chart-card h3 { font-size: .95rem; font-weight: 700; color: var(--text-soft); margin-bottom: 1rem; }
+
+    /* ── FUTURE CARDS ── */
+    .future-intro {
+      font-size: .85rem;
+      color: var(--text-soft);
+      margin-bottom: 1.25rem;
+      background: var(--green-ghost);
+      border-radius: 9px;
+      padding: .75rem 1rem;
+      border-left: 4px solid var(--green-light);
+    }
+
+    .future-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 680px) {
+      .future-grid { grid-template-columns: 1fr; }
+    }
+
+    .future-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      border-top: 4px solid var(--green-mid);
+      display: flex;
+      flex-direction: column;
+    }
+    .future-card h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 1rem;
+    }
+    .f-amount {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .f-label {
+      font-size: .73rem;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-top: .2rem;
+      margin-bottom: 1.1rem;
+    }
+    .f-metrics { flex: 1; }
+    .f-metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: .83rem;
+      padding: .45rem 0;
+      border-bottom: 1px solid var(--border);
+      gap: .5rem;
+    }
+    .f-metric:last-of-type { border-bottom: none; }
+    .fm-label { color: var(--text-soft); flex-shrink: 0; }
+    .fm-value { font-weight: 700; text-align: right; }
+
+    .tag {
+      display: inline-block;
+      padding: .38rem .85rem;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 700;
+      margin-top: 1rem;
+      align-self: flex-start;
+    }
+    .tag-green  { background: var(--green-pale);  color: var(--green); }
+    .tag-yellow { background: var(--yellow-pale); color: var(--yellow); }
+    .tag-red    { background: var(--red-pale);    color: var(--red); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-soft);
+      font-size: .78rem;
+    }
+    footer a { color: var(--green); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🦌 Børsen Gazelle Checker</h1>
+  <p>Tjek din virksomheds Gazelle-potentiale — og se hvad der kræves de næste 3 år</p>
+</header>
+
+<div class="container">
+
+  <!-- INPUT -->
+  <div class="input-card">
+    <p>Indsæt CVR-nummer (f.eks. <code>37697796</code>) eller et virkdata.dk-link (f.eks. <code>https://virkdata.dk/firmaer/37697796/…</code>)</p>
+    <div class="input-row">
+      <input type="text" id="cvrInput"
+             placeholder="CVR-nummer eller virkdata.dk URL…"
+             autocomplete="off" autocorrect="off" spellcheck="false" />
+      <button class="btn-check" id="checkBtn" onclick="checkGazelle()">Tjek Gazelle 🦌</button>
+    </div>
+  </div>
+
+  <!-- SPINNER -->
+  <div class="spinner-wrap" id="spinnerWrap">
+    <div class="spinner"></div>
+    Henter regnskabsdata…
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- RESULTS -->
+  <div id="results">
+
+    <div class="company-card" id="companyCard"></div>
+
+    <h2 class="section-title">📊 Del 1 — Aktuel Gazelle Status</h2>
+    <div class="scorecard-wrap" id="scorecardWrap"></div>
+    <div class="verdict" id="verdictEl"></div>
+
+    <div class="chart-card">
+      <h3>Bruttoresultat — historisk og minimum krævet (DKK)</h3>
+      <canvas id="growthChart"></canvas>
+    </div>
+
+    <h2 class="section-title">🔭 Del 2 — Fremtidig Gazelle Plan (1–3 år)</h2>
+    <div class="future-intro">
+      Konservativt scenarie: ukendte mellemliggende år antages fladt (foregående år + 1 kr.).
+      Det viser det ærlige bundskøn — hvad <em>skal</em> du minimum ramme for at kvalificere.
+    </div>
+    <div class="future-grid" id="futureGrid"></div>
+
+  </div>
+</div>
+
+<footer>
+  Børsen Gazelle Checker — ikke officielt tilknyttet Børsen eller Gazelle-programmet.<br>
+  Data fra <a href="https://cvrapi.dk" target="_blank">cvrapi.dk</a> og
+  <a href="https://virkdata.dk" target="_blank">virkdata.dk</a>.
+</footer>
+
+<script>
+// ─────────────────────────────────────────────
+//  UTILITIES
+// ─────────────────────────────────────────────
+
+let chartInst = null;
+
+function extractCVR(raw) {
+  raw = raw.trim();
+  // URL with CVR segment: /firmaer/12345678 or /12345678/
+  const urlMatch = raw.match(/\/(\d{8})(?:\/|$|\?|#)/);
+  if (urlMatch) return urlMatch[1];
+  // URL ending with CVR (no trailing slash)
+  const urlMatch2 = raw.match(/\/(\d{8})$/);
+  if (urlMatch2) return urlMatch2[1];
+  // Plain 8-digit number
+  const plain = raw.match(/^(\d{8})$/);
+  if (plain) return plain[1];
+  return null;
+}
+
+function fmtDKK(n) {
+  return Math.round(n).toLocaleString('da-DK') + ' kr.';
+}
+
+function fmtPct(p) {
+  return (p >= 0 ? '+' : '') + p.toFixed(1).replace('.', ',') + '%';
+}
+
+function setEl(id, html) { document.getElementById(id).innerHTML = html; }
+
+function showErr(msg) {
+  const b = document.getElementById('errorBox');
+  b.innerHTML = '⚠️ ' + msg;
+  b.style.display = 'block';
+}
+function hideErr() { document.getElementById('errorBox').style.display = 'none'; }
+
+// ─────────────────────────────────────────────
+//  JSONP HELPER  (works from file:// & http://)
+// ─────────────────────────────────────────────
+function fetchJSONP(url, timeoutMs = 12000) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__gz_cb_' + (Math.random() * 1e9 | 0);
+    const script  = document.createElement('script');
+    let settled   = false;
+
+    function cleanup() {
+      settled = true;
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      if (!settled) { cleanup(); reject(new Error('Netværksfejl — JSONP script kunne ikke indlæses')); }
+    };
+
+    const sep = url.includes('?') ? '&' : '?';
+    script.src = url + sep + 'callback=' + cbName;
+    document.head.appendChild(script);
+
+    setTimeout(() => {
+      if (!settled) { cleanup(); reject(new Error('Timeout — serveren svarede ikke inden for ' + (timeoutMs/1000) + 's')); }
+    }, timeoutMs);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  KEYBOARD SHORTCUT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('cvrInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkGazelle();
+  });
+});
+
+// ─────────────────────────────────────────────
+//  MAIN ENTRY POINT
+// ─────────────────────────────────────────────
+async function checkGazelle() {
+  const raw = document.getElementById('cvrInput').value;
+  const cvr = extractCVR(raw);
+
+  if (!cvr) {
+    showErr('Ugyldigt input. Indsæt et CVR-nummer (8 cifre) eller et virkdata.dk-link.');
+    return;
+  }
+
+  hideErr();
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('spinnerWrap').style.display = 'block';
+  document.getElementById('checkBtn').disabled = true;
+
+  try {
+    // ── CALL 1: CVR API via JSONP ─────────────
+    const cvrData = await fetchJSONP(
+      `https://cvrapi.dk/api?search=${cvr}&country=dk`
+    );
+    if (cvrData.error) throw new Error('CVR-opslag fejlede: ' + cvrData.error);
+    if (!cvrData.name) throw new Error('Virksomhed ikke fundet i CVR-registret for CVR ' + cvr);
+
+    // ── CALL 2: Virkdata via allorigins JSONP ─
+    const virkUrl  = encodeURIComponent('https://virkdata.dk/firmaer/' + cvr);
+    const proxyData = await fetchJSONP(
+      'https://api.allorigins.win/get?url=' + virkUrl
+    );
+
+    const financials = parseFinancials(proxyData.contents, cvr);
+    if (!financials || financials.length === 0) {
+      throw new Error(
+        'Kunne ikke finde regnskabsdata for CVR ' + cvr +
+        '. Prøv at besøge virkdata.dk direkte og kontrollér, at virksomheden har offentliggjorte regnskaber.'
+      );
+    }
+
+    // Sort desc, take 4 most recent
+    financials.sort((a, b) => b.year - a.year);
+    const top4 = financials.slice(0, 4);
+
+    renderAll(cvrData, top4);
+
+  } catch (err) {
+    showErr(err.message);
+  } finally {
+    document.getElementById('spinnerWrap').style.display = 'none';
+    document.getElementById('checkBtn').disabled = false;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  PARSE FINANCIAL DATA FROM HTML
+// ─────────────────────────────────────────────
+function parseFinancials(html, cvr) {
+  if (!html) return null;
+
+  // Strategy A: bracket-counted JSON array at "financial_summary"
+  const fsIdx = html.indexOf('"financial_summary"');
+  if (fsIdx !== -1) {
+    const arrStart = html.indexOf('[', fsIdx);
+    if (arrStart !== -1) {
+      const jsonStr = extractBalancedArray(html, arrStart);
+      if (jsonStr) {
+        try {
+          const arr = JSON.parse(jsonStr);
+          const norm = normalise(arr);
+          if (norm.length > 0) return norm;
+        } catch (e) { /* fall through */ }
+      }
+    }
+  }
+
+  // Strategy B: __NEXT_DATA__ script tag
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const nextDataEl = doc.querySelector('script#__NEXT_DATA__');
+  if (nextDataEl) {
+    try {
+      const nd = JSON.parse(nextDataEl.textContent);
+      const found = deepFind(nd, 'financial_summary');
+      if (found) {
+        const norm = normalise(found);
+        if (norm.length > 0) return norm;
+      }
+    } catch (e) { /* fall through */ }
+  }
+
+  // Strategy C: any <pre> containing JSON with financial_summary
+  const pres = doc.querySelectorAll('pre');
+  for (const pre of pres) {
+    try {
+      const obj = JSON.parse(pre.textContent.trim());
+      const found = deepFind(obj, 'financial_summary');
+      if (found) {
+        const norm = normalise(found);
+        if (norm.length > 0) return norm;
+      }
+    } catch (e) { /* skip */ }
+  }
+
+  // Strategy D: all <script> tags
+  const scripts = doc.querySelectorAll('script');
+  for (const s of scripts) {
+    const txt = s.textContent;
+    if (!txt.includes('financial_summary')) continue;
+    const idx = txt.indexOf('"financial_summary"');
+    const aStart = txt.indexOf('[', idx);
+    if (aStart !== -1) {
+      const jsonStr = extractBalancedArray(txt, aStart);
+      if (jsonStr) {
+        try {
+          const arr = JSON.parse(jsonStr);
+          const norm = normalise(arr);
+          if (norm.length > 0) return norm;
+        } catch (e) { /* skip */ }
+      }
+    }
+  }
+
+  return null;
+}
+
+/** Extract a balanced JSON array starting at `startIdx` in `str` */
+function extractBalancedArray(str, startIdx) {
+  let depth = 0, i = startIdx;
+  for (; i < str.length; i++) {
+    if (str[i] === '[' || str[i] === '{') depth++;
+    else if (str[i] === ']' || str[i] === '}') {
+      depth--;
+      if (depth === 0) return str.slice(startIdx, i + 1);
+    }
+  }
+  return null;
+}
+
+/** Recursively search an object for a given key */
+function deepFind(obj, key) {
+  if (!obj || typeof obj !== 'object') return null;
+  if (obj[key] !== undefined) return obj[key];
+  for (const k of Object.keys(obj)) {
+    const res = deepFind(obj[k], key);
+    if (res !== null) return res;
+  }
+  return null;
+}
+
+/** Normalise a raw financial_summary array */
+function normalise(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map(item => ({
+      year:               parseInt(item.year ?? item.regnskabsaar ?? item.fiscal_year, 10),
+      gross_profit:       parseFloat(item.gross_profit ?? item.bruttoresultat ?? 0),
+      balance_sheet_status: parseFloat(item.balance_sheet_status ?? item.arets_resultat ?? item.result ?? 0),
+    }))
+    .filter(d => !isNaN(d.year) && d.year > 2000 && isFinite(d.gross_profit));
+}
+
+// ─────────────────────────────────────────────
+//  RENDER ALL
+// ─────────────────────────────────────────────
+function renderAll(cvrData, top4) {
+  // Company header
+  const startYear = cvrData.startdate ? cvrData.startdate.slice(0, 4) : '—';
+  document.getElementById('companyCard').innerHTML =
+    `<h2>${cvrData.name || 'Ukendt virksomhed'}</h2>` +
+    `<p>CVR: ${cvrData.vat || cvr} &nbsp;·&nbsp; ${cvrData.companytype || '—'} ` +
+    `&nbsp;·&nbsp; ${cvrData.industrydesc || '—'} &nbsp;·&nbsp; Stiftet: ${startYear}</p>`;
+
+  const checks = buildChecks(cvrData, top4);
+  renderScorecard(checks);
+
+  const plans = buildFuturePlan(top4);
+  renderFuturePlan(plans, top4);
+  renderChart(top4, plans);
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─────────────────────────────────────────────
+//  SCORECARD CHECKS
+// ─────────────────────────────────────────────
+function buildChecks(cvrData, top4) {
+  const checks = [];
+
+  // 1. Virksomhedstype
+  const rawType = (cvrData.companytype || '').trim();
+  const typeOk  = /aps|a\/s/i.test(rawType);
+  checks.push({
+    pass:    typeOk,
+    name:    'Virksomhedstype',
+    numbers: rawType || 'Ikke tilgængeligt',
+    explain: typeOk
+      ? `${rawType} er en kvalificeret selskabstype (ApS / A/S)`
+      : `Kun ApS og A/S kvalificerer — registreret type: "${rawType}"`,
+  });
+
+  // 2. Minimum 4 regnskaber
+  const enoughData = top4.length >= 4;
+  checks.push({
+    pass:    enoughData,
+    name:    'Minimum 4 regnskaber',
+    numbers: `${top4.length} regnskabsår fundet`,
+    explain: enoughData
+      ? `Tilstrækkeligt antal offentliggjorte årsregnskaber`
+      : `Gazelle kræver mindst 4 fulde årsregnskaber — kun ${top4.length} fundet`,
+  });
+
+  if (!enoughData) {
+    const na = { pass: false, numbers: 'Ikke nok data', explain: 'Kræver mindst 4 regnskabsår' };
+    checks.push({ ...na, name: 'Positiv vækst hvert år' });
+    checks.push({ ...na, name: 'Samlet vækst ≥ 100%' });
+    checks.push({ ...na, name: 'Samlet driftsresultat positivt' });
+    return checks;
+  }
+
+  // Sort ascending for growth analysis
+  const asc = [...top4].sort((a, b) => a.year - b.year);
+
+  // 3. Positiv vækst hvert år
+  let allGrowing = true;
+  const growthParts = [];
+  for (let i = 1; i < asc.length; i++) {
+    const gVal  = asc[i].gross_profit;
+    const gPrev = asc[i - 1].gross_profit;
+    const ok    = gVal > gPrev;
+    if (!ok) allGrowing = false;
+    const pct = gPrev > 0 ? ((gVal / gPrev - 1) * 100) : 0;
+    growthParts.push(`${asc[i].year}: ${fmtPct(pct)}`);
+  }
+  checks.push({
+    pass:    allGrowing,
+    name:    'Positiv vækst hvert år',
+    numbers: growthParts.join('  ·  '),
+    explain: allGrowing
+      ? 'Bruttoresultatet stiger hvert eneste år i perioden'
+      : 'Et eller flere år viser faldende bruttoresultat',
+  });
+
+  // 4. Samlet vækst ≥ 100%
+  const first  = asc[0].gross_profit;
+  const last   = asc[asc.length - 1].gross_profit;
+  const totGrowth = first > 0 ? (last / first - 1) : -Infinity;
+  const growOk = totGrowth >= 1.0;
+  checks.push({
+    pass:    growOk,
+    name:    'Samlet vækst ≥ 100%',
+    numbers: `${(totGrowth * 100).toFixed(0)}%  (${fmtDKK(first)} → ${fmtDKK(last)})`,
+    explain: growOk
+      ? 'Virksomheden er mere end fordoblet over de 4 år ✓'
+      : `Mangler fordobling — ${fmtDKK(first * 2 - last)} til 100%-grænsen`,
+  });
+
+  // 5. Samlet driftsresultat positivt
+  const totalDrift = asc.reduce((s, d) => s + d.balance_sheet_status, 0);
+  const driftOk = totalDrift > 0;
+  checks.push({
+    pass:    driftOk,
+    name:    'Samlet driftsresultat positivt',
+    numbers: `Samlet årets resultat over 4 år: ${fmtDKK(totalDrift)}`,
+    explain: driftOk
+      ? 'Den samlede sum af årets resultater er positiv'
+      : `Negativ samlet balance: ${fmtDKK(totalDrift)} (skal vendes til positivt)`,
+  });
+
+  return checks;
+}
+
+function renderScorecard(checks) {
+  const wrap = document.getElementById('scorecardWrap');
+  wrap.innerHTML = '';
+
+  checks.forEach(c => {
+    const cls  = c.pass === true ? 'pass' : c.pass === false ? 'fail' : 'unknown';
+    const icon = c.pass === true ? '✅' : c.pass === false ? '❌' : '⬜';
+    const div  = document.createElement('div');
+    div.className = 'criterion ' + cls;
+    div.innerHTML =
+      `<div class="c-icon">${icon}</div>` +
+      `<div class="c-body">` +
+        `<h3>${c.name}</h3>` +
+        `<div class="c-numbers">${c.numbers}</div>` +
+        `<div class="c-explain">${c.explain}</div>` +
+      `</div>`;
+    wrap.appendChild(div);
+  });
+
+  // Verdict
+  const allPass   = checks.every(c => c.pass === true);
+  const failNames = checks.filter(c => !c.pass).map(c => c.name);
+  const vEl = document.getElementById('verdictEl');
+  if (allPass) {
+    vEl.className = 'verdict success';
+    vEl.innerHTML = '🦌 Potentiel Gazelle!<div class="v-sub">Alle 5 kriterier er opfyldt — virksomheden kvalificerer til Børsen Gazelle</div>';
+  } else {
+    vEl.className = 'verdict fail';
+    vEl.innerHTML = '❌ Ikke Gazelle endnu' +
+      `<div class="v-sub">Ikke opfyldt: ${failNames.join(', ')}</div>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  FUTURE PLAN
+// ─────────────────────────────────────────────
+function buildFuturePlan(top4) {
+  // top4 is sorted DESC; build a year→value map
+  const knownGross = {}, knownDrift = {};
+  top4.forEach(d => {
+    knownGross[d.year] = d.gross_profit;
+    knownDrift[d.year] = d.balance_sheet_status;
+  });
+
+  const mostRecentYear  = top4[0].year;
+  const mostRecentGross = top4[0].gross_profit;
+  const plans = [];
+
+  for (let offset = 1; offset <= 3; offset++) {
+    const targetYear = mostRecentYear + offset;
+    const wStart     = targetYear - 3;                 // first year of 4-year window
+
+    // Project all years in [wStart … targetYear-1] conservatively
+    const projGross = {};
+    for (let y = wStart; y < targetYear; y++) {
+      if (knownGross[y] !== undefined) {
+        projGross[y] = knownGross[y];
+      } else {
+        const prev = projGross[y - 1] ?? knownGross[y - 1] ?? mostRecentGross;
+        projGross[y] = prev + 1;                       // flat + 1 kr.
+      }
+    }
+
+    const priorGross = projGross[targetYear - 1];
+    const firstGross = projGross[wStart];
+
+    const mustExceedPrior = priorGross + 1;
+    const mustDouble      = firstGross * 2;
+    const minRequired     = Math.max(mustExceedPrior, mustDouble);
+
+    // Required growth from most recent KNOWN year
+    const reqGrowth = mostRecentGross > 0 ? (minRequired / mostRecentGross - 1) * 100 : 0;
+
+    const tag = reqGrowth < 50 ? 'green' : reqGrowth <= 150 ? 'yellow' : 'red';
+
+    // Driftsresultat for known years in window
+    let knownDriftSum = 0, knownDriftCount = 0;
+    for (let y = wStart; y < targetYear; y++) {
+      if (knownDrift[y] !== undefined) {
+        knownDriftSum += knownDrift[y];
+        knownDriftCount++;
+      }
+    }
+    const driftOnTrack = knownDriftSum > 0;
+
+    plans.push({
+      year: targetYear, minRequired, reqGrowth, tag,
+      wStart, priorGross, firstGross,
+      knownDriftSum, knownDriftCount, driftOnTrack,
+    });
+  }
+
+  return plans;
+}
+
+function renderFuturePlan(plans, top4) {
+  const grid = document.getElementById('futureGrid');
+  grid.innerHTML = '';
+
+  plans.forEach(p => {
+    const tagLabel = { green: 'På rette spor 🟢', yellow: 'Kræver indsats 🟡', red: 'Meget ambitiøst 🔴' }[p.tag];
+    const tagClass = { green: 'tag-green', yellow: 'tag-yellow', red: 'tag-red' }[p.tag];
+
+    let driftTxt;
+    if (p.knownDriftCount === 0) {
+      driftTxt = 'Ingen kendte data i vinduet';
+    } else if (p.driftOnTrack) {
+      driftTxt = `Nuværende sum: ${fmtDKK(p.knownDriftSum)} — positiv`;
+    } else {
+      driftTxt = `Nuværende sum: ${fmtDKK(p.knownDriftSum)} — mangler ${fmtDKK(-p.knownDriftSum)}`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'future-card';
+    card.innerHTML =
+      `<h3>Gazelle i ${p.year}</h3>` +
+      `<div class="f-amount">${fmtDKK(p.minRequired)}</div>` +
+      `<div class="f-label">Minimum bruttoresultat</div>` +
+      `<div class="f-metrics">` +
+        `<div class="f-metric"><span class="fm-label">Krævet vækst fra nu</span><span class="fm-value">${fmtPct(p.reqGrowth)}</span></div>` +
+        `<div class="f-metric"><span class="fm-label">4-årsvindue starter</span><span class="fm-value">${p.wStart}</span></div>` +
+        `<div class="f-metric"><span class="fm-label">Vinduets første år</span><span class="fm-value">${fmtDKK(p.firstGross)}</span></div>` +
+        `<div class="f-metric"><span class="fm-label">Forudgående år (min)</span><span class="fm-value">${fmtDKK(p.priorGross)}</span></div>` +
+        `<div class="f-metric"><span class="fm-label">Driftsresultat (kendte år)</span><span class="fm-value" style="font-size:.77rem">${driftTxt}</span></div>` +
+      `</div>` +
+      `<span class="tag ${tagClass}">${tagLabel}</span>`;
+    grid.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  CHART
+// ─────────────────────────────────────────────
+function renderChart(top4, plans) {
+  const asc = [...top4].sort((a, b) => a.year - b.year);
+
+  const histLabels = asc.map(d => String(d.year));
+  const histValues = asc.map(d => d.gross_profit);
+  const projLabels = plans.map(p => String(p.year));
+  const projValues = plans.map(p => p.minRequired);
+
+  const allLabels = [...histLabels, ...projLabels];
+
+  // Pad each dataset with nulls for the other side
+  const histFull = [...histValues, ...projValues.map(() => null)];
+  const projFull = [...histValues.map(() => null), ...projValues];
+
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  chartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: allLabels,
+      datasets: [
+        {
+          label: 'Historisk bruttoresultat',
+          data: histFull,
+          backgroundColor: '#2d6a4f',
+          borderColor:     '#2d6a4f',
+          borderWidth: 1,
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+        {
+          label: 'Min. krævet (projektion)',
+          data: projFull,
+          backgroundColor: 'rgba(82,183,136,0.28)',
+          borderColor:     '#40916c',
+          borderWidth: 2,
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 12 }, padding: 16 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.raw === null ? null : `${ctx.dataset.label}: ${Math.round(ctx.raw).toLocaleString('da-DK')} kr.`,
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: val => {
+              if (val >= 1_000_000) return (val / 1_000_000).toFixed(1).replace('.', ',') + ' mio. kr.';
+              if (val >= 1_000)    return (val / 1_000).toFixed(0) + ' t. kr.';
+              return val + ' kr.';
+            },
+          },
+          grid: { color: '#f0f0f0' },
+        },
+        x: { grid: { display: false } },
+      },
+    },
+  });
+}
+</script>
+
+</body>
+</html>
