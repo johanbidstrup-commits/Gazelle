@@ -430,40 +430,25 @@ function hideErr() { document.getElementById('errorBox').style.display = 'none';
 // ─────────────────────────────────────────────
 //  FETCH STRATEGY
 //
-//  Priority:
-//  1. Direct fetch (works on GitHub Pages, any
-//     hosted HTTP/S origin — APIs are CORS-open)
-//  2. Local proxy at :7890  (gazelle_server.py)
-//  3. Neither works → file:// → show guidance
+//  Both API calls go through allorigins.win —
+//  a CORS proxy that adds Access-Control-Allow-Origin: *
+//  so it works from any HTTP/S hosted page
+//  (GitHub Pages, Netlify, local server, etc.)
+//
+//  file:// → detected instantly, show guidance.
 // ─────────────────────────────────────────────
-const PROXY_BASE = 'http://localhost:7890';
+const ALLORIGINS = 'https://api.allorigins.win/get?url=';
 
-// Quick probe: can we reach the target URL directly?
-async function canDirectFetch() {
-  try {
-    const r = await fetch(
-      'https://cvrapi.dk/api?search=00000000&country=dk',
-      { signal: AbortSignal.timeout(3000), cache: 'no-store' }
-    );
-    return r.ok || r.status === 404;   // 404 = reached, just bad CVR
-  } catch { return false; }
+function isFileProtocol() {
+  return location.protocol === 'file:';
 }
 
-async function canProxyFetch() {
-  try {
-    const r = await fetch(PROXY_BASE + '/ping',
-      { signal: AbortSignal.timeout(800), cache: 'no-store' });
-    return r.ok;
-  } catch { return false; }
-}
-
-// Resolved once on first call, cached thereafter
-let _mode = null;
-async function resolveMode() {
-  if (_mode) return _mode;
-  if (await canDirectFetch()) return (_mode = 'direct');
-  if (await canProxyFetch())  return (_mode = 'proxy');
-  return (_mode = 'none');
+// Wrap any URL through allorigins and return parsed JSON
+async function viaProxy(targetUrl) {
+  const url = ALLORIGINS + encodeURIComponent(targetUrl);
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('allorigins svarede med HTTP ' + r.status);
+  return r.json();   // { contents: "...", status: { url, content_type, http_code } }
 }
 
 // ─────────────────────────────────────────────
@@ -473,30 +458,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('cvrInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') checkGazelle();
   });
-  // Show/hide proxy guide based on detected mode
-  resolveMode().then(mode => {
-    document.getElementById('proxyGuide').style.display =
-      mode === 'none' ? 'flex' : 'none';
-  });
+  // Immediately show guidance if opened from filesystem
+  if (isFileProtocol()) {
+    document.getElementById('proxyGuide').style.display = 'flex';
+  }
 });
-
-// ─────────────────────────────────────────────
-//  API HELPERS  (direct or proxied)
-// ─────────────────────────────────────────────
-async function apiFetch(directUrl, proxyPath) {
-  const mode = await resolveMode();
-  if (mode === 'direct') {
-    const r = await fetch(directUrl);
-    if (!r.ok) throw new Error('HTTP ' + r.status + ' fra ' + directUrl);
-    return r.json();
-  }
-  if (mode === 'proxy') {
-    const r = await fetch(PROXY_BASE + proxyPath);
-    if (!r.ok) throw new Error('Proxy HTTP ' + r.status);
-    return r.json();
-  }
-  throw new Error('__NO_NETWORK__');
-}
 
 // ─────────────────────────────────────────────
 //  MAIN ENTRY POINT
@@ -510,41 +476,32 @@ async function checkGazelle() {
     return;
   }
 
+  if (isFileProtocol()) {
+    document.getElementById('proxyGuide').style.display = 'flex';
+    showErr('Siden skal åbnes via en HTTP-server — se vejledningen nedenfor.');
+    return;
+  }
+
   hideErr();
   document.getElementById('results').style.display = 'none';
   document.getElementById('spinnerWrap').style.display = 'block';
   document.getElementById('checkBtn').disabled = true;
 
   try {
-    // ── CALL 1: CVR identity ──────────────────
-    let cvrData;
-    try {
-      cvrData = await apiFetch(
-        `https://cvrapi.dk/api?search=${cvr}&country=dk`,
-        `/api/cvr?q=${cvr}`
-      );
-    } catch (e) {
-      if (e.message === '__NO_NETWORK__') {
-        document.getElementById('proxyGuide').style.display = 'flex';
-        throw new Error(
-          'Kan ikke nå API\'erne. Åbn filen via en server:<br>' +
-          '&nbsp;&nbsp;• <strong>GitHub Pages</strong> — upload og aktiver Pages<br>' +
-          '&nbsp;&nbsp;• <strong>Lokal server</strong> — kør <code>python3 gazelle_server.py</code>'
-        );
-      }
-      throw e;
-    }
-    if (cvrData.error) throw new Error('CVR-opslag fejlede: ' + cvrData.error);
+    // ── CALL 1: CVR identity via allorigins ───
+    const cvrTarget  = `https://cvrapi.dk/api?search=${cvr}&country=dk`;
+    const cvrWrapped = await viaProxy(cvrTarget);
+    if (!cvrWrapped.contents) throw new Error('Tomt svar fra CVR-API');
+    const cvrData = JSON.parse(cvrWrapped.contents);
+    if (cvrData.error) throw new Error('CVR ikke fundet: ' + cvrData.error);
     if (!cvrData.name) throw new Error('Virksomhed ikke fundet for CVR ' + cvr);
 
-    // ── CALL 2: Finansielle data via allorigins ─
-    const virkEncoded = encodeURIComponent('https://virkdata.dk/firmaer/' + cvr);
-    const proxyData = await apiFetch(
-      `https://api.allorigins.win/get?url=${virkEncoded}`,
-      `/api/virkdata?cvr=${cvr}`
-    );
+    // ── CALL 2: Virkdata HTML via allorigins ──
+    const virkTarget  = `https://virkdata.dk/firmaer/${cvr}`;
+    const virkWrapped = await viaProxy(virkTarget);
+    if (!virkWrapped.contents) throw new Error('Tomt svar fra virkdata.dk');
 
-    const financials = parseFinancials(proxyData.contents, cvr);
+    const financials = parseFinancials(virkWrapped.contents, cvr);
     if (!financials || financials.length === 0) {
       throw new Error(
         'Kunne ikke finde regnskabsdata for CVR ' + cvr +
@@ -559,7 +516,7 @@ async function checkGazelle() {
     renderAll(cvrData, top4);
 
   } catch (err) {
-    if (err.message !== '__NO_NETWORK__') showErr(err.message);
+    showErr(err.message);
   } finally {
     document.getElementById('spinnerWrap').style.display = 'none';
     document.getElementById('checkBtn').disabled = false;
