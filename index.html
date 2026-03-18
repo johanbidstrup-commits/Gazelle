@@ -278,32 +278,80 @@
     .tag-yellow { background: var(--yellow-pale); color: var(--yellow); }
     .tag-red    { background: var(--red-pale);    color: var(--red); }
 
-    /* ── PROXY GUIDE ── */
-    .proxy-guide {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-      background: #fffbe6;
-      border: 1.5px solid #f4c430;
-      border-radius: 12px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.5rem;
+    /* ── MANUAL ENTRY CARD ── */
+    #manualCard {
+      display: none;
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      margin-bottom: 1.75rem;
+      border-top: 4px solid var(--yellow);
+    }
+    #manualCard h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--yellow);
+      margin-bottom: .6rem;
+    }
+    #manualCard .mc-desc {
       font-size: .88rem;
+      color: var(--text-soft);
+      margin-bottom: 1.25rem;
       line-height: 1.6;
     }
-    .pg-icon { font-size: 1.6rem; flex-shrink: 0; }
-    .pg-cmd {
-      font-family: 'Courier New', monospace;
-      background: #1e1e2e;
-      color: #a6e3a1;
-      padding: .45rem .9rem;
-      border-radius: 7px;
-      margin: .5rem 0;
-      font-size: .9rem;
-      display: inline-block;
-      user-select: all;
+    #manualCard .mc-desc a {
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: none;
     }
-    .proxy-guide a { color: var(--green); font-weight: 600; }
+    #manualCard .mc-desc a:hover { text-decoration: underline; }
+    .manual-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.25rem;
+      font-size: .9rem;
+    }
+    .manual-table th {
+      text-align: left;
+      font-size: .77rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-soft);
+      padding: 0 0 .5rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .manual-table td {
+      padding: .5rem .5rem .5rem 0;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .manual-table tr:last-child td { border-bottom: none; }
+    .manual-table input[type="number"],
+    .manual-table input[type="text"] {
+      width: 100%;
+      padding: .55rem .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .manual-table input:focus { border-color: var(--green); }
+    .manual-year-input { max-width: 90px; }
+    .btn-calc {
+      padding: .85rem 1.6rem;
+      background: var(--yellow);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    .btn-calc:hover { background: #c96d00; }
+    .btn-calc:active { transform: scale(.97); }
 
     /* ── FOOTER ── */
     footer {
@@ -340,29 +388,41 @@
   <!-- SPINNER -->
   <div class="spinner-wrap" id="spinnerWrap">
     <div class="spinner"></div>
-    Henter regnskabsdata…
+    <div>Henter virksomhedsdata…</div>
+    <div id="spinnerStatus" style="font-size:.8rem;color:#9ca3af;margin-top:.25rem;"></div>
   </div>
 
   <!-- ERROR -->
   <div class="error-box" id="errorBox"></div>
 
-  <!-- PROXY GUIDE (shown if server not running) -->
-  <div class="proxy-guide" id="proxyGuide" style="display:none">
-    <div class="pg-icon">⚡</div>
-    <div>
-      <strong>Start den lokale server for at bruge værktøjet</strong><br>
-      Åbn en terminal, gå til mappen med filerne, og kør:
-      <div class="pg-cmd">python3 gazelle_server.py</div>
-      Åbn derefter <a href="http://localhost:7890/gazelle-checker.html" target="_blank">http://localhost:7890/gazelle-checker.html</a>
-      i din browser — serveren starter automatisk siden.<br>
-      <span style="font-size:.8rem;color:var(--text-soft)">Kræver Python 3 (er forudinstalleret på Mac og de fleste Linux-systemer)</span>
-    </div>
+  <!-- MANUAL ENTRY (shown when auto-fetch fails) -->
+  <div id="manualCard">
+    <h3>📋 Indtast regnskabsdata manuelt</h3>
+    <p class="mc-desc">
+      Automatisk hentning af regnskabsdata er blokeret af virkdata.dk's sikkerhedssystem.
+      Hent tallene selv på
+      <a id="virkdataLink" href="https://virkdata.dk" target="_blank">virkdata.dk →</a>
+      og udfyld de 4 seneste regnskabsår herunder.
+      Find "Bruttoresultat" (gross_profit) for hvert år.
+    </p>
+    <table class="manual-table">
+      <thead>
+        <tr>
+          <th style="width:110px">Regnskabsår</th>
+          <th>Bruttoresultat (kr.)</th>
+          <th>Årets resultat (kr.) — valgfrit</th>
+        </tr>
+      </thead>
+      <tbody id="manualRows"></tbody>
+    </table>
+    <button class="btn-calc" onclick="calcWithManual()">Beregn Gazelle 🦌</button>
   </div>
+
+  <!-- COMPANY CARD (shown as soon as CVR is resolved) -->
+  <div class="company-card" id="companyCard" style="display:none"></div>
 
   <!-- RESULTS -->
   <div id="results">
-
-    <div class="company-card" id="companyCard"></div>
 
     <h2 class="section-title">📊 Del 1 — Aktuel Gazelle Status</h2>
     <div class="scorecard-wrap" id="scorecardWrap"></div>
@@ -391,20 +451,21 @@
 
 <script>
 // ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let chartInst = null;
+let _cvrData   = null;   // cached company info from cvrapi.dk
+let _currentCVR = null;  // CVR string currently being checked
+
+// ─────────────────────────────────────────────
 //  UTILITIES
 // ─────────────────────────────────────────────
-
-let chartInst = null;
-
 function extractCVR(raw) {
   raw = raw.trim();
-  // URL with CVR segment: /firmaer/12345678 or /12345678/
   const urlMatch = raw.match(/\/(\d{8})(?:\/|$|\?|#)/);
   if (urlMatch) return urlMatch[1];
-  // URL ending with CVR (no trailing slash)
   const urlMatch2 = raw.match(/\/(\d{8})$/);
   if (urlMatch2) return urlMatch2[1];
-  // Plain 8-digit number
   const plain = raw.match(/^(\d{8})$/);
   if (plain) return plain[1];
   return null;
@@ -418,7 +479,10 @@ function fmtPct(p) {
   return (p >= 0 ? '+' : '') + p.toFixed(1).replace('.', ',') + '%';
 }
 
-function setEl(id, html) { document.getElementById(id).innerHTML = html; }
+function setStatus(msg) {
+  const el = document.getElementById('spinnerStatus');
+  if (el) el.textContent = msg;
+}
 
 function showErr(msg) {
   const b = document.getElementById('errorBox');
@@ -428,27 +492,99 @@ function showErr(msg) {
 function hideErr() { document.getElementById('errorBox').style.display = 'none'; }
 
 // ─────────────────────────────────────────────
-//  FETCH STRATEGY
-//
-//  Both API calls go through allorigins.win —
-//  a CORS proxy that adds Access-Control-Allow-Origin: *
-//  so it works from any HTTP/S hosted page
-//  (GitHub Pages, Netlify, local server, etc.)
-//
-//  file:// → detected instantly, show guidance.
+//  DIRECT CVR API FETCH (cvrapi.dk has CORS headers)
 // ─────────────────────────────────────────────
-const ALLORIGINS = 'https://api.allorigins.win/get?url=';
-
-function isFileProtocol() {
-  return location.protocol === 'file:';
+async function fetchCVR(cvr) {
+  const r = await fetch(
+    `https://cvrapi.dk/api?search=${cvr}&country=dk`,
+    { signal: AbortSignal.timeout(12000) }
+  );
+  if (!r.ok) throw new Error(`cvrapi.dk svarede ${r.status}`);
+  return r.json();
 }
 
-// Wrap any URL through allorigins and return parsed JSON
-async function viaProxy(targetUrl) {
-  const url = ALLORIGINS + encodeURIComponent(targetUrl);
-  const r = await fetch(url);
-  if (!r.ok) throw new Error('allorigins svarede med HTTP ' + r.status);
-  return r.json();   // { contents: "...", status: { url, content_type, http_code } }
+// ─────────────────────────────────────────────
+//  VIRKDATA FETCH — localhost proxy first,
+//  then CORS waterfall (3 proxies).
+//  Returns raw HTML string or throws.
+// ─────────────────────────────────────────────
+
+const PROXY_LIST = [
+  {
+    name: 'lokal server (port 7890)',
+    fetch: async url => {
+      // Try the Python proxy server first
+      const cvr = url.match(/\/(\d{8})/)?.[1];
+      if (!cvr) throw new Error('Ingen CVR i URL');
+      const r = await fetch(
+        `http://localhost:7890/api/virkdata?cvr=${cvr}`,
+        { signal: AbortSignal.timeout(5000) }
+      );
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      // Server wraps allorigins response; extract .contents
+      const body = j.contents ?? JSON.stringify(j);
+      if (!body || body.length < 50) throw new Error('Tomt svar fra lokal server');
+      return body;
+    }
+  },
+  {
+    name: 'allorigins.win',
+    fetch: async url => {
+      const r = await fetch(
+        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+        { signal: AbortSignal.timeout(12000) }
+      );
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      const body = j.contents ?? j.html ?? '';
+      if (!body || body.length < 50) throw new Error('Tomt contents-felt');
+      return body;
+    }
+  },
+  {
+    name: 'corsproxy.io',
+    fetch: async url => {
+      const r = await fetch(
+        `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        { signal: AbortSignal.timeout(12000) }
+      );
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.text();
+    }
+  },
+  {
+    name: 'api.codetabs.com',
+    fetch: async url => {
+      const r = await fetch(
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        { signal: AbortSignal.timeout(12000) }
+      );
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.text();
+    }
+  }
+];
+
+async function fetchVirkdata(cvr) {
+  const targetUrl = `https://virkdata.dk/firmaer/${cvr}`;
+  const errs = [];
+  for (const p of PROXY_LIST) {
+    setStatus(`Henter regnskaber via ${p.name}…`);
+    try {
+      const body = await p.fetch(targetUrl);
+      if (body && body.length > 100) {
+        console.log(`✅ [${p.name}] → ${body.length} bytes`);
+        return body;
+      }
+      errs.push(`${p.name}: svar for kort`);
+    } catch (e) {
+      errs.push(`${p.name}: ${e.message}`);
+      console.warn(`❌ [${p.name}] ${e.message}`);
+    }
+  }
+  // All failed — throw with details
+  throw new Error(errs.join(' | '));
 }
 
 // ─────────────────────────────────────────────
@@ -458,10 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('cvrInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') checkGazelle();
   });
-  // Immediately show guidance if opened from filesystem
-  if (isFileProtocol()) {
-    document.getElementById('proxyGuide').style.display = 'flex';
-  }
+  buildManualRows(); // pre-build rows with current-year defaults
 });
 
 // ─────────────────────────────────────────────
@@ -476,51 +609,118 @@ async function checkGazelle() {
     return;
   }
 
-  if (isFileProtocol()) {
-    document.getElementById('proxyGuide').style.display = 'flex';
-    showErr('Siden skal åbnes via en HTTP-server — se vejledningen nedenfor.');
-    return;
-  }
-
+  _currentCVR = cvr;
   hideErr();
-  document.getElementById('results').style.display = 'none';
+  document.getElementById('results').style.display    = 'none';
+  document.getElementById('manualCard').style.display = 'none';
   document.getElementById('spinnerWrap').style.display = 'block';
   document.getElementById('checkBtn').disabled = true;
 
   try {
-    // ── CALL 1: CVR identity via allorigins ───
-    const cvrTarget  = `https://cvrapi.dk/api?search=${cvr}&country=dk`;
-    const cvrWrapped = await viaProxy(cvrTarget);
-    if (!cvrWrapped.contents) throw new Error('Tomt svar fra CVR-API');
-    const cvrData = JSON.parse(cvrWrapped.contents);
+    // ── STEP 1: Company info — cvrapi.dk has CORS, fetch directly ───────
+    setStatus('Henter virksomhedsdata…');
+    let cvrData;
+    try {
+      cvrData = await fetchCVR(cvr);
+    } catch (e) {
+      throw new Error('Kunne ikke hente virksomhedsdata: ' + e.message);
+    }
     if (cvrData.error) throw new Error('CVR ikke fundet: ' + cvrData.error);
     if (!cvrData.name) throw new Error('Virksomhed ikke fundet for CVR ' + cvr);
+    _cvrData = cvrData;
 
-    // ── CALL 2: Virkdata HTML via allorigins ──
-    const virkTarget  = `https://virkdata.dk/firmaer/${cvr}`;
-    const virkWrapped = await viaProxy(virkTarget);
-    if (!virkWrapped.contents) throw new Error('Tomt svar fra virkdata.dk');
+    // Show company card immediately
+    renderCompanyCard(cvrData, cvr);
 
-    const financials = parseFinancials(virkWrapped.contents, cvr);
-    if (!financials || financials.length === 0) {
-      throw new Error(
-        'Kunne ikke finde regnskabsdata for CVR ' + cvr +
-        '. Kontrollér at virksomheden har offentliggjorte årsregnskaber på virkdata.dk.'
-      );
+    // ── STEP 2: Financial data — try proxies ─────────────────────────────
+    let financials = null;
+    try {
+      const virkBody = await fetchVirkdata(cvr);
+      financials = parseFinancials(virkBody, cvr);
+    } catch (e) {
+      console.warn('Alle proxies fejlede:', e.message);
     }
 
-    // Sort desc, take 4 most recent
-    financials.sort((a, b) => b.year - a.year);
-    const top4 = financials.slice(0, 4);
-
-    renderAll(cvrData, top4);
+    // ── STEP 3: If auto-fetch worked, render. If not, show manual form. ──
+    if (financials && financials.length >= 2) {
+      financials.sort((a, b) => b.year - a.year);
+      renderAll(cvrData, financials.slice(0, 4));
+    } else {
+      // Show manual entry form
+      showManualCard(cvr, cvrData.name);
+    }
 
   } catch (err) {
     showErr(err.message);
   } finally {
     document.getElementById('spinnerWrap').style.display = 'none';
     document.getElementById('checkBtn').disabled = false;
+    setStatus('');
   }
+}
+
+// ─────────────────────────────────────────────
+//  MANUAL ENTRY
+// ─────────────────────────────────────────────
+function buildManualRows(cvr) {
+  const tbody = document.getElementById('manualRows');
+  if (!tbody) return;
+  const currentYear = new Date().getFullYear();
+  tbody.innerHTML = '';
+  for (let i = 0; i < 4; i++) {
+    const yr = currentYear - 1 - i;
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      `<td><input class="manual-year-input" type="number" value="${yr}" min="2000" max="2099" /></td>` +
+      `<td><input type="number" placeholder="f.eks. 5.000.000" min="0" step="1" /></td>` +
+      `<td><input type="number" placeholder="valgfrit" step="1" /></td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+function renderCompanyCard(cvrData, cvr) {
+  const startYear = (cvrData.startdate || '').slice(0, 4) || '—';
+  const compCard = document.getElementById('companyCard');
+  compCard.innerHTML =
+    `<h2>${cvrData.name || 'Ukendt virksomhed'}</h2>` +
+    `<p>CVR: ${cvrData.vat || cvr} &nbsp;·&nbsp; ${cvrData.companytype || cvrData.companydesc || '—'} ` +
+    `&nbsp;·&nbsp; ${cvrData.industrydesc || '—'} &nbsp;·&nbsp; Stiftet: ${startYear}</p>`;
+  compCard.style.display = 'block';
+}
+
+function showManualCard(cvr, companyName) {
+  const card = document.getElementById('manualCard');
+  const link = document.getElementById('virkdataLink');
+  link.href = `https://virkdata.dk/firmaer/${cvr}`;
+  link.textContent = `virkdata.dk → ${companyName || cvr}`;
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function calcWithManual() {
+  const rows = document.querySelectorAll('#manualRows tr');
+  const financials = [];
+
+  for (const row of rows) {
+    const inputs = row.querySelectorAll('input');
+    const year  = parseInt(inputs[0].value, 10);
+    const gross = parseFloat(inputs[1].value.replace(/[^\d.-]/g, ''));
+    const drift = inputs[2].value ? parseFloat(inputs[2].value.replace(/[^\d.-]/g, '')) : 0;
+
+    if (!isNaN(year) && !isNaN(gross) && gross > 0) {
+      financials.push({ year, gross_profit: gross, balance_sheet_status: isNaN(drift) ? 0 : drift });
+    }
+  }
+
+  if (financials.length < 2) {
+    showErr('Udfyld mindst 2 regnskabsår (år + bruttoresultat).');
+    return;
+  }
+
+  hideErr();
+  document.getElementById('manualCard').style.display = 'none';
+  financials.sort((a, b) => b.year - a.year);
+  renderAll(_cvrData || { name: 'Ukendt', vat: _currentCVR, companytype: '', industrydesc: '' }, financials.slice(0, 4));
 }
 
 // ─────────────────────────────────────────────
@@ -595,7 +795,6 @@ function parseFinancials(html, cvr) {
   return null;
 }
 
-/** Extract a balanced JSON array starting at `startIdx` in `str` */
 function extractBalancedArray(str, startIdx) {
   let depth = 0, i = startIdx;
   for (; i < str.length; i++) {
@@ -608,7 +807,6 @@ function extractBalancedArray(str, startIdx) {
   return null;
 }
 
-/** Recursively search an object for a given key */
 function deepFind(obj, key) {
   if (!obj || typeof obj !== 'object') return null;
   if (obj[key] !== undefined) return obj[key];
@@ -619,7 +817,6 @@ function deepFind(obj, key) {
   return null;
 }
 
-/** Normalise a raw financial_summary array */
 function normalise(arr) {
   if (!Array.isArray(arr)) return [];
   return arr
@@ -635,12 +832,8 @@ function normalise(arr) {
 //  RENDER ALL
 // ─────────────────────────────────────────────
 function renderAll(cvrData, top4) {
-  // Company header
-  const startYear = cvrData.startdate ? cvrData.startdate.slice(0, 4) : '—';
-  document.getElementById('companyCard').innerHTML =
-    `<h2>${cvrData.name || 'Ukendt virksomhed'}</h2>` +
-    `<p>CVR: ${cvrData.vat || cvr} &nbsp;·&nbsp; ${cvrData.companytype || '—'} ` +
-    `&nbsp;·&nbsp; ${cvrData.industrydesc || '—'} &nbsp;·&nbsp; Stiftet: ${startYear}</p>`;
+  // Company card may already be visible; ensure it's rendered
+  renderCompanyCard(cvrData, _currentCVR);
 
   const checks = buildChecks(cvrData, top4);
   renderScorecard(checks);
@@ -660,7 +853,7 @@ function buildChecks(cvrData, top4) {
   const checks = [];
 
   // 1. Virksomhedstype
-  const rawType = (cvrData.companytype || '').trim();
+  const rawType = (cvrData.companytype || cvrData.companydesc || '').trim();
   const typeOk  = /aps|a\/s/i.test(rawType);
   checks.push({
     pass:    typeOk,
@@ -678,19 +871,18 @@ function buildChecks(cvrData, top4) {
     name:    'Minimum 4 regnskaber',
     numbers: `${top4.length} regnskabsår fundet`,
     explain: enoughData
-      ? `Tilstrækkeligt antal offentliggjorte årsregnskaber`
+      ? 'Tilstrækkeligt antal offentliggjorte årsregnskaber'
       : `Gazelle kræver mindst 4 fulde årsregnskaber — kun ${top4.length} fundet`,
   });
 
   if (!enoughData) {
     const na = { pass: false, numbers: 'Ikke nok data', explain: 'Kræver mindst 4 regnskabsår' };
     checks.push({ ...na, name: 'Positiv vækst hvert år' });
-    checks.push({ ...na, name: 'Samlet vækst ≥ 100%' });
+    checks.push({ ...na, name: 'Samlet vækst >= 100%' });
     checks.push({ ...na, name: 'Samlet driftsresultat positivt' });
     return checks;
   }
 
-  // Sort ascending for growth analysis
   const asc = [...top4].sort((a, b) => a.year - b.year);
 
   // 3. Positiv vækst hvert år
@@ -761,7 +953,6 @@ function renderScorecard(checks) {
     wrap.appendChild(div);
   });
 
-  // Verdict
   const allPass   = checks.every(c => c.pass === true);
   const failNames = checks.filter(c => !c.pass).map(c => c.name);
   const vEl = document.getElementById('verdictEl');
@@ -779,7 +970,6 @@ function renderScorecard(checks) {
 //  FUTURE PLAN
 // ─────────────────────────────────────────────
 function buildFuturePlan(top4) {
-  // top4 is sorted DESC; build a year→value map
   const knownGross = {}, knownDrift = {};
   top4.forEach(d => {
     knownGross[d.year] = d.gross_profit;
@@ -792,32 +982,26 @@ function buildFuturePlan(top4) {
 
   for (let offset = 1; offset <= 3; offset++) {
     const targetYear = mostRecentYear + offset;
-    const wStart     = targetYear - 3;                 // first year of 4-year window
+    const wStart     = targetYear - 3;
 
-    // Project all years in [wStart … targetYear-1] conservatively
     const projGross = {};
     for (let y = wStart; y < targetYear; y++) {
       if (knownGross[y] !== undefined) {
         projGross[y] = knownGross[y];
       } else {
         const prev = projGross[y - 1] ?? knownGross[y - 1] ?? mostRecentGross;
-        projGross[y] = prev + 1;                       // flat + 1 kr.
+        projGross[y] = prev + 1;
       }
     }
 
     const priorGross = projGross[targetYear - 1];
     const firstGross = projGross[wStart];
-
     const mustExceedPrior = priorGross + 1;
     const mustDouble      = firstGross * 2;
     const minRequired     = Math.max(mustExceedPrior, mustDouble);
-
-    // Required growth from most recent KNOWN year
     const reqGrowth = mostRecentGross > 0 ? (minRequired / mostRecentGross - 1) * 100 : 0;
-
     const tag = reqGrowth < 50 ? 'green' : reqGrowth <= 150 ? 'yellow' : 'red';
 
-    // Driftsresultat for known years in window
     let knownDriftSum = 0, knownDriftCount = 0;
     for (let y = wStart; y < targetYear; y++) {
       if (knownDrift[y] !== undefined) {
@@ -884,10 +1068,8 @@ function renderChart(top4, plans) {
   const projValues = plans.map(p => p.minRequired);
 
   const allLabels = [...histLabels, ...projLabels];
-
-  // Pad each dataset with nulls for the other side
-  const histFull = [...histValues, ...projValues.map(() => null)];
-  const projFull = [...histValues.map(() => null), ...projValues];
+  const histFull  = [...histValues, ...projValues.map(() => null)];
+  const projFull  = [...histValues.map(() => null), ...projValues];
 
   if (chartInst) { chartInst.destroy(); chartInst = null; }
 
