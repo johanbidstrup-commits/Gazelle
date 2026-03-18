@@ -854,7 +854,7 @@ function buildChecks(cvrData, top4) {
 
   // 1. Virksomhedstype
   const rawType = (cvrData.companytype || cvrData.companydesc || '').trim();
-  const typeOk  = /aps|a\/s/i.test(rawType);
+  const typeOk  = /aps|a\/s|anpartsselskab|aktieselskab/i.test(rawType);
   checks.push({
     pass:    typeOk,
     name:    'Virksomhedstype',
