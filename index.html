@@ -278,6 +278,83 @@
     .tag-yellow { background: var(--yellow-pale); color: var(--yellow); }
     .tag-red    { background: var(--red-pale);    color: var(--red); }
 
+    /* ── HOLDING CARD ── */
+    #holdingCard {
+      display: none;
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      margin-bottom: 1.75rem;
+      border-top: 4px solid #b45309;
+    }
+    #holdingCard .holding-icon { font-size: 2rem; margin-bottom: .5rem; }
+    #holdingCard h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: .5rem;
+    }
+    #holdingCard .holding-desc {
+      font-size: .9rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+      margin-bottom: .6rem;
+    }
+    #holdingCard .holding-hint {
+      font-size: .9rem;
+      color: #92400e;
+      background: #fef3c7;
+      border-radius: 8px;
+      padding: .6rem .9rem;
+      margin-bottom: 1.1rem;
+    }
+    .related-companies p {
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-soft);
+      font-weight: 600;
+      margin-bottom: .6rem;
+    }
+    .related-companies ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .related-companies li {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .4rem;
+      background: var(--gray-light);
+      border-radius: 9px;
+      padding: .65rem 1rem;
+      font-size: .9rem;
+    }
+    .related-companies li strong { flex: 1; min-width: 160px; }
+    .related-type {
+      font-size: .78rem;
+      background: var(--green-pale);
+      color: var(--green);
+      border-radius: 5px;
+      padding: .15em .5em;
+      font-weight: 600;
+    }
+    .related-industry { font-size: .8rem; color: var(--text-soft); }
+    .btn-use-cvr {
+      margin-left: auto;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: .35rem .8rem;
+      font-size: .82rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-use-cvr:hover { background: var(--green-mid); }
+
     /* ── MANUAL ENTRY CARD ── */
     #manualCard {
       display: none;
@@ -394,6 +471,9 @@
 
   <!-- ERROR -->
   <div class="error-box" id="errorBox"></div>
+
+  <!-- HOLDING COMPANY REJECTION -->
+  <div id="holdingCard"></div>
 
   <!-- MANUAL ENTRY (shown when auto-fetch fails) -->
   <div id="manualCard">
@@ -611,8 +691,9 @@ async function checkGazelle() {
 
   _currentCVR = cvr;
   hideErr();
-  document.getElementById('results').style.display    = 'none';
-  document.getElementById('manualCard').style.display = 'none';
+  document.getElementById('results').style.display     = 'none';
+  document.getElementById('manualCard').style.display  = 'none';
+  document.getElementById('holdingCard').style.display = 'none';
   document.getElementById('spinnerWrap').style.display = 'block';
   document.getElementById('checkBtn').disabled = true;
 
@@ -631,6 +712,14 @@ async function checkGazelle() {
 
     // Show company card immediately
     renderCompanyCard(cvrData, cvr);
+
+    // ── HOLDING CHECK: reject holding companies early ─────────────────────
+    if (isHoldingCompany(cvrData)) {
+      setStatus('Søger efter tilknyttede driftsselskaber…');
+      const related = await searchRelatedCompanies(cvrData.name);
+      showHoldingCard(cvrData, related);
+      return;
+    }
 
     // ── STEP 2: Financial data — try proxies ─────────────────────────────
     let financials = null;
@@ -657,6 +746,92 @@ async function checkGazelle() {
     document.getElementById('checkBtn').disabled = false;
     setStatus('');
   }
+}
+
+// ─────────────────────────────────────────────
+//  HOLDING COMPANY DETECTION & REJECTION
+// ─────────────────────────────────────────────
+function isHoldingCompany(cvrData) {
+  const code = (cvrData.industrycode || '').toString().trim();
+  const desc = (cvrData.industrydesc || '').toLowerCase();
+  const name = (cvrData.name || '').toLowerCase();
+  if (/^642[01]/.test(code)) return true;
+  if (desc.includes('holding')) return true;
+  if (/\bholding\b/.test(name)) return true;
+  return false;
+}
+
+async function searchRelatedCompanies(holdingName) {
+  const core = holdingName
+    .replace(/\s+(holding|group|invest)\s*(a\/s|aps)?$/gi, '')
+    .replace(/\s+(a\/s|aps)$/gi, '')
+    .trim();
+  if (!core || core.length < 3) return [];
+  try {
+    const resp = await fetch(
+      `https://cvrapi.dk/api?country=dk&search=${encodeURIComponent(core)}`
+    );
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    const list = Array.isArray(data) ? data : [data];
+    return list
+      .filter(c =>
+        c.name &&
+        c.vat !== _currentCVR &&
+        /aps|a\/s|anpartsselskab|aktieselskab/i.test(c.companydesc || c.companytype || '') &&
+        !/^642[01]/.test((c.industrycode || '').toString()) &&
+        !(c.industrydesc || '').toLowerCase().includes('holding') &&
+        !/\bholding\b/.test((c.name || '').toLowerCase()) &&
+        !c.enddate
+      )
+      .slice(0, 4);
+  } catch (e) { return []; }
+}
+
+function showHoldingCard(cvrData, related) {
+  const card = document.getElementById('holdingCard');
+  const name = cvrData.name || 'Virksomheden';
+  let relatedHtml = '';
+  if (related && related.length > 0) {
+    const items = related.map(c => {
+      const type = c.companydesc || c.companytype || '';
+      const ind  = c.industrydesc ? `<span class="related-industry">· ${c.industrydesc}</span>` : '';
+      return `<li>
+        <strong>${c.name}</strong>
+        <span class="related-type">${type}</span>
+        ${ind}
+        <button class="btn-use-cvr" onclick="useCVR('${c.vat}')">Tjek denne →</button>
+      </li>`;
+    }).join('');
+    relatedHtml = `<div class="related-companies">
+      <p>Mulige tilknyttede driftsselskaber:</p>
+      <ul>${items}</ul>
+    </div>`;
+  } else {
+    relatedHtml = `<p style="font-size:.88rem;color:var(--text-soft)">
+      Ingen tilknyttede driftsselskaber fundet automatisk — søg manuelt på
+      <a href="https://virkdata.dk" target="_blank" style="color:var(--green);font-weight:600">virkdata.dk</a>.
+    </p>`;
+  }
+  card.innerHTML = `
+    <div class="holding-icon">🏢</div>
+    <h3>${name}</h3>
+    <p class="holding-desc">
+      Dette er et <strong>holdingselskab</strong> (${cvrData.industrydesc || 'Holdingselskab'}) og kan ikke vurderes
+      efter Gazelle-kriterierne — holdingselskaber driver typisk ingen direkte forretning og indberetter
+      0 kr. i bruttoresultat.
+    </p>
+    <p class="holding-hint">💡 Prøv i stedet et <strong>driftsselskab</strong> tilknyttet ${name.replace(/Holding\s*(A\/S|ApS)?/i, '').trim() || name}.</p>
+    ${relatedHtml}
+  `;
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function useCVR(cvr) {
+  document.getElementById('cvrInput').value = cvr;
+  document.getElementById('holdingCard').style.display = 'none';
+  checkGazelle();
 }
 
 // ─────────────────────────────────────────────
