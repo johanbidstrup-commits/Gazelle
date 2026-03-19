@@ -668,7 +668,7 @@ function buildManualRows(cvr) {
   const currentYear = new Date().getFullYear();
   tbody.innerHTML = '';
   for (let i = 0; i < 4; i++) {
-    const yr = currentYear - 1 - i;
+    const yr = currentYear - 2 - i;
     const tr = document.createElement('tr');
     tr.innerHTML =
       `<td><input class="manual-year-input" type="number" value="${yr}" min="2000" max="2099" /></td>` +
@@ -679,7 +679,7 @@ function buildManualRows(cvr) {
 }
 
 function renderCompanyCard(cvrData, cvr) {
-  const startYear = (cvrData.startdate || '').slice(0, 4) || '—';
+  const startYear = ((cvrData.startdate || '').match(/\d{4}/) || ['—'])[0];
   const compCard = document.getElementById('companyCard');
   compCard.innerHTML =
     `<h2>${cvrData.name || 'Ukendt virksomhed'}</h2>` +
