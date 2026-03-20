@@ -551,6 +551,22 @@ function extractCVR(raw) {
   return null;
 }
 
+// Extract slug from a virkdata.dk URL (e.g. ".../33252242/talentech-aps" → "talentech-aps")
+function extractSlug(raw) {
+  const m = raw.trim().match(/\/\d{8}\/([a-z0-9][a-z0-9-]*)/i);
+  return m ? m[1].toLowerCase() : null;
+}
+
+// Generate virkdata.dk URL slug from a company name
+function generateVirkdataSlug(name) {
+  return name
+    .toLowerCase()
+    .replace(/ø/g, 'oe').replace(/æ/g, 'ae').replace(/å/g, 'aa')
+    .replace(/ü/g, 'u') .replace(/ö/g, 'oe').replace(/ä/g, 'ae')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function fmtDKK(n) {
   return Math.round(n).toLocaleString('da-DK') + ' kr.';
 }
@@ -646,8 +662,10 @@ const PROXY_LIST = [
   }
 ];
 
-async function fetchVirkdata(cvr) {
-  const targetUrl = `https://virkdata.dk/firmaer/${cvr}`;
+async function fetchVirkdata(cvr, slug) {
+  const targetUrl = slug
+    ? `https://virkdata.dk/firmaer/${cvr}/${slug}`
+    : `https://virkdata.dk/firmaer/${cvr}`;
   const errs = [];
   for (const p of PROXY_LIST) {
     setStatus(`Henter regnskaber via ${p.name}…`);
@@ -724,7 +742,8 @@ async function checkGazelle() {
     // ── STEP 2: Financial data — try proxies ─────────────────────────────
     let financials = null;
     try {
-      const virkBody = await fetchVirkdata(cvr);
+      const slug = extractSlug(raw) || generateVirkdataSlug(cvrData.name);
+      const virkBody = await fetchVirkdata(cvr, slug);
       financials = parseFinancials(virkBody, cvr);
     } catch (e) {
       console.warn('Alle proxies fejlede:', e.message);
@@ -866,7 +885,8 @@ function renderCompanyCard(cvrData, cvr) {
 function showManualCard(cvr, companyName) {
   const card = document.getElementById('manualCard');
   const link = document.getElementById('virkdataLink');
-  link.href = `https://virkdata.dk/firmaer/${cvr}`;
+  const slug = generateVirkdataSlug(companyName || cvr);
+  link.href = `https://virkdata.dk/firmaer/${cvr}/${slug}`;
   link.textContent = `virkdata.dk → ${companyName || cvr}`;
   card.style.display = 'block';
   card.scrollIntoView({ behavior: 'smooth', block: 'start' });
