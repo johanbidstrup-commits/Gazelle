@@ -3,31 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Børsen Gazelle Checker 🦌</title>
+  <title>Børsen Gazelle Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green:        #2d6a4f;
-      --green-mid:    #40916c;
-      --green-light:  #52b788;
-      --green-pale:   #d8f3dc;
-      --green-ghost:  #f0faf3;
-      --red:          #c1121f;
-      --red-pale:     #ffe5e7;
-      --yellow:       #e07b00;
-      --yellow-pale:  #fff3cd;
+      --green:        #4F46E5;
+      --green-mid:    #4338CA;
+      --green-light:  #818CF8;
+      --green-pale:   #EEF2FF;
+      --green-ghost:  #F5F3FF;
+      --red:          #DC2626;
+      --red-pale:     #FEE2E2;
+      --yellow:       #D97706;
+      --yellow-pale:  #FEF3C7;
       --gray:         #6b7280;
       --gray-light:   #f3f4f6;
-      --border:       #e5e7eb;
-      --text:         #111827;
-      --text-soft:    #6b7280;
+      --border:       #E5E7EB;
+      --text:         #0F172A;
+      --text-soft:    #64748B;
     }
 
     body {
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-      background: #f0f4f1;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #F8FAFC;
       color: var(--text);
       min-height: 100vh;
       line-height: 1.55;
@@ -35,13 +38,14 @@
 
     /* ── HEADER ── */
     header {
-      background: var(--green);
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
       color: #fff;
-      padding: 2.5rem 1.5rem 2rem;
+      padding: 2.75rem 1.5rem 2.25rem;
       text-align: center;
+      box-shadow: 0 4px 24px rgba(79,70,229,0.25);
     }
-    header h1 { font-size: clamp(1.5rem, 4vw, 2.25rem); font-weight: 800; letter-spacing: -0.5px; }
-    header p  { opacity: .8; font-size: .95rem; margin-top: .4rem; }
+    header h1 { font-size: clamp(1.5rem, 4vw, 2.25rem); font-weight: 800; letter-spacing: -0.75px; }
+    header p  { opacity: .75; font-size: .95rem; margin-top: .45rem; font-weight: 500; }
 
     /* ── LAYOUT ── */
     .container { max-width: 920px; margin: 0 auto; padding: 2rem 1rem 4rem; }
@@ -49,10 +53,11 @@
     /* ── INPUT CARD ── */
     .input-card {
       background: #fff;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 1.75rem 2rem;
-      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 20px rgba(79,70,229,.08);
       margin-bottom: 1.75rem;
+      border: 1px solid rgba(79,70,229,.1);
     }
     .input-card p { font-size: .88rem; color: var(--text-soft); margin-bottom: .9rem; }
     .input-card code { background: var(--gray-light); padding: .1em .4em; border-radius: 4px; font-size: .85em; }
@@ -180,26 +185,27 @@
       display: flex;
       align-items: center;
       gap: .5rem;
+      letter-spacing: -.2px;
     }
 
     /* ── COMPANY HEADER ── */
     .company-card {
       background: #fff;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 1.4rem 1.75rem;
-      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
       margin-bottom: 1.75rem;
       border-left: 5px solid var(--green);
     }
-    .company-card h2 { font-size: 1.35rem; color: var(--green); font-weight: 700; }
+    .company-card h2 { font-size: 1.35rem; color: var(--green); font-weight: 700; letter-spacing: -.3px; }
     .company-card p  { font-size: .86rem; color: var(--text-soft); margin-top: .3rem; }
 
     /* ── SCORECARD ── */
     .scorecard-wrap {
       background: #fff;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 1.5rem 1.75rem;
-      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
       margin-bottom: 1.5rem;
     }
     .criterion {
@@ -212,8 +218,8 @@
       border: 1.5px solid transparent;
     }
     .criterion:last-child { margin-bottom: 0; }
-    .criterion.pass { background: var(--green-ghost); border-color: #74c69d; }
-    .criterion.fail { background: var(--red-pale);   border-color: #f4978e; }
+    .criterion.pass { background: var(--green-ghost); border-color: #a5b4fc; }
+    .criterion.fail { background: var(--red-pale);   border-color: #fca5a5; }
     .criterion.unknown { background: var(--gray-light); border-color: var(--border); }
 
     .c-icon { font-size: 1.35rem; line-height: 1; flex-shrink: 0; padding-top: .05rem; }
@@ -231,16 +237,16 @@
       margin-bottom: 1.75rem;
       box-shadow: 0 2px 14px rgba(0,0,0,.07);
     }
-    .verdict.success { background: var(--green-pale); color: var(--green); border: 2.5px solid var(--green-light); }
-    .verdict.fail    { background: var(--red-pale);   color: var(--red);   border: 2.5px solid #f4978e; }
+    .verdict.success { background: var(--green-pale); color: var(--green); border: 2.5px solid var(--green-light); box-shadow: 0 0 0 4px rgba(79,70,229,0.08), 0 2px 14px rgba(0,0,0,.07); }
+    .verdict.fail    { background: var(--red-pale);   color: var(--red);   border: 2.5px solid #fca5a5; }
     .verdict .v-sub  { font-size: .88rem; font-weight: 500; margin-top: .5rem; opacity: .9; }
 
     /* ── CHART ── */
     .chart-card {
       background: #fff;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 1.5rem 1.75rem 1.25rem;
-      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
       margin-bottom: 2rem;
     }
     .chart-card h3 { font-size: .95rem; font-weight: 700; color: var(--text-soft); margin-bottom: 1rem; }
@@ -251,8 +257,8 @@
       color: var(--text-soft);
       margin-bottom: 1.25rem;
       background: var(--green-ghost);
-      border-radius: 9px;
-      padding: .75rem 1rem;
+      border-radius: 10px;
+      padding: .8rem 1rem;
       border-left: 4px solid var(--green-light);
     }
 
@@ -268,16 +274,16 @@
 
     .future-card {
       background: #fff;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 1.5rem;
-      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
       border-top: 4px solid var(--green-mid);
       display: flex;
       flex-direction: column;
     }
     .future-card.highlighted {
-      border-top-color: #d97706;
-      box-shadow: 0 0 0 2px #d9770622, 0 4px 20px rgba(0,0,0,.12);
+      border-top-color: #D97706;
+      box-shadow: 0 0 0 2px #d9770618, 0 4px 24px rgba(0,0,0,.12);
     }
     .future-card.highlighted h3 { color: #92400e; }
     .phase-badge {
@@ -291,9 +297,9 @@
       margin-bottom: .7rem;
       width: fit-content;
     }
-    .phase-badge.race    { background: #fef3c7; color: #92400e; }
-    .phase-badge.locked  { background: #e0f2fe; color: #075985; }
-    .phase-badge.announce{ background: var(--green-pale); color: var(--green); }
+    .phase-badge.race    { background: #FEF3C7; color: #92400E; }
+    .phase-badge.locked  { background: #E0F2FE; color: #075985; }
+    .phase-badge.announce{ background: #D1FAE5; color: #065F46; }
     .phase-timeline {
       display: flex;
       align-items: center;
@@ -376,7 +382,7 @@
       margin-top: 1rem;
       align-self: flex-start;
     }
-    .tag-green  { background: var(--green-pale);  color: var(--green); }
+    .tag-green  { background: #D1FAE5; color: #065F46; }
     .tag-yellow { background: var(--yellow-pale); color: var(--yellow); }
     .tag-red    { background: var(--red-pale);    color: var(--red); }
 
@@ -384,11 +390,11 @@
     #holdingCard {
       display: none;
       background: #fff;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 1.75rem 2rem;
-      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
       margin-bottom: 1.75rem;
-      border-top: 4px solid #b45309;
+      border-top: 4px solid #B45309;
     }
     #holdingCard .holding-icon { font-size: 2rem; margin-bottom: .5rem; }
     #holdingCard h3 {
@@ -437,8 +443,8 @@
     .related-companies li strong { flex: 1; min-width: 160px; }
     .related-type {
       font-size: .78rem;
-      background: var(--green-pale);
-      color: var(--green);
+      background: #D1FAE5;
+      color: #065F46;
       border-radius: 5px;
       padding: .15em .5em;
       font-weight: 600;
@@ -461,9 +467,9 @@
     #manualCard {
       display: none;
       background: #fff;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 1.75rem 2rem;
-      box-shadow: 0 2px 14px rgba(0,0,0,.07);
+      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
       margin-bottom: 1.75rem;
       border-top: 4px solid var(--yellow);
     }
@@ -547,7 +553,7 @@
 <body>
 
 <header>
-  <h1>🦌 Børsen Gazelle Checker</h1>
+  <h1>Børsen Gazelle Checker</h1>
   <p>Tjek din virksomheds Gazelle-potentiale — og se hvad der kræves de næste 3 år</p>
 </header>
 
@@ -560,7 +566,7 @@
       <input type="text" id="cvrInput"
              placeholder="CVR-nummer eller virkdata.dk URL…"
              autocomplete="off" autocorrect="off" spellcheck="false" />
-      <button class="btn-check" id="checkBtn" onclick="checkGazelle()">Tjek Gazelle 🦌</button>
+      <button class="btn-check" id="checkBtn" onclick="checkGazelle()">Tjek Gazelle</button>
     </div>
   </div>
 
@@ -597,7 +603,7 @@
       </thead>
       <tbody id="manualRows"></tbody>
     </table>
-    <button class="btn-calc" onclick="calcWithManual()">Beregn Gazelle 🦌</button>
+    <button class="btn-calc" onclick="calcWithManual()">Beregn Gazelle</button>
   </div>
 
   <!-- COMPANY CARD (shown as soon as CVR is resolved) -->
@@ -1343,7 +1349,7 @@ function renderScorecard(checks) {
   const vEl = document.getElementById('verdictEl');
   if (allPass) {
     vEl.className = 'verdict success';
-    vEl.innerHTML = '🦌 Potentiel Gazelle!<div class="v-sub">Alle 5 kriterier er opfyldt — virksomheden kvalificerer til Børsen Gazelle</div>';
+    vEl.innerHTML = 'Potentiel Gazelle!<div class="v-sub">Alle 5 kriterier er opfyldt — virksomheden kvalificerer til Børsen Gazelle</div>';
   } else {
     vEl.className = 'verdict fail';
     vEl.innerHTML = '❌ Ikke Gazelle endnu' +
@@ -1400,7 +1406,7 @@ function gazellePhase() {
       accountYear: year,
       deadline: `1. sep ${year + 1}`,
       announcement: `nov/dec ${year + 1}`,
-      title: `🦌 Gazelleudmelding — planlæg vejen til ${year + 1}`,
+      title: `Gazelleudmelding — planlæg vejen til ${year + 1}`,
       intro: `Gazelleudmeldingen for ${year} er netop sket. ` +
              `Nu handler det om at sætte sig op til Gazelle ${year + 1} ` +
              `(regnskabsfrist: 1. sep ${year + 1}, udmelding: nov/dec ${year + 1}).`,
@@ -1503,7 +1509,7 @@ function renderFuturePlan(plans, top4) {
       const badges = {
         race:     `<div class="phase-badge race">📍 Du er her — deadline 1. sep</div>`,
         locked:   `<div class="phase-badge locked">🔒 Regnskab indleveret</div>`,
-        announce: `<div class="phase-badge announce">🦌 Næste Gazelle-mål</div>`,
+        announce: `<div class="phase-badge announce">Næste Gazelle-mål</div>`,
       };
       badgeHtml = badges[phase.phase] || '';
     }
@@ -1553,8 +1559,8 @@ function renderChart(top4, plans) {
         {
           label: 'Historisk bruttoresultat',
           data: histFull,
-          backgroundColor: '#2d6a4f',
-          borderColor:     '#2d6a4f',
+          backgroundColor: '#4F46E5',
+          borderColor:     '#4F46E5',
           borderWidth: 1,
           borderRadius: 6,
           borderSkipped: false,
@@ -1562,8 +1568,8 @@ function renderChart(top4, plans) {
         {
           label: 'Min. krævet (projektion)',
           data: projFull,
-          backgroundColor: 'rgba(82,183,136,0.28)',
-          borderColor:     '#40916c',
+          backgroundColor: 'rgba(16,185,129,0.22)',
+          borderColor:     '#10B981',
           borderWidth: 2,
           borderRadius: 6,
           borderSkipped: false,
