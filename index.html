@@ -96,19 +96,63 @@
     .spinner-wrap {
       display: none;
       text-align: center;
-      padding: 3.5rem 1rem;
+      padding: 2.5rem 1rem 3rem;
       color: var(--text-soft);
       font-size: .95rem;
     }
     .spinner {
-      width: 46px; height: 46px;
+      width: 42px; height: 42px;
       border: 4px solid var(--green-pale);
       border-top-color: var(--green);
       border-radius: 50%;
       animation: spin .75s linear infinite;
-      margin: 0 auto 1rem;
+      margin: 0 auto .9rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── LOAD STEPS ── */
+    .load-steps {
+      list-style: none;
+      text-align: left;
+      max-width: 360px;
+      margin: 1.2rem auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+    }
+    .load-step {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      font-size: .86rem;
+      color: #b0b7c3;
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: opacity .2s ease, transform .2s ease, color .2s ease;
+    }
+    .load-step.visible  { opacity: 1; transform: none; }
+    .load-step.done     { color: var(--text); }
+    .load-step.ls-error { color: var(--red); }
+    .ls-icon {
+      width: 20px; height: 20px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem;
+    }
+    .load-step.pending  .ls-icon::after { content: '○'; color: #d1d5db; }
+    .load-step.running  .ls-icon { position: relative; }
+    .load-step.running  .ls-icon::after {
+      content: '';
+      display: inline-block;
+      width: 13px; height: 13px;
+      border: 2px solid var(--green-pale);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin .55s linear infinite;
+    }
+    .load-step.done     .ls-icon::after { content: '✓'; color: var(--green); font-weight: 700; font-size: .9rem; }
+    .load-step.ls-error .ls-icon::after { content: '✗'; color: var(--red); font-weight: 700; }
+    .ls-detail { color: var(--text-soft); font-size: .78rem; margin-left: .2rem; }
 
     /* ── ERROR ── */
     .error-box {
@@ -231,6 +275,64 @@
       display: flex;
       flex-direction: column;
     }
+    .future-card.highlighted {
+      border-top-color: #d97706;
+      box-shadow: 0 0 0 2px #d9770622, 0 4px 20px rgba(0,0,0,.12);
+    }
+    .future-card.highlighted h3 { color: #92400e; }
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .74rem;
+      font-weight: 700;
+      padding: .28rem .65rem;
+      border-radius: 20px;
+      margin-bottom: .7rem;
+      width: fit-content;
+    }
+    .phase-badge.race    { background: #fef3c7; color: #92400e; }
+    .phase-badge.locked  { background: #e0f2fe; color: #075985; }
+    .phase-badge.announce{ background: var(--green-pale); color: var(--green); }
+    .phase-timeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      font-size: .75rem;
+      color: var(--text-soft);
+      margin-bottom: 1.25rem;
+      overflow-x: auto;
+      padding: .1rem 0;
+    }
+    .pt-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .2rem;
+      min-width: 70px;
+    }
+    .pt-node .pt-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+      border: 2px solid var(--border);
+    }
+    .pt-node.active .pt-dot {
+      background: #d97706;
+      border-color: #d97706;
+      box-shadow: 0 0 0 3px #d9770625;
+    }
+    .pt-node.done .pt-dot { background: var(--green); border-color: var(--green); }
+    .pt-node .pt-label { text-align: center; line-height: 1.3; white-space: nowrap; }
+    .pt-line {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+      min-width: 20px;
+      align-self: flex-start;
+      margin-top: 4px;
+    }
+    .pt-line.done-line { background: var(--green); }
     .future-card h3 {
       font-size: .95rem;
       font-weight: 700;
@@ -465,8 +567,8 @@
   <!-- SPINNER -->
   <div class="spinner-wrap" id="spinnerWrap">
     <div class="spinner"></div>
-    <div>Henter virksomhedsdata…</div>
-    <div id="spinnerStatus" style="font-size:.8rem;color:#9ca3af;margin-top:.25rem;"></div>
+    <div id="spinnerHeadline" style="font-weight:600;margin-bottom:.2rem">Analyserer virksomhed…</div>
+    <ul class="load-steps" id="loadSteps"></ul>
   </div>
 
   <!-- ERROR -->
@@ -513,11 +615,9 @@
       <canvas id="growthChart"></canvas>
     </div>
 
-    <h2 class="section-title">🔭 Del 2 — Fremtidig Gazelle Plan (1–3 år)</h2>
-    <div class="future-intro">
-      Konservativt scenarie: ukendte mellemliggende år antages fladt (foregående år + 1 kr.).
-      Det viser det ærlige bundskøn — hvad <em>skal</em> du minimum ramme for at kvalificere.
-    </div>
+    <h2 class="section-title" id="del2Title">🔭 Del 2 — Fremtidig Gazelle Plan</h2>
+    <div class="phase-timeline" id="phaseTimeline"></div>
+    <div class="future-intro" id="futureIntro"></div>
     <div class="future-grid" id="futureGrid"></div>
 
   </div>
@@ -575,10 +675,68 @@ function fmtPct(p) {
   return (p >= 0 ? '+' : '') + p.toFixed(1).replace('.', ',') + '%';
 }
 
-function setStatus(msg) {
-  const el = document.getElementById('spinnerStatus');
-  if (el) el.textContent = msg;
+// ─────────────────────────────────────────────
+//  STEP-BY-STEP LOADING ANIMATION
+// ─────────────────────────────────────────────
+const LOAD_STEPS = [
+  { id: 'cvr',      label: 'Verificerer CVR-nummer'          },
+  { id: 'company',  label: 'Henter virksomhedsdata'          },
+  { id: 'holding',  label: 'Kontrollerer selskabstype'       },
+  { id: 'slug',     label: 'Finder regnskabsside'            },
+  { id: 'finances', label: 'Henter regnskabstal'             },
+  { id: 'analyse',  label: 'Analyserer regnskabsår'          },
+  { id: 'gazelle',  label: 'Beregner Gazelle-kriterier'      },
+];
+
+function initLoadSteps() {
+  const ul = document.getElementById('loadSteps');
+  if (!ul) return;
+  ul.innerHTML = '';
+  LOAD_STEPS.forEach(s => {
+    const li = document.createElement('li');
+    li.id = 'ls-' + s.id;
+    li.className = 'load-step pending';
+    li.innerHTML = `<span class="ls-icon"></span><span class="ls-text">${s.label}</span>`;
+    ul.appendChild(li);
+  });
+  // Reveal all steps with staggered fade-in
+  LOAD_STEPS.forEach((s, i) => {
+    setTimeout(() => {
+      const el = document.getElementById('ls-' + s.id);
+      if (el) el.classList.add('visible');
+    }, i * 60);
+  });
 }
+
+function stepRun(id) {
+  const el = document.getElementById('ls-' + id);
+  if (!el) return;
+  el.className = 'load-step visible running';
+}
+
+function stepDone(id, detail) {
+  const el = document.getElementById('ls-' + id);
+  if (!el) return;
+  el.className = 'load-step visible done';
+  if (detail) {
+    let det = el.querySelector('.ls-detail');
+    if (!det) {
+      det = document.createElement('span');
+      det.className = 'ls-detail';
+      el.appendChild(det);
+    }
+    det.textContent = detail;
+  }
+}
+
+function stepErr(id) {
+  const el = document.getElementById('ls-' + id);
+  if (!el) return;
+  el.className = 'load-step visible ls-error';
+}
+
+// Legacy no-op (kept for safety)
+function setStatus() {}
 
 function showErr(msg) {
   const b = document.getElementById('errorBox');
@@ -714,47 +872,74 @@ async function checkGazelle() {
   document.getElementById('holdingCard').style.display = 'none';
   document.getElementById('spinnerWrap').style.display = 'block';
   document.getElementById('checkBtn').disabled = true;
+  initLoadSteps();
 
   try {
-    // ── STEP 1: Company info — cvrapi.dk has CORS, fetch directly ───────
-    setStatus('Henter virksomhedsdata…');
+    // ── STEP 1: CVR validated ─────────────────────────────────────────────
+    stepRun('cvr');
+    await new Promise(r => setTimeout(r, 120)); // brief pause so animation registers
+    stepDone('cvr', cvr);
+
+    // ── STEP 2: Company info ──────────────────────────────────────────────
+    stepRun('company');
     let cvrData;
     try {
       cvrData = await fetchCVR(cvr);
     } catch (e) {
+      stepErr('company');
       throw new Error('Kunne ikke hente virksomhedsdata: ' + e.message);
     }
-    if (cvrData.error) throw new Error('CVR ikke fundet: ' + cvrData.error);
-    if (!cvrData.name) throw new Error('Virksomhed ikke fundet for CVR ' + cvr);
+    if (cvrData.error) { stepErr('company'); throw new Error('CVR ikke fundet: ' + cvrData.error); }
+    if (!cvrData.name) { stepErr('company'); throw new Error('Virksomhed ikke fundet for CVR ' + cvr); }
     _cvrData = cvrData;
-
-    // Show company card immediately
+    stepDone('company', cvrData.name);
     renderCompanyCard(cvrData, cvr);
 
-    // ── HOLDING CHECK: reject holding companies early ─────────────────────
+    // ── STEP 3: Holding check ─────────────────────────────────────────────
+    stepRun('holding');
+    await new Promise(r => setTimeout(r, 180));
     if (isHoldingCompany(cvrData)) {
-      setStatus('Søger efter tilknyttede driftsselskaber…');
+      stepErr('holding');
       const related = await searchRelatedCompanies(cvrData.name);
       showHoldingCard(cvrData, related);
       return;
     }
+    stepDone('holding', cvrData.companydesc || cvrData.companytype || '');
 
-    // ── STEP 2: Financial data — try proxies ─────────────────────────────
+    // ── STEP 4: Slug / URL resolution ─────────────────────────────────────
+    stepRun('slug');
+    const slug = extractSlug(raw) || generateVirkdataSlug(cvrData.name);
+    await new Promise(r => setTimeout(r, 100));
+    stepDone('slug', `…/${cvr}/${slug}`);
+
+    // ── STEP 5: Financial data ────────────────────────────────────────────
+    stepRun('finances');
     let financials = null;
     try {
-      const slug = extractSlug(raw) || generateVirkdataSlug(cvrData.name);
       const virkBody = await fetchVirkdata(cvr, slug);
       financials = parseFinancials(virkBody, cvr);
+      stepDone('finances', financials.length ? `${financials.length} regnskabsår fundet` : 'ingen data');
     } catch (e) {
+      stepErr('finances');
       console.warn('Alle proxies fejlede:', e.message);
     }
 
-    // ── STEP 3: If auto-fetch worked, render. If not, show manual form. ──
+    // ── STEP 6 + 7: Analyse & Gazelle ────────────────────────────────────
     if (financials && financials.length >= 2) {
+      stepRun('analyse');
       financials.sort((a, b) => b.year - a.year);
+      await new Promise(r => setTimeout(r, 220));
+      stepDone('analyse', `${financials.slice(0,4).map(f=>f.year).join(', ')}`);
+
+      stepRun('gazelle');
+      await new Promise(r => setTimeout(r, 280));
+      stepDone('gazelle');
+
+      await new Promise(r => setTimeout(r, 150)); // let final tick show
       renderAll(cvrData, financials.slice(0, 4));
     } else {
-      // Show manual entry form
+      stepErr('analyse');
+      stepErr('gazelle');
       showManualCard(cvr, cvrData.name);
     }
 
@@ -763,7 +948,6 @@ async function checkGazelle() {
   } finally {
     document.getElementById('spinnerWrap').style.display = 'none';
     document.getElementById('checkBtn').disabled = false;
-    setStatus('');
   }
 }
 
@@ -774,18 +958,20 @@ function isHoldingCompany(cvrData) {
   const code = (cvrData.industrycode || '').toString().trim();
   const desc = (cvrData.industrydesc || '').toLowerCase();
   const name = (cvrData.name || '').toLowerCase();
-  if (/^642[01]/.test(code)) return true;
+  if (/^642[01]/.test(code)) return true;           // 6420xx / 6421xx = holdingselskab
   if (desc.includes('holding')) return true;
   if (/\bholding\b/.test(name)) return true;
   return false;
 }
 
 async function searchRelatedCompanies(holdingName) {
+  // Strip "Holding", "Group", "Invest", "A/S", "ApS" to get core search term
   const core = holdingName
     .replace(/\s+(holding|group|invest)\s*(a\/s|aps)?$/gi, '')
     .replace(/\s+(a\/s|aps)$/gi, '')
     .trim();
   if (!core || core.length < 3) return [];
+
   try {
     const resp = await fetch(
       `https://cvrapi.dk/api?country=dk&search=${encodeURIComponent(core)}`
@@ -804,12 +990,15 @@ async function searchRelatedCompanies(holdingName) {
         !c.enddate
       )
       .slice(0, 4);
-  } catch (e) { return []; }
+  } catch (e) {
+    return [];
+  }
 }
 
 function showHoldingCard(cvrData, related) {
   const card = document.getElementById('holdingCard');
   const name = cvrData.name || 'Virksomheden';
+
   let relatedHtml = '';
   if (related && related.length > 0) {
     const items = related.map(c => {
@@ -831,7 +1020,9 @@ function showHoldingCard(cvrData, related) {
       Ingen tilknyttede driftsselskaber fundet automatisk — søg manuelt på
       <a href="https://virkdata.dk" target="_blank" style="color:var(--green);font-weight:600">virkdata.dk</a>.
     </p>`;
+  card.innerHTML = `
   }
+
   card.innerHTML = `
     <div class="holding-icon">🏢</div>
     <h3>${name}</h3>
@@ -1073,7 +1264,7 @@ function buildChecks(cvrData, top4) {
   if (!enoughData) {
     const na = { pass: false, numbers: 'Ikke nok data', explain: 'Kræver mindst 4 regnskabsår' };
     checks.push({ ...na, name: 'Positiv vækst hvert år' });
-    checks.push({ ...na, name: 'Samlet vækst >= 100%' });
+    checks.push({ ...na, name: 'Samlet vækst ≥ 100%' });
     checks.push({ ...na, name: 'Samlet driftsresultat positivt' });
     return checks;
   }
@@ -1164,6 +1355,60 @@ function renderScorecard(checks) {
 // ─────────────────────────────────────────────
 //  FUTURE PLAN
 // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+//  GAZELLE SEASON — date-based phase logic
+// ─────────────────────────────────────────────
+function gazellePhase() {
+  const now   = new Date();
+  const month = now.getMonth() + 1;  // 1–12
+  const year  = now.getFullYear();
+
+  if (month <= 8) {
+    // Jan–Aug: race to submit before Sep 1
+    // Gazelle announcement: Nov/Dec this year based on last year's accounts
+    return {
+      phase: 'race',
+      currentYear: year,
+      gazelleYear: year,          // announcement THIS year
+      accountYear: year - 1,      // accounts being evaluated (e.g. 2025 in 2026)
+      deadline: `1. sep ${year}`,
+      announcement: `nov/dec ${year}`,
+      title: `📍 Her er du — og det her kræves i år`,
+      intro: `Regnskabet for ${year - 1} skal indleveres senest <strong>1. september ${year}</strong> ` +
+             `for at tælle med i årets Gazelle-vurdering (udmelding: nov/dec ${year}). ` +
+             `Du kan stadig nå det — her er minimumsgrænsen for hvert scenarie.`,
+    };
+  } else if (month <= 11) {
+    // Sep–Nov: this year's deadline passed, Gazelle announcement imminent
+    return {
+      phase: 'locked',
+      currentYear: year,
+      gazelleYear: year,
+      accountYear: year - 1,
+      deadline: `1. sep ${year}`,
+      announcement: `nov/dec ${year}`,
+      title: `🔒 Årsregnskab indleveret — Gazelleudmeldingen nærmer sig`,
+      intro: `Regnskabsfristen for ${year - 1} er passeret (1. sep ${year}). ` +
+             `Gazelleudmeldingen forventes <strong>nov/dec ${year}</strong>. ` +
+             `Herunder ser du hvad der kræves for kommende år — start planlægningen nu.`,
+    };
+  } else {
+    // Dec: announcement period / new year planning
+    return {
+      phase: 'announce',
+      currentYear: year,
+      gazelleYear: year + 1,
+      accountYear: year,
+      deadline: `1. sep ${year + 1}`,
+      announcement: `nov/dec ${year + 1}`,
+      title: `🦌 Gazelleudmelding — planlæg vejen til ${year + 1}`,
+      intro: `Gazelleudmeldingen for ${year} er netop sket. ` +
+             `Nu handler det om at sætte sig op til Gazelle ${year + 1} ` +
+             `(regnskabsfrist: 1. sep ${year + 1}, udmelding: nov/dec ${year + 1}).`,
+    };
+  }
+}
+
 function buildFuturePlan(top4) {
   const knownGross = {}, knownDrift = {};
   top4.forEach(d => {
@@ -1189,53 +1434,85 @@ function buildFuturePlan(top4) {
       }
     }
 
-    const priorGross = projGross[targetYear - 1];
-    const firstGross = projGross[wStart];
+    const priorGross      = projGross[targetYear - 1];
+    const firstGross      = projGross[wStart];
     const mustExceedPrior = priorGross + 1;
     const mustDouble      = firstGross * 2;
     const minRequired     = Math.max(mustExceedPrior, mustDouble);
-    const reqGrowth = mostRecentGross > 0 ? (minRequired / mostRecentGross - 1) * 100 : 0;
-    const tag = reqGrowth < 50 ? 'green' : reqGrowth <= 150 ? 'yellow' : 'red';
+    const reqGrowth       = mostRecentGross > 0 ? (minRequired / mostRecentGross - 1) * 100 : 0;
+    const tag             = reqGrowth < 50 ? 'green' : reqGrowth <= 150 ? 'yellow' : 'red';
 
     let knownDriftSum = 0, knownDriftCount = 0;
     for (let y = wStart; y < targetYear; y++) {
-      if (knownDrift[y] !== undefined) {
-        knownDriftSum += knownDrift[y];
-        knownDriftCount++;
-      }
+      if (knownDrift[y] !== undefined) { knownDriftSum += knownDrift[y]; knownDriftCount++; }
     }
-    const driftOnTrack = knownDriftSum > 0;
 
     plans.push({
       year: targetYear, minRequired, reqGrowth, tag,
       wStart, priorGross, firstGross,
-      knownDriftSum, knownDriftCount, driftOnTrack,
+      knownDriftSum, knownDriftCount, driftOnTrack: knownDriftSum > 0,
     });
   }
-
   return plans;
 }
 
 function renderFuturePlan(plans, top4) {
-  const grid = document.getElementById('futureGrid');
-  grid.innerHTML = '';
+  const phase  = gazellePhase();
+  const grid   = document.getElementById('futureGrid');
+  const intro  = document.getElementById('futureIntro');
+  const title  = document.getElementById('del2Title');
+  const tl     = document.getElementById('phaseTimeline');
 
+  // Update title & intro
+  if (title) title.textContent = phase.title;
+  if (intro) intro.innerHTML   = phase.intro;
+
+  // Build phase timeline
+  if (tl) {
+    const now   = new Date();
+    const month = now.getMonth() + 1;
+    const nodes = [
+      { label: 'Jan',    done: true },
+      { label: `1. sep\n${phase.currentYear}`, active: month <= 8, done: month > 8 },
+      { label: `Nov/dec\n${phase.gazelleYear}`, active: month > 8 && month <= 11, done: month === 12 },
+      { label: `${phase.gazelleYear + 1}`, active: month === 12 },
+    ];
+    tl.innerHTML = nodes.map((n, i) => {
+      const dotCls = n.active ? 'active' : n.done ? 'done' : '';
+      const lineCls = i < nodes.length - 1 ? (n.done ? 'done-line' : '') : '';
+      return `<div class="pt-node ${dotCls}">
+        <div class="pt-dot"></div>
+        <div class="pt-label">${n.label.replace('\n','<br>')}</div>
+      </div>${i < nodes.length - 1 ? `<div class="pt-line ${lineCls}"></div>` : ''}`;
+    }).join('');
+  }
+
+  // Render plan cards
+  grid.innerHTML = '';
   plans.forEach(p => {
+    const isHighlighted = p.year === phase.gazelleYear;
     const tagLabel = { green: 'På rette spor 🟢', yellow: 'Kræver indsats 🟡', red: 'Meget ambitiøst 🔴' }[p.tag];
     const tagClass = { green: 'tag-green', yellow: 'tag-yellow', red: 'tag-red' }[p.tag];
 
     let driftTxt;
-    if (p.knownDriftCount === 0) {
-      driftTxt = 'Ingen kendte data i vinduet';
-    } else if (p.driftOnTrack) {
-      driftTxt = `Nuværende sum: ${fmtDKK(p.knownDriftSum)} — positiv`;
-    } else {
-      driftTxt = `Nuværende sum: ${fmtDKK(p.knownDriftSum)} — mangler ${fmtDKK(-p.knownDriftSum)}`;
+    if (p.knownDriftCount === 0)    driftTxt = 'Ingen kendte data i vinduet';
+    else if (p.driftOnTrack)        driftTxt = `${fmtDKK(p.knownDriftSum)} — positiv ✅`;
+    else                            driftTxt = `${fmtDKK(p.knownDriftSum)} — mangler ${fmtDKK(-p.knownDriftSum)}`;
+
+    let badgeHtml = '';
+    if (isHighlighted) {
+      const badges = {
+        race:     `<div class="phase-badge race">📍 Du er her — deadline 1. sep</div>`,
+        locked:   `<div class="phase-badge locked">🔒 Regnskab indleveret</div>`,
+        announce: `<div class="phase-badge announce">🦌 Næste Gazelle-mål</div>`,
+      };
+      badgeHtml = badges[phase.phase] || '';
     }
 
     const card = document.createElement('div');
-    card.className = 'future-card';
+    card.className = 'future-card' + (isHighlighted ? ' highlighted' : '');
     card.innerHTML =
+      badgeHtml +
       `<h3>Gazelle i ${p.year}</h3>` +
       `<div class="f-amount">${fmtDKK(p.minRequired)}</div>` +
       `<div class="f-label">Minimum bruttoresultat</div>` +
@@ -1244,7 +1521,7 @@ function renderFuturePlan(plans, top4) {
         `<div class="f-metric"><span class="fm-label">4-årsvindue starter</span><span class="fm-value">${p.wStart}</span></div>` +
         `<div class="f-metric"><span class="fm-label">Vinduets første år</span><span class="fm-value">${fmtDKK(p.firstGross)}</span></div>` +
         `<div class="f-metric"><span class="fm-label">Forudgående år (min)</span><span class="fm-value">${fmtDKK(p.priorGross)}</span></div>` +
-        `<div class="f-metric"><span class="fm-label">Driftsresultat (kendte år)</span><span class="fm-value" style="font-size:.77rem">${driftTxt}</span></div>` +
+        `<div class="f-metric"><span class="fm-label">Samlet driftsresultat</span><span class="fm-value" style="font-size:.77rem">${driftTxt}</span></div>` +
       `</div>` +
       `<span class="tag ${tagClass}">${tagLabel}</span>`;
     grid.appendChild(card);
