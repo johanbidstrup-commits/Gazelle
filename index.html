@@ -206,37 +206,8 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 }
 
 /* ── LOAD STEPS ── */
-#loadSteps {
-  display: none;
-  background: var(--surface);
-  border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.08);
-  padding: 1.5rem 2rem;
-  margin-bottom: 1.5rem;
-}
-.step-list { list-style: none; }
-.step-list li {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  padding: .5rem 0;
-  font-size: .9rem;
-  color: var(--text-soft);
-  border-bottom: 1px solid var(--border);
-  transition: color .2s;
-}
-.step-list li:last-child { border-bottom: none; }
-.step-list li.done { color: var(--text); }
-.step-list li.err { color: var(--red); }
-.step-icon { font-size: 1rem; width: 1.4rem; text-align: center; flex-shrink: 0; }
-.step-spinner {
-  width: 16px; height: 16px;
-  border: 2px solid var(--border);
-  border-top-color: var(--green);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  flex-shrink: 0;
-}
+/* loadSteps hidden — terminal handles progress visually */
+#loadSteps { display: none !important; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── TERMINAL ── */
@@ -244,14 +215,15 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   display: none;
   background: #0D1117;
   border-radius: 12px;
-  padding: 1rem 1.25rem;
+  padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
   font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
-  font-size: .78rem;
+  font-size: .8rem;
   color: #C9D1D9;
-  max-height: 280px;
+  min-height: 260px;
+  max-height: 420px;
   overflow-y: auto;
-  line-height: 1.6;
+  line-height: 1.75;
 }
 #termBox .t-ok   { color: #3FB950; }
 #termBox .t-err  { color: #F85149; }
@@ -263,15 +235,15 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 /* ── COMPANY CARD ── */
 #companyCard {
   display: none;
-  background: var(--surface);
+  background: #1E293B;
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.08);
-  padding: 1.5rem 2rem;
-  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 1.25rem 1.75rem;
+  margin-bottom: 1.25rem;
 }
-.company-name { font-size: 1.25rem; font-weight: 800; margin-bottom: .25rem; }
-.company-meta { font-size: .85rem; color: var(--text-soft); }
-.company-meta span { margin-right: 1rem; }
+.company-name { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: .3rem; }
+.company-meta { font-size: .82rem; color: rgba(255,255,255,0.5); display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
+.company-meta span { white-space: nowrap; }
 
 /* ── HOLDING CARD ── */
 #holdingCard {
@@ -360,21 +332,22 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   margin-bottom: 1.5rem;
 }
 .btn-reveal {
-  background: transparent;
-  color: var(--green);
-  border: 2px solid var(--green);
+  background: #7C3AED;
+  color: #fff;
+  border: none;
   border-radius: 12px;
-  padding: 1rem 2.5rem;
-  font-size: .95rem;
+  padding: 1.1rem 2.75rem;
+  font-size: 1rem;
   font-weight: 700;
   font-family: 'SF Mono', 'Fira Code', monospace;
   letter-spacing: .08em;
   cursor: pointer;
-  transition: transform .15s, background .15s, color .15s;
+  box-shadow: 0 4px 24px rgba(124,58,237,0.45);
+  transition: transform .15s, box-shadow .15s, background .15s;
 }
 .btn-reveal::before { content: '[ '; opacity: .7; }
 .btn-reveal::after  { content: ' ]'; opacity: .7; }
-.btn-reveal:hover { background: var(--green); color: #fff; transform: translateY(-2px); }
+.btn-reveal:hover { background: #6D28D9; transform: translateY(-2px); box-shadow: 0 6px 32px rgba(124,58,237,0.6); }
 .btn-reveal:hover::before, .btn-reveal:hover::after { opacity: 1; }
 .btn-reveal:active { transform: translateY(0); }
 
@@ -444,19 +417,19 @@ footer a:hover { color: #fff; }
   <!-- ERROR BOX -->
   <div id="errorBox"></div>
 
-  <!-- LOAD STEPS -->
+  <!-- COMPANY CARD (vises øverst så snart CVR er fundet) -->
+  <div id="companyCard"></div>
+
+  <!-- HOLDING CARD -->
+  <div id="holdingCard"></div>
+
+  <!-- LOAD STEPS (skjult — terminal tager over) -->
   <div id="loadSteps">
     <ul class="step-list" id="stepList"></ul>
   </div>
 
   <!-- TERMINAL -->
   <div id="termBox"></div>
-
-  <!-- COMPANY CARD -->
-  <div id="companyCard"></div>
-
-  <!-- HOLDING CARD -->
-  <div id="holdingCard"></div>
 
   <!-- MANUAL CARD (shown when proxies fail) -->
   <div id="manualCard">
@@ -975,15 +948,25 @@ async function checkGazelle() {
     _termAppend(`CVR-fejl: ${e.message}`, 't-err');
   }
 
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+
   if (cvrData) {
     stepDone('step-cvr');
     renderCompanyCard(cvrData, cvr);
+    _termAppend(`✓ Virksomhed fundet: ${cvrData.name}`, 't-ok');
+    await delay(400);
+    _termAppend(`  Type: ${cvrData.companytype || cvrData.companydesc || 'Ukendt'}`, 't-dim');
+    await delay(300);
+    _termAppend(`  Branche: ${cvrData.industrydesc || '—'}`, 't-dim');
+    await delay(300);
 
-    // Check for holding company
     if (isHoldingCompany(cvrData)) {
+      _termAppend('⚠ Holdingselskab detekteret — stopper analyse', 't-warn');
       const related = await searchRelatedCompanies(cvr);
       showHoldingCard(cvrData, related);
+      return;
     }
+    _termAppend('✓ Selskabstype valideret (driftsselskab)', 't-ok');
   } else {
     stepErr('step-cvr');
     _termAppend('Kunne ikke hente CVR-data — fortsætter med CVR-nummer alene', 't-warn');
@@ -991,20 +974,39 @@ async function checkGazelle() {
     _cvrData = cvrData;
   }
 
+  await delay(500);
+  _termAppend('Genererer virkdata.dk URL-slug...', 't-step');
+  const slug = generateVirkdataSlug(cvrData.name || '');
+  await delay(350);
+  _termAppend(`  → /firmaer/${cvr}/${slug}`, 't-dim');
+
   // 2. Fetch financial data
   stepRun('step-fin');
+  await delay(300);
+  _termAppend('Etablerer forbindelse til virkdata.dk...', 't-step');
+  await delay(500);
+  _termAppend('Afprøver CORS-proxy #1 (allorigins.win)...', 't-dim');
+
   let financials = null;
   try {
-    const slug = generateVirkdataSlug(cvrData.name || '');
     const virkBody = await fetchVirkdata(cvr, slug);
+    await delay(400);
+    _termAppend('✓ Regnskabsdata modtaget', 't-ok');
+    await delay(300);
+    _termAppend('Parser HTML-respons...', 't-step');
+    await delay(400);
     financials = parseFinancials(virkBody);
+    await delay(350);
+    _termAppend('Leder efter financial_summary JSON-blok...', 't-dim');
+    await delay(400);
+    _termAppend('✓ Regnskabsdata ekstraheret og normaliseret', 't-ok');
   } catch (e) {
-    _termAppend(`Regnskabsfejl: ${e.message}`, 't-err');
+    _termAppend(`✗ Alle proxier fejlede: ${e.message}`, 't-err');
   }
 
   if (!financials || financials.length < 2) {
     stepErr('step-fin');
-    _termAppend('Kunne ikke hente regnskabsdata automatisk — viser manuel indtastning', 't-warn');
+    _termAppend('⚠ Utilstrækkelige data — skifter til manuel indtastning', 't-warn');
     showManualCard(cvr, cvrData);
     return;
   }
@@ -1012,10 +1014,34 @@ async function checkGazelle() {
   stepDone('step-fin');
   financials.sort((a, b) => b.year - a.year);
   const top4 = financials.slice(0, 4);
+  await delay(300);
+  _termAppend(`  Regnskabsår fundet: ${top4.map(f => f.year).join(', ')}`, 't-dim');
 
   // 3. Calculate
   stepRun('step-calc');
-  await new Promise(r => setTimeout(r, 300)); // slight delay for UX
+  await delay(400);
+  _termAppend('Renser og validerer regnskabsdata...', 't-step');
+  await delay(500);
+  _termAppend('Beregner år-for-år vækstprocenter...', 't-step');
+  await delay(450);
+  _termAppend('Sammenligner mod Gazelle-kriterier...', 't-step');
+  await delay(400);
+  _termAppend('  Kriterium 1: Selskabstype (ApS/A/S)', 't-dim');
+  await delay(300);
+  _termAppend('  Kriterium 2: Minimum 4 regnskabsår', 't-dim');
+  await delay(300);
+  _termAppend('  Kriterium 3: Positiv vækst hvert år', 't-dim');
+  await delay(300);
+  _termAppend('  Kriterium 4: Samlet vækst ≥ 100%', 't-dim');
+  await delay(300);
+  _termAppend('  Kriterium 5: Positivt samlet driftsresultat', 't-dim');
+  await delay(500);
+  _termAppend('Analyserer fremtidige Gazelle-krav (2026–2028)...', 't-step');
+  await delay(500);
+  _termAppend('Beregner minimumsvækst pr. fremtidigt scenarie...', 't-dim');
+  await delay(450);
+  _termAppend('✓ Analyse fuldført — resultat klar', 't-ok');
+  await delay(300);
   stepDone('step-calc');
 
   renderAll(cvrData, top4);
