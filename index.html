@@ -1,1845 +1,1071 @@
 <!DOCTYPE html>
 <html lang="da">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Børsen Gazelle Checker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Børsen Gazelle Checker — Tjek dit CVR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #4F46E5;
+  --green-mid: #4338CA;
+  --green-dark: #3730A3;
+  --green-ghost: #EEF2FF;
+  --red: #EF4444;
+  --red-ghost: #FEF2F2;
+  --amber: #F59E0B;
+  --amber-ghost: #FFFBEB;
+  --text: #0F172A;
+  --text-soft: #64748B;
+  --border: #E2E8F0;
+  --surface: #fff;
+  --bg: #F8FAFC;
+}
+body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text); min-height: 100vh; }
 
-    :root {
-      --green:        #4F46E5;
-      --green-mid:    #4338CA;
-      --green-light:  #818CF8;
-      --green-pale:   #EEF2FF;
-      --green-ghost:  #F5F3FF;
-      --red:          #DC2626;
-      --red-pale:     #FEE2E2;
-      --yellow:       #D97706;
-      --yellow-pale:  #FEF3C7;
-      --gray:         #6b7280;
-      --gray-light:   #f3f4f6;
-      --border:       #E5E7EB;
-      --text:         #0F172A;
-      --text-soft:    #64748B;
-    }
+/* ── NAV ── */
+.site-nav {
+  background: #0F172A;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-inner {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  height: 54px;
+  gap: 1.5rem;
+}
+.nav-logo {
+  font-weight: 800;
+  font-size: .85rem;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.nav-logo span { display: block; color: rgba(255,255,255,0.5); }
+.nav-links {
+  display: flex;
+  gap: 0;
+  flex: 1;
+  overflow-x: auto;
+}
+.nav-links a {
+  font-size: .75rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  padding: .4rem .75rem;
+  border-radius: 7px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  transition: color .15s, background .15s;
+}
+.nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-links a.active { color: #fff; font-weight: 600; }
+.nav-cta {
+  background: rgba(79,70,229,0.3) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(79,70,229,0.5) !important;
+}
+.nav-cta:hover { background: rgba(79,70,229,0.5) !important; }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #F8FAFC;
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.55;
-    }
+/* ── HEADER ── */
+.hero {
+  background: #0F172A;
+  padding: 4rem 1.5rem 3.5rem;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+#particleCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+}
+.hero-eyebrow {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(79,70,229,0.85);
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin-bottom: .75rem;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.hero p {
+  font-size: 1rem;
+  opacity: .65;
+  max-width: 480px;
+  margin: 0 auto .1rem;
+}
+.hero-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 560px;
+  margin: 2.5rem auto 0;
+  text-align: left;
+}
 
-    /* ── HEADER ── */
-    header {
-      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-      color: #fff;
-      padding: 2.75rem 1.5rem 2.25rem;
-      text-align: center;
-      box-shadow: 0 4px 24px rgba(79,70,229,0.25);
-    }
-    header h1 { font-size: clamp(2.2rem, 6vw, 3.75rem); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; }
-    header p  { opacity: .7; font-size: 1rem; margin-top: .6rem; font-weight: 500; }
+/* ── MAIN CONTAINER ── */
+.container { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
 
-    /* ── LAYOUT ── */
-    .container { max-width: 920px; margin: 0 auto; padding: 0 1rem 4rem; }
+/* ── SEARCH CARD ── */
+.search-card {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 0;
+}
+.search-card label {
+  display: block;
+  font-size: .68rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  margin-bottom: .75rem;
+}
+.input-row {
+  display: flex;
+  gap: .75rem;
+}
+.input-row input {
+  flex: 1;
+  padding: .85rem 1rem;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+  transition: border-color .15s;
+  outline: none;
+}
+.input-row input::placeholder { color: rgba(255,255,255,0.35); }
+.input-row input:focus { border-color: rgba(79,70,229,0.7); }
+.btn-primary {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  border-radius: 10px;
+  padding: .85rem 1.4rem;
+  font-size: .9rem;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s;
+  white-space: nowrap;
+}
+.btn-primary::before { content: '[ '; opacity: .7; }
+.btn-primary::after  { content: ' ]'; opacity: .7; }
+.btn-primary:hover { border-color: #fff; background: rgba(255,255,255,0.08); transform: translateY(-1px); }
+.btn-primary:hover::before, .btn-primary:hover::after { opacity: 1; }
+.btn-primary:active { transform: translateY(0); }
 
-    /* ── HERO (vertically centers input on first load) ── */
-    .hero-section {
-      min-height: calc(100vh - 140px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 2.5rem 0 2rem;
-    }
+/* ── ERROR BOX ── */
+#errorBox {
+  display: none;
+  background: var(--red-ghost);
+  border: 1.5px solid #FECACA;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  color: #991B1B;
+  font-size: .9rem;
+  margin-bottom: 1rem;
+}
 
-    /* ── INPUT CARD ── */
-    .input-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.75rem 2rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 20px rgba(79,70,229,.08);
-      margin-bottom: 1.75rem;
-      border: 1px solid rgba(79,70,229,.1);
-    }
-    .input-card p { font-size: .88rem; color: var(--text-soft); margin-bottom: .9rem; }
-    .input-card code { background: var(--gray-light); padding: .1em .4em; border-radius: 4px; font-size: .85em; }
+/* ── LOAD STEPS ── */
+#loadSteps {
+  display: none;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.08);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+}
+.step-list { list-style: none; }
+.step-list li {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .5rem 0;
+  font-size: .9rem;
+  color: var(--text-soft);
+  border-bottom: 1px solid var(--border);
+  transition: color .2s;
+}
+.step-list li:last-child { border-bottom: none; }
+.step-list li.done { color: var(--text); }
+.step-list li.err { color: var(--red); }
+.step-icon { font-size: 1rem; width: 1.4rem; text-align: center; flex-shrink: 0; }
+.step-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-    .input-row { display: flex; gap: .65rem; }
-    .input-row input {
-      flex: 1;
-      padding: .85rem 1rem;
-      border: 2px solid var(--border);
-      border-radius: 9px;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color .2s;
-      min-width: 0;
-    }
-    .input-row input:focus { border-color: var(--green); }
-    .input-row input::placeholder { color: #b0b7c3; }
+/* ── TERMINAL ── */
+#termBox {
+  display: none;
+  background: #0D1117;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: .78rem;
+  color: #C9D1D9;
+  max-height: 280px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+#termBox .t-ok   { color: #3FB950; }
+#termBox .t-err  { color: #F85149; }
+#termBox .t-warn { color: #D29922; }
+#termBox .t-dim  { color: #484F58; }
+#termBox .t-step { color: #79C0FF; }
+#termBox .t-info { color: #A5D6FF; }
 
-    .btn-check {
-      padding: .85rem 1.4rem;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background .2s, transform .1s;
-    }
-    .btn-check:hover:not(:disabled) { background: var(--green-mid); }
-    .btn-check:active:not(:disabled) { transform: scale(.97); }
-    .btn-check:disabled { background: #9ca3af; cursor: not-allowed; }
+/* ── COMPANY CARD ── */
+#companyCard {
+  display: none;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.08);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+}
+.company-name { font-size: 1.25rem; font-weight: 800; margin-bottom: .25rem; }
+.company-meta { font-size: .85rem; color: var(--text-soft); }
+.company-meta span { margin-right: 1rem; }
 
-    @media (max-width: 540px) {
-      .input-row { flex-direction: column; }
-      .btn-check { width: 100%; }
-    }
+/* ── HOLDING CARD ── */
+#holdingCard {
+  display: none;
+  background: var(--amber-ghost);
+  border: 1.5px solid #FDE68A;
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+}
+.holding-title { font-weight: 700; font-size: 1rem; margin-bottom: .5rem; color: #92400E; }
+.holding-desc { font-size: .88rem; color: #92400E; margin-bottom: 1rem; line-height: 1.5; }
+.related-list { list-style: none; }
+.related-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .6rem 0;
+  border-bottom: 1px solid #FDE68A;
+  font-size: .88rem;
+}
+.related-list li:last-child { border-bottom: none; }
+.btn-use-cvr {
+  background: var(--amber);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: .35rem .85rem;
+  font-size: .82rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-use-cvr:hover { background: #D97706; }
 
-    /* ── TERMINAL WINDOW ── */
-    @keyframes spin { to { transform: rotate(360deg); } }
+/* ── MANUAL CARD ── */
+#manualCard {
+  display: none;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.08);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+}
+.manual-title { font-size: 1rem; font-weight: 700; margin-bottom: .35rem; }
+.manual-desc { font-size: .86rem; color: var(--text-soft); margin-bottom: 1rem; line-height: 1.5; }
+.manual-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+.manual-table th {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-align: left;
+  padding: .4rem .5rem;
+  border-bottom: 1.5px solid var(--border);
+}
+.manual-table td { padding: .45rem .5rem; border-bottom: 1px solid var(--border); font-size: .88rem; }
+.manual-table td input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: .3rem .5rem;
+  font-size: .88rem;
+  font-family: inherit;
+  outline: none;
+}
+.manual-table td input:focus { border-color: var(--green); }
+.btn-calc {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: .75rem 1.5rem;
+  font-size: .95rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-calc:hover { background: var(--green-mid); }
 
-    .spinner-wrap { display: none; margin-bottom: 1.5rem; }
+/* ── REVEAL BUTTON ── */
+#revealWrap {
+  display: none;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+.btn-reveal {
+  background: transparent;
+  color: var(--green);
+  border: 2px solid var(--green);
+  border-radius: 12px;
+  padding: 1rem 2.5rem;
+  font-size: .95rem;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: transform .15s, background .15s, color .15s;
+}
+.btn-reveal::before { content: '[ '; opacity: .7; }
+.btn-reveal::after  { content: ' ]'; opacity: .7; }
+.btn-reveal:hover { background: var(--green); color: #fff; transform: translateY(-2px); }
+.btn-reveal:hover::before, .btn-reveal:hover::after { opacity: 1; }
+.btn-reveal:active { transform: translateY(0); }
 
-    .terminal-window {
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06), 0 8px 32px rgba(79,70,229,.10);
-      overflow: hidden;
-      border: 1px solid #E5E7EB;
-    }
-    .terminal-titlebar {
-      background: #F9FAFB;
-      padding: .6rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      border-bottom: 1px solid #E5E7EB;
-      user-select: none;
-    }
-    .tb-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .tb-dot.red    { background: #FF5F57; }
-    .tb-dot.yellow { background: #FFBD2E; }
-    .tb-dot.green  { background: #28C840; }
-    .tb-title {
-      flex: 1;
-      text-align: center;
-      font-size: .72rem;
-      color: #9CA3AF;
-      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-      letter-spacing: .02em;
-    }
-    .terminal-body {
-      padding: 1.1rem 1.4rem 1.25rem;
-      font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
-      font-size: .775rem;
-      line-height: 1.75;
-      background: #fff;
-      min-height: 180px;
-      max-height: 380px;
-      overflow-y: auto;
-      color: #374151;
-    }
-    .tl {
-      display: flex;
-      gap: 0;
-      opacity: 0;
-      animation: tl-in .18s ease forwards;
-    }
-    @keyframes tl-in { to { opacity: 1; } }
-    .tl-blank  { height: .55rem; }
-    .tl-prompt { color: #4F46E5; flex-shrink: 0; margin-right: .5rem; }
-    .tl-cmd    { color: #0F172A; }
-    .tl-ok     { color: #10B981; }
-    .tl-info   { color: #6366F1; }
-    .tl-warn   { color: #D97706; }
-    .tl-err    { color: #DC2626; }
-    .tl-dim    { color: #9CA3AF; }
-    .term-cursor {
-      display: inline-block;
-      width: 7px; height: 1em;
-      background: #4F46E5;
-      vertical-align: text-bottom;
-      margin-left: 2px;
-      animation: blink .9s step-end infinite;
-    }
-    @keyframes blink { 50% { opacity: 0; } }
+/* ── FOOTER ── */
+footer {
+  background: #0F172A;
+  color: rgba(255,255,255,0.5);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  font-size: .78rem;
+  margin-top: 2rem;
+}
+footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
+footer a:hover { color: #fff; }
 
-    /* hidden list — still updated by existing JS functions */
-    .load-steps { display: none; }
-    .load-step  {}
-    .ls-icon    {}
-    .ls-detail  {}
-
-    /* ── REVEAL BUTTON ── */
-    #revealWrap {
-      display: none;
-      justify-content: center;
-      margin: 1.5rem 0 2rem;
-    }
-    .btn-reveal {
-      padding: 1rem 2.5rem;
-      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-family: 'Inter', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: -.2px;
-      box-shadow: 0 4px 20px rgba(79,70,229,.35);
-      transition: transform .15s, box-shadow .15s;
-    }
-    .btn-reveal:hover  { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(79,70,229,.45); }
-    .btn-reveal:active { transform: scale(.97); }
-
-    /* ── ERROR ── */
-    .error-box {
-      display: none;
-      background: var(--red-pale);
-      border: 1.5px solid #f4978e;
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      color: var(--red);
-      font-size: .9rem;
-      margin-bottom: 1.5rem;
-    }
-
-    /* ── RESULTS ── */
-    #results { display: none; }
-
-    /* ── SECTION TITLES ── */
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--green);
-      margin: 0 0 1rem;
-      padding-bottom: .5rem;
-      border-bottom: 2px solid var(--green-pale);
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      letter-spacing: -.2px;
-    }
-
-    /* ── COMPANY HEADER ── */
-    .company-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.4rem 1.75rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
-      margin-bottom: 1.75rem;
-      border-left: 5px solid var(--green);
-    }
-    .company-card h2 { font-size: 1.35rem; color: var(--green); font-weight: 700; letter-spacing: -.3px; }
-    .company-card p  { font-size: .86rem; color: var(--text-soft); margin-top: .3rem; }
-
-    /* ── SCORECARD ── */
-    .scorecard-wrap {
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.5rem 1.75rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
-      margin-bottom: 1.5rem;
-    }
-    .criterion {
-      display: flex;
-      align-items: flex-start;
-      gap: .9rem;
-      padding: .9rem 1rem;
-      border-radius: 9px;
-      margin-bottom: .6rem;
-      border: 1.5px solid transparent;
-    }
-    .criterion:last-child { margin-bottom: 0; }
-    .criterion.pass { background: var(--green-ghost); border-color: #a5b4fc; }
-    .criterion.fail { background: var(--red-pale);   border-color: #fca5a5; }
-    .criterion.unknown { background: var(--gray-light); border-color: var(--border); }
-
-    .c-icon { font-size: 1.35rem; line-height: 1; flex-shrink: 0; padding-top: .05rem; }
-    .c-body h3 { font-size: .93rem; font-weight: 700; margin-bottom: .2rem; }
-    .c-numbers  { font-size: .82rem; color: var(--text-soft); font-weight: 600; margin-bottom: .15rem; }
-    .c-explain  { font-size: .8rem;  color: #555; }
-
-    /* ── VERDICT ── */
-    .verdict {
-      border-radius: 14px;
-      padding: 1.6rem 2rem;
-      text-align: center;
-      font-size: 1.45rem;
-      font-weight: 800;
-      margin-bottom: 1.75rem;
-      box-shadow: 0 2px 14px rgba(0,0,0,.07);
-    }
-    .verdict.success { background: var(--green-pale); color: var(--green); border: 2.5px solid var(--green-light); box-shadow: 0 0 0 4px rgba(79,70,229,0.08), 0 2px 14px rgba(0,0,0,.07); }
-    .verdict.fail    { background: var(--red-pale);   color: var(--red);   border: 2.5px solid #fca5a5; }
-    .verdict .v-sub  { font-size: .88rem; font-weight: 500; margin-top: .5rem; opacity: .9; }
-
-    /* ── CHART ── */
-    .chart-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.5rem 1.75rem 1.25rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
-      margin-bottom: 2rem;
-    }
-    .chart-card h3 { font-size: .95rem; font-weight: 700; color: var(--text-soft); margin-bottom: 1rem; }
-
-    /* ── FUTURE CARDS ── */
-    .future-intro {
-      font-size: .85rem;
-      color: var(--text-soft);
-      margin-bottom: 1.25rem;
-      background: var(--green-ghost);
-      border-radius: 10px;
-      padding: .8rem 1rem;
-      border-left: 4px solid var(--green-light);
-    }
-
-    .future-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    @media (max-width: 680px) {
-      .future-grid { grid-template-columns: 1fr; }
-    }
-
-    .future-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
-      border-top: 4px solid var(--green-mid);
-      display: flex;
-      flex-direction: column;
-    }
-    .future-card.highlighted {
-      border-top-color: #D97706;
-      box-shadow: 0 0 0 2px #d9770618, 0 4px 24px rgba(0,0,0,.12);
-    }
-    .future-card.highlighted h3 { color: #92400e; }
-    .phase-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .35rem;
-      font-size: .74rem;
-      font-weight: 700;
-      padding: .28rem .65rem;
-      border-radius: 20px;
-      margin-bottom: .7rem;
-      width: fit-content;
-    }
-    .phase-badge.race    { background: #FEF3C7; color: #92400E; }
-    .phase-badge.locked  { background: #E0F2FE; color: #075985; }
-    .phase-badge.announce{ background: #D1FAE5; color: #065F46; }
-    .phase-timeline {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      font-size: .75rem;
-      color: var(--text-soft);
-      margin-bottom: 1.25rem;
-      overflow-x: auto;
-      padding: .1rem 0;
-    }
-    .pt-node {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: .2rem;
-      min-width: 70px;
-    }
-    .pt-node .pt-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--border);
-      border: 2px solid var(--border);
-    }
-    .pt-node.active .pt-dot {
-      background: #d97706;
-      border-color: #d97706;
-      box-shadow: 0 0 0 3px #d9770625;
-    }
-    .pt-node.done .pt-dot { background: var(--green); border-color: var(--green); }
-    .pt-node .pt-label { text-align: center; line-height: 1.3; white-space: nowrap; }
-    .pt-line {
-      flex: 1;
-      height: 2px;
-      background: var(--border);
-      min-width: 20px;
-      align-self: flex-start;
-      margin-top: 4px;
-    }
-    .pt-line.done-line { background: var(--green); }
-    .future-card h3 {
-      font-size: .95rem;
-      font-weight: 700;
-      color: var(--green);
-      margin-bottom: 1rem;
-    }
-    .f-amount {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1.2;
-    }
-    .f-label {
-      font-size: .73rem;
-      color: var(--text-soft);
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      margin-top: .2rem;
-      margin-bottom: 1.1rem;
-    }
-    .f-metrics { flex: 1; }
-    .f-metric {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      font-size: .83rem;
-      padding: .45rem 0;
-      border-bottom: 1px solid var(--border);
-      gap: .5rem;
-    }
-    .f-metric:last-of-type { border-bottom: none; }
-    .fm-label { color: var(--text-soft); flex-shrink: 0; }
-    .fm-value { font-weight: 700; text-align: right; }
-
-    .tag {
-      display: inline-block;
-      padding: .38rem .85rem;
-      border-radius: 20px;
-      font-size: .78rem;
-      font-weight: 700;
-      margin-top: 1rem;
-      align-self: flex-start;
-    }
-    .tag-green  { background: #D1FAE5; color: #065F46; }
-    .tag-yellow { background: var(--yellow-pale); color: var(--yellow); }
-    .tag-red    { background: var(--red-pale);    color: var(--red); }
-
-    /* ── HOLDING CARD ── */
-    #holdingCard {
-      display: none;
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.75rem 2rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
-      margin-bottom: 1.75rem;
-      border-top: 4px solid #B45309;
-    }
-    #holdingCard .holding-icon { font-size: 2rem; margin-bottom: .5rem; }
-    #holdingCard h3 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin-bottom: .5rem;
-    }
-    #holdingCard .holding-desc {
-      font-size: .9rem;
-      color: var(--text-soft);
-      line-height: 1.6;
-      margin-bottom: .6rem;
-    }
-    #holdingCard .holding-hint {
-      font-size: .9rem;
-      color: #92400e;
-      background: #fef3c7;
-      border-radius: 8px;
-      padding: .6rem .9rem;
-      margin-bottom: 1.1rem;
-    }
-    .related-companies p {
-      font-size: .82rem;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: var(--text-soft);
-      font-weight: 600;
-      margin-bottom: .6rem;
-    }
-    .related-companies ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: .5rem;
-    }
-    .related-companies li {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: .4rem;
-      background: var(--gray-light);
-      border-radius: 9px;
-      padding: .65rem 1rem;
-      font-size: .9rem;
-    }
-    .related-companies li strong { flex: 1; min-width: 160px; }
-    .related-type {
-      font-size: .78rem;
-      background: #D1FAE5;
-      color: #065F46;
-      border-radius: 5px;
-      padding: .15em .5em;
-      font-weight: 600;
-    }
-    .related-industry { font-size: .8rem; color: var(--text-soft); }
-    .btn-use-cvr {
-      margin-left: auto;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 7px;
-      padding: .35rem .8rem;
-      font-size: .82rem;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .btn-use-cvr:hover { background: var(--green-mid); }
-
-    /* ── MANUAL ENTRY CARD ── */
-    #manualCard {
-      display: none;
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.75rem 2rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.07);
-      margin-bottom: 1.75rem;
-      border-top: 4px solid var(--yellow);
-    }
-    #manualCard h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--yellow);
-      margin-bottom: .6rem;
-    }
-    #manualCard .mc-desc {
-      font-size: .88rem;
-      color: var(--text-soft);
-      margin-bottom: 1.25rem;
-      line-height: 1.6;
-    }
-    #manualCard .mc-desc a {
-      color: var(--green);
-      font-weight: 600;
-      text-decoration: none;
-    }
-    #manualCard .mc-desc a:hover { text-decoration: underline; }
-    .manual-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 1.25rem;
-      font-size: .9rem;
-    }
-    .manual-table th {
-      text-align: left;
-      font-size: .77rem;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      color: var(--text-soft);
-      padding: 0 0 .5rem;
-      border-bottom: 2px solid var(--border);
-    }
-    .manual-table td {
-      padding: .5rem .5rem .5rem 0;
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-    .manual-table tr:last-child td { border-bottom: none; }
-    .manual-table input[type="number"],
-    .manual-table input[type="text"] {
-      width: 100%;
-      padding: .55rem .75rem;
-      border: 1.5px solid var(--border);
-      border-radius: 7px;
-      font-size: .9rem;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .manual-table input:focus { border-color: var(--green); }
-    .manual-year-input { max-width: 90px; }
-    .btn-calc {
-      padding: .85rem 1.6rem;
-      background: var(--yellow);
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .2s, transform .1s;
-    }
-    .btn-calc:hover { background: #c96d00; }
-    .btn-calc:active { transform: scale(.97); }
-
-    /* ── FOOTER ── */
-    footer {
-      text-align: center;
-      padding: 2rem 1rem;
-      color: var(--text-soft);
-      font-size: .78rem;
-    }
-    footer a { color: var(--green); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-  </style>
+/* ── RESPONSIVE ── */
+@media (max-width: 520px) {
+  .input-row { flex-direction: column; }
+  .nav-links { display: none; }
+}
+</style>
 </head>
-
 <body>
 
-<header>
-  <h1>Børsen Gazelle Checker</h1>
-  <p>Tjek din virksomheds Gazelle-potentiale — og se hvad der kræves de næste 3 år</p>
+<!-- NAV -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Gazelle<span>Checker</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="active nav-cta">Tjek CVR</a>
+      <a href="om-gazelle-prisen.html">Om prisen</a>
+      <a href="krav.html">Kravene</a>
+      <a href="hvornaar.html">Hvornår?</a>
+      <a href="2026.html">Gazelle 2026</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <canvas id="particleCanvas"></canvas>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Børsen Gazelle — Analyse</div>
+    <h1>Gazelle Checker</h1>
+    <p>Tjek om din virksomhed lever op til kravene for Børsens Gazelle-pris</p>
+    <div class="hero-card">
+      <!-- SEARCH CARD -->
+      <div class="search-card">
+        <label for="cvrInput">CVR-nummer</label>
+        <div class="input-row">
+          <input
+            type="text"
+            id="cvrInput"
+            placeholder="f.eks. 12345678"
+            maxlength="12"
+            inputmode="numeric"
+          >
+          <button class="btn-primary" onclick="checkGazelle()">Analyser</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </header>
 
-<div class="container">
+<main class="container">
 
-  <div class="hero-section" id="heroSection">
+  <!-- ERROR BOX -->
+  <div id="errorBox"></div>
 
-    <!-- INPUT -->
-    <div class="input-card">
-      <p>Indsæt CVR-nummer (f.eks. <code>37697796</code>) eller et virkdata.dk-link (f.eks. <code>https://virkdata.dk/firmaer/37697796/…</code>)</p>
-      <div class="input-row">
-        <input type="text" id="cvrInput"
-               placeholder="CVR-nummer eller virkdata.dk URL…"
-               autocomplete="off" autocorrect="off" spellcheck="false" />
-        <button class="btn-check" id="checkBtn" onclick="checkGazelle()">Tjek Gazelle</button>
-      </div>
-    </div>
+  <!-- LOAD STEPS -->
+  <div id="loadSteps">
+    <ul class="step-list" id="stepList"></ul>
+  </div>
 
-    <!-- TERMINAL -->
-    <div class="spinner-wrap" id="spinnerWrap">
-      <div class="terminal-window">
-        <div class="terminal-titlebar">
-          <div class="tb-dot red"></div>
-          <div class="tb-dot yellow"></div>
-          <div class="tb-dot green"></div>
-          <div class="tb-title">gazelle-checker — analyse</div>
-        </div>
-        <div class="terminal-body" id="terminalBody">
-          <div class="tl"><span class="tl-dim">  Klar til analyse…</span></div>
-        </div>
-      </div>
-      <!-- hidden list still kept so existing stepRun/stepDone JS works -->
-      <ul class="load-steps" id="loadSteps"></ul>
-    </div>
+  <!-- TERMINAL -->
+  <div id="termBox"></div>
 
-    <!-- REVEAL BUTTON -->
-    <div id="revealWrap">
-      <button class="btn-reveal" onclick="revealResults()">Se resultat →</button>
-    </div>
+  <!-- COMPANY CARD -->
+  <div id="companyCard"></div>
 
-    <!-- ERROR -->
-    <div class="error-box" id="errorBox"></div>
+  <!-- HOLDING CARD -->
+  <div id="holdingCard"></div>
 
-    <!-- HOLDING COMPANY REJECTION -->
-    <div id="holdingCard"></div>
-
-  </div><!-- /hero-section -->
-
-  <!-- MANUAL ENTRY (shown when auto-fetch fails) -->
+  <!-- MANUAL CARD (shown when proxies fail) -->
   <div id="manualCard">
-    <h3>📋 Indtast regnskabsdata manuelt</h3>
-    <p class="mc-desc">
-      Automatisk hentning af regnskabsdata er blokeret af virkdata.dk's sikkerhedssystem.
-      Hent tallene selv på
-      <a id="virkdataLink" href="https://virkdata.dk" target="_blank">virkdata.dk →</a>
-      og udfyld de 4 seneste regnskabsår herunder.
-      Find "Bruttoresultat" (gross_profit) for hvert år.
-    </p>
+    <div class="manual-title">📋 Indtast regnskabstal manuelt</div>
+    <div class="manual-desc">
+      Vi kunne ikke hente regnskabsdata automatisk. Find tallene på
+      <a id="virkdataLink" href="https://virkdata.dk" target="_blank" rel="noopener">virkdata.dk</a>
+      og indtast dem herunder (de seneste 4 regnskabsår).
+    </div>
     <table class="manual-table">
       <thead>
         <tr>
-          <th style="width:110px">Regnskabsår</th>
+          <th>År</th>
           <th>Bruttoresultat (kr.)</th>
-          <th>Årets resultat (kr.) — valgfrit</th>
+          <th>Årets resultat (kr.)</th>
         </tr>
       </thead>
-      <tbody id="manualRows"></tbody>
+      <tbody id="manualBody"></tbody>
     </table>
-    <button class="btn-calc" onclick="calcWithManual()">Beregn Gazelle</button>
+    <button class="btn-calc" onclick="calcWithManual()">Beregn Gazelle →</button>
   </div>
 
-  <!-- COMPANY CARD (shown as soon as CVR is resolved) -->
-  <div class="company-card" id="companyCard" style="display:none"></div>
-
-  <!-- RESULTS -->
-  <div id="results">
-
-    <h2 class="section-title">📊 Del 1 — Aktuel Gazelle Status</h2>
-    <div class="scorecard-wrap" id="scorecardWrap"></div>
-    <div class="verdict" id="verdictEl"></div>
-
-    <div class="chart-card">
-      <h3>Bruttoresultat — historisk og minimum krævet (DKK)</h3>
-      <canvas id="growthChart"></canvas>
-    </div>
-
-    <h2 class="section-title" id="del2Title">🔭 Del 2 — Fremtidig Gazelle Plan</h2>
-    <div class="phase-timeline" id="phaseTimeline"></div>
-    <div class="future-intro" id="futureIntro"></div>
-    <div class="future-grid" id="futureGrid"></div>
-
+  <!-- REVEAL BUTTON -->
+  <div id="revealWrap">
+    <button class="btn-reveal" onclick="revealResults()">Se om du lever op til en Gazelle →</button>
   </div>
-</div>
+
+</main>
 
 <footer>
-  Børsen Gazelle Checker — ikke officielt tilknyttet Børsen eller Gazelle-programmet.<br>
-  Data fra <a href="https://cvrapi.dk" target="_blank">cvrapi.dk</a> og
-  <a href="https://virkdata.dk" target="_blank">virkdata.dk</a>.
+  <p>GazelleChecker er et uafhængigt værktøj og er ikke tilknyttet Børsen. Data hentes fra offentlige registre. <a href="om-gazelle-prisen.html">Om prisen</a></p>
 </footer>
 
 <script>
-// ─────────────────────────────────────────────
-//  STATE
-// ─────────────────────────────────────────────
-let chartInst = null;
-let _cvrData   = null;   // cached company info from cvrapi.dk
-let _currentCVR = null;  // CVR string currently being checked
+'use strict';
 
-// ─────────────────────────────────────────────
-//  UTILITIES
-// ─────────────────────────────────────────────
-function extractCVR(raw) {
-  raw = raw.trim();
-  const urlMatch = raw.match(/\/(\d{8})(?:\/|$|\?|#)/);
-  if (urlMatch) return urlMatch[1];
-  const urlMatch2 = raw.match(/\/(\d{8})$/);
-  if (urlMatch2) return urlMatch2[1];
-  const plain = raw.match(/^(\d{8})$/);
-  if (plain) return plain[1];
-  return null;
-}
+// ── GLOBALS ──────────────────────────────────────────────────────────────────
+let _cvrData     = null;
+let _currentCVR  = null;
+let chartInst    = null;
 
-// Extract slug from a virkdata.dk URL (e.g. ".../33252242/talentech-aps" → "talentech-aps")
-function extractSlug(raw) {
-  const m = raw.trim().match(/\/\d{8}\/([a-z0-9][a-z0-9-]*)/i);
-  return m ? m[1].toLowerCase() : null;
-}
+// ── PROXY LIST ────────────────────────────────────────────────────────────────
+const PROXY_LIST = [
+  cvr => `https://cvrapi.dk/api?search=${cvr}&country=dk`,
+  cvr => `https://api.cvr.dev/api/virksomhed/cvrnummer/${cvr}?api_key=demo`,
+  cvr => `https://data.virk.dk/datahenter/rest/cvr-permanent/1/virksomhed/_search?q=Vrvirksomhed.cvrNummer:${cvr}`,
+  cvr => `https://cvrapi.dk/api?vat=${cvr}&country=dk`
+];
 
-// Generate virkdata.dk URL slug from a company name
-function generateVirkdataSlug(name) {
-  return name
-    .toLowerCase()
-    .replace(/ø/g, 'oe').replace(/æ/g, 'ae').replace(/å/g, 'aa')
-    .replace(/ü/g, 'u') .replace(/ö/g, 'oe').replace(/ä/g, 'ae')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function fmtDKK(n) {
-  return Math.round(n).toLocaleString('da-DK') + ' kr.';
-}
-
-function fmtPct(p) {
-  return (p >= 0 ? '+' : '') + p.toFixed(1).replace('.', ',') + '%';
-}
-
-// ─────────────────────────────────────────────
-//  STEP-BY-STEP LOADING ANIMATION
-// ─────────────────────────────────────────────
+// ── LOAD STEPS ────────────────────────────────────────────────────────────────
 const LOAD_STEPS = [
-  { id: 'cvr',      label: 'Verificerer CVR-nummer'          },
-  { id: 'company',  label: 'Henter virksomhedsdata'          },
-  { id: 'holding',  label: 'Kontrollerer selskabstype'       },
-  { id: 'slug',     label: 'Finder regnskabsside'            },
-  { id: 'finances', label: 'Henter regnskabstal'             },
-  { id: 'analyse',  label: 'Analyserer regnskabsår'          },
-  { id: 'gazelle',  label: 'Beregner Gazelle-kriterier'      },
+  { id: 'step-cvr',     label: 'Henter CVR-stamdata' },
+  { id: 'step-fin',     label: 'Henter regnskabsdata' },
+  { id: 'step-calc',    label: 'Beregner Gazelle-kriterier' },
 ];
 
 function initLoadSteps() {
-  const ul = document.getElementById('loadSteps');
-  if (!ul) return;
-  ul.innerHTML = '';
+  const box  = document.getElementById('loadSteps');
+  const list = document.getElementById('stepList');
+  box.style.display  = 'block';
+  list.innerHTML = '';
   LOAD_STEPS.forEach(s => {
     const li = document.createElement('li');
-    li.id = 'ls-' + s.id;
-    li.className = 'load-step pending';
-    li.innerHTML = `<span class="ls-icon"></span><span class="ls-text">${s.label}</span>`;
-    ul.appendChild(li);
-  });
-  // Reveal all steps with staggered fade-in
-  LOAD_STEPS.forEach((s, i) => {
-    setTimeout(() => {
-      const el = document.getElementById('ls-' + s.id);
-      if (el) el.classList.add('visible');
-    }, i * 60);
+    li.id = s.id;
+    li.innerHTML = `<span class="step-icon">⏳</span><span>${s.label}</span>`;
+    list.appendChild(li);
   });
 }
 
 function stepRun(id) {
-  const el = document.getElementById('ls-' + id);
-  if (!el) return;
-  el.className = 'load-step visible running';
+  const li = document.getElementById(id);
+  if (!li) return;
+  li.innerHTML = `<span class="step-spinner"></span><span>${li.querySelector('span:last-child')?.textContent || ''}</span>`;
 }
 
-function stepDone(id, detail) {
-  const el = document.getElementById('ls-' + id);
-  if (!el) return;
-  el.className = 'load-step visible done';
-  if (detail) {
-    let det = el.querySelector('.ls-detail');
-    if (!det) {
-      det = document.createElement('span');
-      det.className = 'ls-detail';
-      el.appendChild(det);
-    }
-    det.textContent = detail;
-  }
+function stepDone(id) {
+  const li = document.getElementById(id);
+  if (!li) return;
+  const txt = li.querySelector('span:last-child')?.textContent || '';
+  li.className = 'done';
+  li.innerHTML = `<span class="step-icon">✅</span><span>${txt}</span>`;
 }
 
 function stepErr(id) {
-  const el = document.getElementById('ls-' + id);
-  if (!el) return;
-  el.className = 'load-step visible ls-error';
+  const li = document.getElementById(id);
+  if (!li) return;
+  const txt = li.querySelector('span:last-child')?.textContent || '';
+  li.className = 'err';
+  li.innerHTML = `<span class="step-icon">❌</span><span>${txt}</span>`;
 }
 
-// Legacy no-op (kept for safety)
-function setStatus() {}
+function setStatus(msg) {
+  // Optional status update – terminal handles this
+}
 
 function showErr(msg) {
-  const b = document.getElementById('errorBox');
-  b.innerHTML = '⚠️ ' + msg;
-  b.style.display = 'block';
+  const box = document.getElementById('errorBox');
+  box.textContent = msg;
+  box.style.display = 'block';
 }
-function hideErr() { document.getElementById('errorBox').style.display = 'none'; }
 
-// ─────────────────────────────────────────────
-//  DIRECT CVR API FETCH (cvrapi.dk has CORS headers)
-// ─────────────────────────────────────────────
+function hideErr() {
+  const box = document.getElementById('errorBox');
+  box.style.display = 'none';
+}
+
+// ── FORMATTERS ────────────────────────────────────────────────────────────────
+function fmtDKK(n) {
+  if (n == null || isNaN(n)) return '–';
+  return new Intl.NumberFormat('da-DK', { style: 'currency', currency: 'DKK', maximumFractionDigits: 0 }).format(n);
+}
+
+function fmtPct(n) {
+  if (n == null || isNaN(n)) return '–';
+  return (n >= 0 ? '+' : '') + n.toFixed(1) + ' %';
+}
+
+// ── CVR HELPERS ───────────────────────────────────────────────────────────────
+function extractCVR(raw) {
+  const digits = String(raw).replace(/\D/g, '');
+  if (digits.length === 8) return digits;
+  const m = String(raw).match(/\d{8}/);
+  return m ? m[0] : null;
+}
+
+function extractSlug(name) {
+  return (name || '')
+    .toLowerCase()
+    .replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g,'aa')
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'');
+}
+
+function generateVirkdataSlug(name) {
+  return extractSlug(name);
+}
+
+// ── FETCH CVR ─────────────────────────────────────────────────────────────────
 async function fetchCVR(cvr) {
-  const r = await fetch(
+  // Try cvrapi.dk first (most reliable, no key needed)
+  const urls = [
     `https://cvrapi.dk/api?search=${cvr}&country=dk`,
-    { signal: AbortSignal.timeout(12000) }
-  );
-  if (!r.ok) throw new Error(`cvrapi.dk svarede ${r.status}`);
-  return r.json();
-}
-
-// ─────────────────────────────────────────────
-//  VIRKDATA FETCH — localhost proxy first,
-//  then CORS waterfall (3 proxies).
-//  Returns raw HTML string or throws.
-// ─────────────────────────────────────────────
-
-const PROXY_LIST = [
-  {
-    name: 'lokal server (port 7890)',
-    fetch: async url => {
-      // Try the Python proxy server first
-      const cvr = url.match(/\/(\d{8})/)?.[1];
-      if (!cvr) throw new Error('Ingen CVR i URL');
-      const r = await fetch(
-        `http://localhost:7890/api/virkdata?cvr=${cvr}`,
-        { signal: AbortSignal.timeout(5000) }
-      );
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const j = await r.json();
-      // Server wraps allorigins response; extract .contents
-      const body = j.contents ?? JSON.stringify(j);
-      if (!body || body.length < 50) throw new Error('Tomt svar fra lokal server');
-      return body;
-    }
-  },
-  {
-    name: 'allorigins.win',
-    fetch: async url => {
-      const r = await fetch(
-        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-        { signal: AbortSignal.timeout(12000) }
-      );
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const j = await r.json();
-      const body = j.contents ?? j.html ?? '';
-      if (!body || body.length < 50) throw new Error('Tomt contents-felt');
-      return body;
-    }
-  },
-  {
-    name: 'corsproxy.io',
-    fetch: async url => {
-      const r = await fetch(
-        `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        { signal: AbortSignal.timeout(12000) }
-      );
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.text();
-    }
-  },
-  {
-    name: 'api.codetabs.com',
-    fetch: async url => {
-      const r = await fetch(
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-        { signal: AbortSignal.timeout(12000) }
-      );
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.text();
-    }
-  }
-];
-
-async function fetchVirkdata(cvr, slug) {
-  const targetUrl = slug
-    ? `https://virkdata.dk/firmaer/${cvr}/${slug}`
-    : `https://virkdata.dk/firmaer/${cvr}`;
-  const errs = [];
-  for (const p of PROXY_LIST) {
-    setStatus(`Henter regnskaber via ${p.name}…`);
+    `https://cvrapi.dk/api?vat=${cvr}&country=dk`,
+  ];
+  for (const url of urls) {
     try {
-      const body = await p.fetch(targetUrl);
-      if (body && body.length > 100) {
-        console.log(`✅ [${p.name}] → ${body.length} bytes`);
-        return body;
+      const res = await fetch(url, { headers: { 'User-Agent': 'GazelleChecker/1.0' } });
+      if (!res.ok) continue;
+      const d = await res.json();
+      if (d && (d.vat || d.cvrnummer)) {
+        return normaliseCVRData(d);
       }
-      errs.push(`${p.name}: svar for kort`);
-    } catch (e) {
-      errs.push(`${p.name}: ${e.message}`);
-      console.warn(`❌ [${p.name}] ${e.message}`);
-    }
+    } catch (_) {}
   }
-  // All failed — throw with details
-  throw new Error(errs.join(' | '));
+  return null;
 }
 
-// ─────────────────────────────────────────────
-//  KEYBOARD SHORTCUT
-// ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('cvrInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkGazelle();
-  });
-  buildManualRows(); // pre-build rows with current-year defaults
-});
-
-// ─────────────────────────────────────────────
-//  MAIN ENTRY POINT
-// ─────────────────────────────────────────────
-async function checkGazelle() {
-  const raw = document.getElementById('cvrInput').value;
-  const cvr = extractCVR(raw);
-
-  if (!cvr) {
-    showErr('Ugyldigt input. Indsæt et CVR-nummer (8 cifre) eller et virkdata.dk-link.');
-    return;
+function normaliseCVRData(raw) {
+  // cvrapi.dk format
+  if (raw.vat) {
+    return {
+      name: raw.name || raw.company || '',
+      vat: String(raw.vat),
+      address: [raw.address, raw.zipcode, raw.city].filter(Boolean).join(', '),
+      industry: raw.industrycode_text || raw.industrycodedesc || '',
+      employees: raw.employees || null,
+      founded: raw.startdate || null,
+      type: raw.company_type_text || raw.companytype || '',
+    };
   }
+  return raw;
+}
 
-  _currentCVR = cvr;
-  hideErr();
-  document.getElementById('results').style.display     = 'none';
-  document.getElementById('manualCard').style.display  = 'none';
-  document.getElementById('holdingCard').style.display = 'none';
-  document.getElementById('spinnerWrap').style.display = 'block';
-  document.getElementById('checkBtn').disabled = true;
-  initLoadSteps();
+// ── FETCH VIRKDATA ────────────────────────────────────────────────────────────
+async function fetchVirkdata(cvr, name) {
+  const slug = generateVirkdataSlug(name || '');
+  const base = `https://virkdata.dk/firmaer/${cvr}/${slug}`;
 
-  try {
-    // ── STEP 1: CVR validated ─────────────────────────────────────────────
-    stepRun('cvr');
-    await new Promise(r => setTimeout(r, 120)); // brief pause so animation registers
-    stepDone('cvr', cvr);
+  // Try multiple CORS proxies
+  const proxies = [
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    url => `https://cors-anywhere.herokuapp.com/${url}`,
+    url => `https://thingproxy.freeboard.io/fetch/${url}`,
+  ];
 
-    // ── STEP 2: Company info ──────────────────────────────────────────────
-    stepRun('company');
-    let cvrData;
+  for (const makeProxy of proxies) {
     try {
-      cvrData = await fetchCVR(cvr);
-    } catch (e) {
-      stepErr('company');
-      throw new Error('Kunne ikke hente virksomhedsdata: ' + e.message);
-    }
-    if (cvrData.error) { stepErr('company'); throw new Error('CVR ikke fundet: ' + cvrData.error); }
-    if (!cvrData.name) { stepErr('company'); throw new Error('Virksomhed ikke fundet for CVR ' + cvr); }
-    _cvrData = cvrData;
-    stepDone('company', cvrData.name);
-    renderCompanyCard(cvrData, cvr);
+      const proxyUrl = makeProxy(base);
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) continue;
 
-    // ── STEP 3: Holding check ─────────────────────────────────────────────
-    stepRun('holding');
-    await new Promise(r => setTimeout(r, 180));
-    if (isHoldingCompany(cvrData)) {
-      stepErr('holding');
-      const related = await searchRelatedCompanies(cvrData.name);
-      showHoldingCard(cvrData, related);
-      return;
-    }
-    stepDone('holding', cvrData.companydesc || cvrData.companytype || '');
+      let html;
+      if (proxyUrl.includes('allorigins')) {
+        const j = await res.json();
+        html = j.contents;
+      } else {
+        html = await res.text();
+      }
 
-    // ── STEP 4: Slug / URL resolution ─────────────────────────────────────
-    stepRun('slug');
-    const slug = extractSlug(raw) || generateVirkdataSlug(cvrData.name);
-    await new Promise(r => setTimeout(r, 100));
-    stepDone('slug', `…/${cvr}/${slug}`);
+      if (!html || html.length < 500) continue;
 
-    // ── STEP 5: Financial data ────────────────────────────────────────────
-    stepRun('finances');
-    let financials = null;
+      const parsed = parseFinancials(html);
+      if (parsed && parsed.length >= 2) return parsed;
+    } catch (_) {}
+  }
+  return null;
+}
+
+// ── PARSE FINANCIALS ──────────────────────────────────────────────────────────
+function normalise(str) {
+  if (str == null) return null;
+  const s = String(str).replace(/\s/g,'').replace(/\./g,'').replace(/,/g,'.').replace(/kr\.?/gi,'').trim();
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
+function extractBalancedArray(arr) {
+  return arr.map(v => normalise(v)).filter(v => v !== null);
+}
+
+function deepFind(obj, keys) {
+  if (!obj || typeof obj !== 'object') return null;
+  for (const k of keys) {
+    if (obj[k] !== undefined) return obj[k];
+  }
+  for (const v of Object.values(obj)) {
+    const found = deepFind(v, keys);
+    if (found !== null) return found;
+  }
+  return null;
+}
+
+function parseFinancials(html) {
+  // Look for JSON-LD or embedded data
+  const jsonMatch = html.match(/window\.__DATA__\s*=\s*(\{[\s\S]*?\});/) ||
+                    html.match(/window\.gazelleData\s*=\s*(\{[\s\S]*?\});/) ||
+                    html.match(/<script type="application\/json"[^>]*>([\s\S]*?)<\/script>/);
+
+  if (jsonMatch) {
     try {
-      const virkBody = await fetchVirkdata(cvr, slug);
-      financials = parseFinancials(virkBody, cvr);
-      stepDone('finances', financials.length ? `${financials.length} regnskabsår fundet` : 'ingen data');
-    } catch (e) {
-      stepErr('finances');
-      console.warn('Alle proxies fejlede:', e.message);
-    }
-
-    // ── STEP 6 + 7: Analyse & Gazelle ────────────────────────────────────
-    if (financials && financials.length >= 2) {
-      stepRun('analyse');
-      financials.sort((a, b) => b.year - a.year);
-      await new Promise(r => setTimeout(r, 220));
-      stepDone('analyse', `${financials.slice(0,4).map(f=>f.year).join(', ')}`);
-
-      stepRun('gazelle');
-      await new Promise(r => setTimeout(r, 280));
-      stepDone('gazelle');
-
-      await new Promise(r => setTimeout(r, 150)); // let final tick show
-      renderAll(cvrData, financials.slice(0, 4));
-    } else {
-      stepErr('analyse');
-      stepErr('gazelle');
-      showManualCard(cvr, cvrData.name);
-    }
-
-  } catch (err) {
-    showErr(err.message);
-  } finally {
-    document.getElementById('spinnerWrap').style.display = 'none';
-    document.getElementById('checkBtn').disabled = false;
+      const d = JSON.parse(jsonMatch[1]);
+      const years = deepFind(d, ['regnskaber', 'financials', 'years', 'data']);
+      if (Array.isArray(years) && years.length) return years;
+    } catch (_) {}
   }
-}
 
-// ─────────────────────────────────────────────
-//  HOLDING COMPANY DETECTION & REJECTION
-// ─────────────────────────────────────────────
-function isHoldingCompany(cvrData) {
-  const code = (cvrData.industrycode || '').toString().trim();
-  const desc = (cvrData.industrydesc || '').toLowerCase();
-  const name = (cvrData.name || '').toLowerCase();
-  if (/^642[01]/.test(code)) return true;           // 6420xx / 6421xx = holdingselskab
-  if (desc.includes('holding')) return true;
-  if (/\bholding\b/.test(name)) return true;
-  return false;
-}
-
-async function searchRelatedCompanies(holdingName) {
-  // Strip "Holding", "Group", "Invest", "A/S", "ApS" to get core search term
-  const core = holdingName
-    .replace(/\s+(holding|group|invest)\s*(a\/s|aps)?$/gi, '')
-    .replace(/\s+(a\/s|aps)$/gi, '')
-    .trim();
-  if (!core || core.length < 3) return [];
-
-  try {
-    const resp = await fetch(
-      `https://cvrapi.dk/api?country=dk&search=${encodeURIComponent(core)}`
-    );
-    if (!resp.ok) return [];
-    const data = await resp.json();
-    const list = Array.isArray(data) ? data : [data];
-    return list
-      .filter(c =>
-        c.name &&
-        c.vat !== _currentCVR &&
-        /aps|a\/s|anpartsselskab|aktieselskab/i.test(c.companydesc || c.companytype || '') &&
-        !/^642[01]/.test((c.industrycode || '').toString()) &&
-        !(c.industrydesc || '').toLowerCase().includes('holding') &&
-        !/\bholding\b/.test((c.name || '').toLowerCase()) &&
-        !c.enddate
-      )
-      .slice(0, 4);
-  } catch (e) {
-    return [];
+  // Parse HTML table fallback
+  const rows = [];
+  const tableMatch = html.match(/<table[\s\S]*?<\/table>/gi) || [];
+  for (const table of tableMatch) {
+    const trMatches = table.match(/<tr[\s\S]*?<\/tr>/gi) || [];
+    for (const tr of trMatches) {
+      const cells = (tr.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi) || [])
+        .map(c => c.replace(/<[^>]+>/g,'').trim());
+      if (cells.length >= 3) rows.push(cells);
+    }
   }
+
+  // Try to find revenue/gross profit rows
+  const yearRow = rows.find(r => /20\d\d/.test(r[0]) || r.some(c => /20\d\d/.test(c)));
+  if (!yearRow) return null;
+
+  const years = yearRow.filter(c => /20\d\d/.test(c)).map(Number);
+  const grossRow = rows.find(r => /brutto|gross/i.test(r[0]));
+  const profitRow = rows.find(r => /resultat|profit|årets/i.test(r[0]) && !/brutto/i.test(r[0]));
+
+  if (!grossRow) return null;
+
+  return years.map((yr, i) => ({
+    year: yr,
+    gross_profit: normalise(grossRow[i + 1]),
+    balance_sheet_status: profitRow ? normalise(profitRow[i + 1]) : 0,
+  })).filter(r => r.gross_profit !== null);
 }
 
-function showHoldingCard(cvrData, related) {
-  const card = document.getElementById('holdingCard');
-  const name = cvrData.name || 'Virksomheden';
-
-  let relatedHtml = '';
-  if (related && related.length > 0) {
-    const items = related.map(c => {
-      const type = c.companydesc || c.companytype || '';
-      const ind  = c.industrydesc ? `<span class="related-industry">· ${c.industrydesc}</span>` : '';
-      return `<li>
-        <strong>${c.name}</strong>
-        <span class="related-type">${type}</span>
-        ${ind}
-        <button class="btn-use-cvr" onclick="useCVR('${c.vat}')">Tjek denne →</button>
-      </li>`;
-    }).join('');
-    relatedHtml = `<div class="related-companies">
-      <p>Mulige tilknyttede driftsselskaber:</p>
-      <ul>${items}</ul>
+// ── COMPANY CARD ──────────────────────────────────────────────────────────────
+function renderCompanyCard(data, cvr) {
+  const el = document.getElementById('companyCard');
+  if (!el) return;
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="company-name">${data.name || 'Ukendt virksomhed'}</div>
+    <div class="company-meta">
+      <span>CVR: ${cvr || data.vat || '–'}</span>
+      ${data.address ? `<span>📍 ${data.address}</span>` : ''}
+      ${data.industry ? `<span>🏭 ${data.industry}</span>` : ''}
+      ${data.founded ? `<span>📅 Stiftet ${data.founded}</span>` : ''}
+      ${data.employees != null ? `<span>👥 ${data.employees} ansatte</span>` : ''}
     </div>`;
-  } else {
-    relatedHtml = `<p style="font-size:.88rem;color:var(--text-soft)">
-      Ingen tilknyttede driftsselskaber fundet automatisk — søg manuelt på
-      <a href="https://virkdata.dk" target="_blank" style="color:var(--green);font-weight:600">virkdata.dk</a>.
-    </p>`;
-  }
+}
 
-  card.innerHTML = `
-    <div class="holding-icon">🏢</div>
-    <h3>${name}</h3>
-    <p class="holding-desc">
-      Dette er et <strong>holdingselskab</strong> (${cvrData.industrydesc || 'Holdingselskab'}) og kan ikke vurderes
-      efter Gazelle-kriterierne — holdingselskaber driver typisk ingen direkte forretning og indberetter
-      0 kr. i bruttoresultat.
-    </p>
-    <p class="holding-hint">💡 Prøv i stedet et <strong>driftsselskab</strong> tilknyttet ${name.replace(/Holding\s*(A\/S|ApS)?/i, '').trim() || name}.</p>
-    ${relatedHtml}
-  `;
-  card.style.display = 'block';
-  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// ── HOLDING COMPANY CHECK ─────────────────────────────────────────────────────
+function isHoldingCompany(data) {
+  const name = (data.name || '').toLowerCase();
+  const type = (data.type || '').toLowerCase();
+  return /holding|invest|kapital|partner|fond/.test(name) || /holding/i.test(type);
+}
+
+async function searchRelatedCompanies(cvr) {
+  // Try to find related operating companies via cvrapi
+  try {
+    const res = await fetch(`https://cvrapi.dk/api?search=${cvr}&country=dk`);
+    const d = await res.json();
+    if (d && d.productionunits) return d.productionunits;
+  } catch (_) {}
+  return [];
+}
+
+function showHoldingCard(mainData, related) {
+  const el = document.getElementById('holdingCard');
+  if (!el) return;
+  el.style.display = 'block';
+
+  const listItems = (related || []).map(r =>
+    `<li>
+      <span>${r.name || r.p_name || 'Ukendt'} (${r.cvr || r.p_cvr || '–'})</span>
+      <button class="btn-use-cvr" onclick="useCVR('${r.cvr || r.p_cvr}')">Analyser →</button>
+    </li>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="holding-title">🏢 Holdingselskab registreret</div>
+    <div class="holding-desc">
+      "${mainData.name}" ser ud til at være et holdingselskab. Gazelle-prisen gives typisk til driftsselskaber.
+      Vil du analysere et relateret selskab i stedet?
+    </div>
+    ${listItems ? `<ul class="related-list">${listItems}</ul>` : ''}`;
 }
 
 function useCVR(cvr) {
-  document.getElementById('cvrInput').value = cvr;
   document.getElementById('holdingCard').style.display = 'none';
+  document.getElementById('cvrInput').value = cvr;
   checkGazelle();
 }
 
-// ─────────────────────────────────────────────
-//  MANUAL ENTRY
-// ─────────────────────────────────────────────
+// ── MANUAL CARD ───────────────────────────────────────────────────────────────
 function buildManualRows(cvr) {
-  const tbody = document.getElementById('manualRows');
+  const tbody = document.getElementById('manualBody');
   if (!tbody) return;
-  const currentYear = new Date().getFullYear();
   tbody.innerHTML = '';
+  const thisYear = new Date().getFullYear();
   for (let i = 0; i < 4; i++) {
-    const yr = currentYear - 2 - i;
+    const yr = thisYear - 1 - i;
     const tr = document.createElement('tr');
-    tr.innerHTML =
-      `<td><input class="manual-year-input" type="number" value="${yr}" min="2000" max="2099" /></td>` +
-      `<td><input type="number" placeholder="f.eks. 5.000.000" min="0" step="1" /></td>` +
-      `<td><input type="number" placeholder="valgfrit" step="1" /></td>`;
+    tr.innerHTML = `
+      <td>${yr}</td>
+      <td><input type="number" id="mGross${i}" placeholder="f.eks. 5000000" step="1000"></td>
+      <td><input type="number" id="mDrift${i}" placeholder="valgfrit" step="1000"></td>`;
     tbody.appendChild(tr);
   }
 }
 
-function renderCompanyCard(cvrData, cvr) {
-  const startYear = ((cvrData.startdate || '').match(/\d{4}/) || ['—'])[0];
-  const compCard = document.getElementById('companyCard');
-  compCard.innerHTML =
-    `<h2>${cvrData.name || 'Ukendt virksomhed'}</h2>` +
-    `<p>CVR: ${cvrData.vat || cvr} &nbsp;·&nbsp; ${cvrData.companytype || cvrData.companydesc || '—'} ` +
-    `&nbsp;·&nbsp; ${cvrData.industrydesc || '—'} &nbsp;·&nbsp; Stiftet: ${startYear}</p>`;
-  compCard.style.display = 'block';
-}
+function showManualCard(cvr, cvrData) {
+  const el = document.getElementById('manualCard');
+  if (!el) return;
 
-function showManualCard(cvr, companyName) {
-  const card = document.getElementById('manualCard');
-  const link = document.getElementById('virkdataLink');
-  const slug = generateVirkdataSlug(companyName || cvr);
-  link.href = `https://virkdata.dk/firmaer/${cvr}/${slug}`;
-  link.textContent = `virkdata.dk → ${companyName || cvr}`;
-  card.style.display = 'block';
-  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Update virkdata link
+  if (cvrData && cvrData.name) {
+    const slug = generateVirkdataSlug(cvrData.name);
+    const link = document.getElementById('virkdataLink');
+    if (link) {
+      link.href = `https://virkdata.dk/firmaer/${cvr}/${slug}`;
+      link.textContent = `virkdata.dk → ${cvrData.name}`;
+    }
+  }
+
+  buildManualRows(cvr);
+  el.style.display = 'block';
+
+  // Store partial data so resultat.html knows we need manual entry
+  localStorage.setItem('gazelleResult', JSON.stringify({
+    cvrData: cvrData || { name: 'Manuel indtastning', vat: cvr },
+    currentCVR: cvr,
+    manualNeeded: true,
+    timestamp: Date.now()
+  }));
 }
 
 function calcWithManual() {
-  const rows = document.querySelectorAll('#manualRows tr');
+  const thisYear = new Date().getFullYear();
   const financials = [];
-
-  for (const row of rows) {
-    const inputs = row.querySelectorAll('input');
-    const year  = parseInt(inputs[0].value, 10);
-    const gross = parseFloat(inputs[1].value.replace(/[^\d.-]/g, ''));
-    const drift = inputs[2].value ? parseFloat(inputs[2].value.replace(/[^\d.-]/g, '')) : 0;
-
-    if (!isNaN(year) && !isNaN(gross) && gross > 0) {
-      financials.push({ year, gross_profit: gross, balance_sheet_status: isNaN(drift) ? 0 : drift });
+  for (let i = 0; i < 4; i++) {
+    const yr   = thisYear - 1 - i;
+    const gross = normalise(document.getElementById(`mGross${i}`)?.value);
+    const drift = normalise(document.getElementById(`mDrift${i}`)?.value);
+    if (gross !== null) {
+      financials.push({ year: yr, gross_profit: gross, balance_sheet_status: drift || 0 });
     }
   }
 
   if (financials.length < 2) {
-    showErr('Udfyld mindst 2 regnskabsår (år + bruttoresultat).');
+    showErr('Indtast mindst 2 års data (Bruttoresultat) for at beregne.');
     return;
   }
 
-  hideErr();
-  document.getElementById('manualCard').style.display = 'none';
   financials.sort((a, b) => b.year - a.year);
-  renderAll(_cvrData || { name: 'Ukendt', vat: _currentCVR, companytype: '', industrydesc: '' }, financials.slice(0, 4));
+
+  localStorage.setItem('gazelleResult', JSON.stringify({
+    cvrData: _cvrData || { name: 'Manuel indtastning', vat: _currentCVR },
+    top4: financials.slice(0, 4),
+    currentCVR: _currentCVR,
+    manualNeeded: false,
+    timestamp: Date.now()
+  }));
+  window.location.href = 'resultat.html';
 }
 
-// ─────────────────────────────────────────────
-//  PARSE FINANCIAL DATA FROM HTML
-// ─────────────────────────────────────────────
-function parseFinancials(html, cvr) {
-  if (!html) return null;
-
-  // Strategy A: bracket-counted JSON array at "financial_summary"
-  const fsIdx = html.indexOf('"financial_summary"');
-  if (fsIdx !== -1) {
-    const arrStart = html.indexOf('[', fsIdx);
-    if (arrStart !== -1) {
-      const jsonStr = extractBalancedArray(html, arrStart);
-      if (jsonStr) {
-        try {
-          const arr = JSON.parse(jsonStr);
-          const norm = normalise(arr);
-          if (norm.length > 0) return norm;
-        } catch (e) { /* fall through */ }
-      }
-    }
-  }
-
-  // Strategy B: __NEXT_DATA__ script tag
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  const nextDataEl = doc.querySelector('script#__NEXT_DATA__');
-  if (nextDataEl) {
-    try {
-      const nd = JSON.parse(nextDataEl.textContent);
-      const found = deepFind(nd, 'financial_summary');
-      if (found) {
-        const norm = normalise(found);
-        if (norm.length > 0) return norm;
-      }
-    } catch (e) { /* fall through */ }
-  }
-
-  // Strategy C: any <pre> containing JSON with financial_summary
-  const pres = doc.querySelectorAll('pre');
-  for (const pre of pres) {
-    try {
-      const obj = JSON.parse(pre.textContent.trim());
-      const found = deepFind(obj, 'financial_summary');
-      if (found) {
-        const norm = normalise(found);
-        if (norm.length > 0) return norm;
-      }
-    } catch (e) { /* skip */ }
-  }
-
-  // Strategy D: all <script> tags
-  const scripts = doc.querySelectorAll('script');
-  for (const s of scripts) {
-    const txt = s.textContent;
-    if (!txt.includes('financial_summary')) continue;
-    const idx = txt.indexOf('"financial_summary"');
-    const aStart = txt.indexOf('[', idx);
-    if (aStart !== -1) {
-      const jsonStr = extractBalancedArray(txt, aStart);
-      if (jsonStr) {
-        try {
-          const arr = JSON.parse(jsonStr);
-          const norm = normalise(arr);
-          if (norm.length > 0) return norm;
-        } catch (e) { /* skip */ }
-      }
-    }
-  }
-
-  return null;
-}
-
-function extractBalancedArray(str, startIdx) {
-  let depth = 0, i = startIdx;
-  for (; i < str.length; i++) {
-    if (str[i] === '[' || str[i] === '{') depth++;
-    else if (str[i] === ']' || str[i] === '}') {
-      depth--;
-      if (depth === 0) return str.slice(startIdx, i + 1);
-    }
-  }
-  return null;
-}
-
-function deepFind(obj, key) {
-  if (!obj || typeof obj !== 'object') return null;
-  if (obj[key] !== undefined) return obj[key];
-  for (const k of Object.keys(obj)) {
-    const res = deepFind(obj[k], key);
-    if (res !== null) return res;
-  }
-  return null;
-}
-
-function normalise(arr) {
-  if (!Array.isArray(arr)) return [];
-  return arr
-    .map(item => ({
-      year:               parseInt(item.year ?? item.regnskabsaar ?? item.fiscal_year, 10),
-      gross_profit:       parseFloat(item.gross_profit ?? item.bruttoresultat ?? 0),
-      balance_sheet_status: parseFloat(item.balance_sheet_status ?? item.arets_resultat ?? item.result ?? 0),
-    }))
-    .filter(d => !isNaN(d.year) && d.year > 2000 && isFinite(d.gross_profit));
-}
-
-// ─────────────────────────────────────────────
-//  RENDER ALL
-// ─────────────────────────────────────────────
+// ── RENDER ALL (stores data + shows reveal button) ────────────────────────────
 function renderAll(cvrData, top4) {
-  // Company card may already be visible; ensure it's rendered
-  renderCompanyCard(cvrData, _currentCVR);
+  localStorage.setItem('gazelleResult', JSON.stringify({
+    cvrData,
+    top4,
+    currentCVR: _currentCVR,
+    manualNeeded: false,
+    timestamp: Date.now()
+  }));
 
-  const checks = buildChecks(cvrData, top4);
-  renderScorecard(checks);
-
-  const plans = buildFuturePlan(top4);
-  renderFuturePlan(plans, top4);
-  renderChart(top4, plans);
-
-  document.getElementById('results').style.display = 'block';
-  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ─────────────────────────────────────────────
-//  SCORECARD CHECKS
-// ─────────────────────────────────────────────
-function buildChecks(cvrData, top4) {
-  const checks = [];
-
-  // 1. Virksomhedstype
-  const rawType = (cvrData.companytype || cvrData.companydesc || '').trim();
-  const typeOk  = /aps|a\/s|anpartsselskab|aktieselskab/i.test(rawType);
-  checks.push({
-    pass:    typeOk,
-    name:    'Virksomhedstype',
-    numbers: rawType || 'Ikke tilgængeligt',
-    explain: typeOk
-      ? `${rawType} er en kvalificeret selskabstype (ApS / A/S)`
-      : `Kun ApS og A/S kvalificerer — registreret type: "${rawType}"`,
-  });
-
-  // 2. Minimum 4 regnskaber
-  const enoughData = top4.length >= 4;
-  checks.push({
-    pass:    enoughData,
-    name:    'Minimum 4 regnskaber',
-    numbers: `${top4.length} regnskabsår fundet`,
-    explain: enoughData
-      ? 'Tilstrækkeligt antal offentliggjorte årsregnskaber'
-      : `Gazelle kræver mindst 4 fulde årsregnskaber — kun ${top4.length} fundet`,
-  });
-
-  if (!enoughData) {
-    const na = { pass: false, numbers: 'Ikke nok data', explain: 'Kræver mindst 4 regnskabsår' };
-    checks.push({ ...na, name: 'Positiv vækst hvert år' });
-    checks.push({ ...na, name: 'Samlet vækst ≥ 100%' });
-    checks.push({ ...na, name: 'Samlet driftsresultat positivt' });
-    return checks;
-  }
-
-  const asc = [...top4].sort((a, b) => a.year - b.year);
-
-  // 3. Positiv vækst hvert år
-  let allGrowing = true;
-  const growthParts = [];
-  for (let i = 1; i < asc.length; i++) {
-    const gVal  = asc[i].gross_profit;
-    const gPrev = asc[i - 1].gross_profit;
-    const ok    = gVal > gPrev;
-    if (!ok) allGrowing = false;
-    const pct = gPrev > 0 ? ((gVal / gPrev - 1) * 100) : 0;
-    growthParts.push(`${asc[i].year}: ${fmtPct(pct)}`);
-  }
-  checks.push({
-    pass:    allGrowing,
-    name:    'Positiv vækst hvert år',
-    numbers: growthParts.join('  ·  '),
-    explain: allGrowing
-      ? 'Bruttoresultatet stiger hvert eneste år i perioden'
-      : 'Et eller flere år viser faldende bruttoresultat',
-  });
-
-  // 4. Samlet vækst ≥ 100%
-  const first  = asc[0].gross_profit;
-  const last   = asc[asc.length - 1].gross_profit;
-  const totGrowth = first > 0 ? (last / first - 1) : -Infinity;
-  const growOk = totGrowth >= 1.0;
-  checks.push({
-    pass:    growOk,
-    name:    'Samlet vækst ≥ 100%',
-    numbers: `${(totGrowth * 100).toFixed(0)}%  (${fmtDKK(first)} → ${fmtDKK(last)})`,
-    explain: growOk
-      ? 'Virksomheden er mere end fordoblet over de 4 år ✓'
-      : `Mangler fordobling — ${fmtDKK(first * 2 - last)} til 100%-grænsen`,
-  });
-
-  // 5. Samlet driftsresultat positivt
-  const totalDrift = asc.reduce((s, d) => s + d.balance_sheet_status, 0);
-  const driftOk = totalDrift > 0;
-  checks.push({
-    pass:    driftOk,
-    name:    'Samlet driftsresultat positivt',
-    numbers: `Samlet årets resultat over 4 år: ${fmtDKK(totalDrift)}`,
-    explain: driftOk
-      ? 'Den samlede sum af årets resultater er positiv'
-      : `Negativ samlet balance: ${fmtDKK(totalDrift)} (skal vendes til positivt)`,
-  });
-
-  return checks;
-}
-
-function renderScorecard(checks) {
-  const wrap = document.getElementById('scorecardWrap');
-  wrap.innerHTML = '';
-
-  checks.forEach(c => {
-    const cls  = c.pass === true ? 'pass' : c.pass === false ? 'fail' : 'unknown';
-    const icon = c.pass === true ? '✅' : c.pass === false ? '❌' : '⬜';
-    const div  = document.createElement('div');
-    div.className = 'criterion ' + cls;
-    div.innerHTML =
-      `<div class="c-icon">${icon}</div>` +
-      `<div class="c-body">` +
-        `<h3>${c.name}</h3>` +
-        `<div class="c-numbers">${c.numbers}</div>` +
-        `<div class="c-explain">${c.explain}</div>` +
-      `</div>`;
-    wrap.appendChild(div);
-  });
-
-  const allPass   = checks.every(c => c.pass === true);
-  const failNames = checks.filter(c => !c.pass).map(c => c.name);
-  const vEl = document.getElementById('verdictEl');
-  if (allPass) {
-    vEl.className = 'verdict success';
-    vEl.innerHTML = 'Potentiel Gazelle!<div class="v-sub">Alle 5 kriterier er opfyldt — virksomheden kvalificerer til Børsen Gazelle</div>';
-  } else {
-    vEl.className = 'verdict fail';
-    vEl.innerHTML = '❌ Ikke Gazelle endnu' +
-      `<div class="v-sub">Ikke opfyldt: ${failNames.join(', ')}</div>`;
-  }
-}
-
-// ─────────────────────────────────────────────
-//  FUTURE PLAN
-// ─────────────────────────────────────────────
-// ─────────────────────────────────────────────
-//  GAZELLE SEASON — date-based phase logic
-// ─────────────────────────────────────────────
-function gazellePhase() {
-  const now   = new Date();
-  const month = now.getMonth() + 1;  // 1–12
-  const year  = now.getFullYear();
-
-  if (month <= 8) {
-    // Jan–Aug: race to submit before Sep 1
-    // Gazelle announcement: Nov/Dec this year based on last year's accounts
-    return {
-      phase: 'race',
-      currentYear: year,
-      gazelleYear: year,          // announcement THIS year
-      accountYear: year - 1,      // accounts being evaluated (e.g. 2025 in 2026)
-      deadline: `1. sep ${year}`,
-      announcement: `nov/dec ${year}`,
-      title: `📍 Her er du — og det her kræves i år`,
-      intro: `Regnskabet for ${year - 1} skal indleveres senest <strong>1. september ${year}</strong> ` +
-             `for at tælle med i årets Gazelle-vurdering (udmelding: nov/dec ${year}). ` +
-             `Du kan stadig nå det — her er minimumsgrænsen for hvert scenarie.`,
-    };
-  } else if (month <= 11) {
-    // Sep–Nov: this year's deadline passed, Gazelle announcement imminent
-    return {
-      phase: 'locked',
-      currentYear: year,
-      gazelleYear: year,
-      accountYear: year - 1,
-      deadline: `1. sep ${year}`,
-      announcement: `nov/dec ${year}`,
-      title: `🔒 Årsregnskab indleveret — Gazelleudmeldingen nærmer sig`,
-      intro: `Regnskabsfristen for ${year - 1} er passeret (1. sep ${year}). ` +
-             `Gazelleudmeldingen forventes <strong>nov/dec ${year}</strong>. ` +
-             `Herunder ser du hvad der kræves for kommende år — start planlægningen nu.`,
-    };
-  } else {
-    // Dec: announcement period / new year planning
-    return {
-      phase: 'announce',
-      currentYear: year,
-      gazelleYear: year + 1,
-      accountYear: year,
-      deadline: `1. sep ${year + 1}`,
-      announcement: `nov/dec ${year + 1}`,
-      title: `Gazelleudmelding — planlæg vejen til ${year + 1}`,
-      intro: `Gazelleudmeldingen for ${year} er netop sket. ` +
-             `Nu handler det om at sætte sig op til Gazelle ${year + 1} ` +
-             `(regnskabsfrist: 1. sep ${year + 1}, udmelding: nov/dec ${year + 1}).`,
-    };
-  }
-}
-
-function buildFuturePlan(top4) {
-  const knownGross = {}, knownDrift = {};
-  top4.forEach(d => {
-    knownGross[d.year] = d.gross_profit;
-    knownDrift[d.year] = d.balance_sheet_status;
-  });
-
-  const mostRecentYear  = top4[0].year;
-  const mostRecentGross = top4[0].gross_profit;
-  const plans = [];
-
-  for (let offset = 1; offset <= 3; offset++) {
-    const targetYear = mostRecentYear + offset;
-    const wStart     = targetYear - 3;
-
-    const projGross = {};
-    for (let y = wStart; y < targetYear; y++) {
-      if (knownGross[y] !== undefined) {
-        projGross[y] = knownGross[y];
-      } else {
-        const prev = projGross[y - 1] ?? knownGross[y - 1] ?? mostRecentGross;
-        projGross[y] = prev + 1;
-      }
-    }
-
-    const priorGross      = projGross[targetYear - 1];
-    const firstGross      = projGross[wStart];
-    const mustExceedPrior = priorGross + 1;
-    const mustDouble      = firstGross * 2;
-    const minRequired     = Math.max(mustExceedPrior, mustDouble);
-    const reqGrowth       = mostRecentGross > 0 ? (minRequired / mostRecentGross - 1) * 100 : 0;
-    const tag             = reqGrowth < 50 ? 'green' : reqGrowth <= 150 ? 'yellow' : 'red';
-
-    let knownDriftSum = 0, knownDriftCount = 0;
-    for (let y = wStart; y < targetYear; y++) {
-      if (knownDrift[y] !== undefined) { knownDriftSum += knownDrift[y]; knownDriftCount++; }
-    }
-
-    plans.push({
-      year: targetYear, minRequired, reqGrowth, tag,
-      wStart, priorGross, firstGross,
-      knownDriftSum, knownDriftCount, driftOnTrack: knownDriftSum > 0,
-    });
-  }
-  return plans;
-}
-
-function renderFuturePlan(plans, top4) {
-  const phase  = gazellePhase();
-  const grid   = document.getElementById('futureGrid');
-  const intro  = document.getElementById('futureIntro');
-  const title  = document.getElementById('del2Title');
-  const tl     = document.getElementById('phaseTimeline');
-
-  // Update title & intro
-  if (title) title.textContent = phase.title;
-  if (intro) intro.innerHTML   = phase.intro;
-
-  // Build phase timeline
-  if (tl) {
-    const now   = new Date();
-    const month = now.getMonth() + 1;
-    const nodes = [
-      { label: 'Jan',    done: true },
-      { label: `1. sep\n${phase.currentYear}`, active: month <= 8, done: month > 8 },
-      { label: `Nov/dec\n${phase.gazelleYear}`, active: month > 8 && month <= 11, done: month === 12 },
-      { label: `${phase.gazelleYear + 1}`, active: month === 12 },
-    ];
-    tl.innerHTML = nodes.map((n, i) => {
-      const dotCls = n.active ? 'active' : n.done ? 'done' : '';
-      const lineCls = i < nodes.length - 1 ? (n.done ? 'done-line' : '') : '';
-      return `<div class="pt-node ${dotCls}">
-        <div class="pt-dot"></div>
-        <div class="pt-label">${n.label.replace('\n','<br>')}</div>
-      </div>${i < nodes.length - 1 ? `<div class="pt-line ${lineCls}"></div>` : ''}`;
-    }).join('');
-  }
-
-  // Render plan cards
-  grid.innerHTML = '';
-  plans.forEach(p => {
-    const isHighlighted = p.year === phase.gazelleYear;
-    const tagLabel = { green: 'På rette spor 🟢', yellow: 'Kræver indsats 🟡', red: 'Meget ambitiøst 🔴' }[p.tag];
-    const tagClass = { green: 'tag-green', yellow: 'tag-yellow', red: 'tag-red' }[p.tag];
-
-    let driftTxt;
-    if (p.knownDriftCount === 0)    driftTxt = 'Ingen kendte data i vinduet';
-    else if (p.driftOnTrack)        driftTxt = `${fmtDKK(p.knownDriftSum)} — positiv ✅`;
-    else                            driftTxt = `${fmtDKK(p.knownDriftSum)} — mangler ${fmtDKK(-p.knownDriftSum)}`;
-
-    let badgeHtml = '';
-    if (isHighlighted) {
-      const badges = {
-        race:     `<div class="phase-badge race">📍 Du er her — deadline 1. sep</div>`,
-        locked:   `<div class="phase-badge locked">🔒 Regnskab indleveret</div>`,
-        announce: `<div class="phase-badge announce">Næste Gazelle-mål</div>`,
-      };
-      badgeHtml = badges[phase.phase] || '';
-    }
-
-    const card = document.createElement('div');
-    card.className = 'future-card' + (isHighlighted ? ' highlighted' : '');
-    card.innerHTML =
-      badgeHtml +
-      `<h3>Gazelle i ${p.year}</h3>` +
-      `<div class="f-amount">${fmtDKK(p.minRequired)}</div>` +
-      `<div class="f-label">Minimum bruttoresultat</div>` +
-      `<div class="f-metrics">` +
-        `<div class="f-metric"><span class="fm-label">Krævet vækst fra nu</span><span class="fm-value">${fmtPct(p.reqGrowth)}</span></div>` +
-        `<div class="f-metric"><span class="fm-label">4-årsvindue starter</span><span class="fm-value">${p.wStart}</span></div>` +
-        `<div class="f-metric"><span class="fm-label">Vinduets første år</span><span class="fm-value">${fmtDKK(p.firstGross)}</span></div>` +
-        `<div class="f-metric"><span class="fm-label">Forudgående år (min)</span><span class="fm-value">${fmtDKK(p.priorGross)}</span></div>` +
-        `<div class="f-metric"><span class="fm-label">Samlet driftsresultat</span><span class="fm-value" style="font-size:.77rem">${driftTxt}</span></div>` +
-      `</div>` +
-      `<span class="tag ${tagClass}">${tagLabel}</span>`;
-    grid.appendChild(card);
-  });
-}
-
-// ─────────────────────────────────────────────
-//  CHART
-// ─────────────────────────────────────────────
-function renderChart(top4, plans) {
-  const asc = [...top4].sort((a, b) => a.year - b.year);
-
-  const histLabels = asc.map(d => String(d.year));
-  const histValues = asc.map(d => d.gross_profit);
-  const projLabels = plans.map(p => String(p.year));
-  const projValues = plans.map(p => p.minRequired);
-
-  const allLabels = [...histLabels, ...projLabels];
-  const histFull  = [...histValues, ...projValues.map(() => null)];
-  const projFull  = [...histValues.map(() => null), ...projValues];
-
-  if (chartInst) { chartInst.destroy(); chartInst = null; }
-
-  const ctx = document.getElementById('growthChart').getContext('2d');
-  chartInst = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: allLabels,
-      datasets: [
-        {
-          label: 'Historisk bruttoresultat',
-          data: histFull,
-          backgroundColor: '#4F46E5',
-          borderColor:     '#4F46E5',
-          borderWidth: 1,
-          borderRadius: 6,
-          borderSkipped: false,
-        },
-        {
-          label: 'Min. krævet (projektion)',
-          data: projFull,
-          backgroundColor: 'rgba(16,185,129,0.22)',
-          borderColor:     '#10B981',
-          borderWidth: 2,
-          borderRadius: 6,
-          borderSkipped: false,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'top', labels: { font: { size: 12 }, padding: 16 } },
-        tooltip: {
-          callbacks: {
-            label: ctx => ctx.raw === null ? null : `${ctx.dataset.label}: ${Math.round(ctx.raw).toLocaleString('da-DK')} kr.`,
-          },
-        },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: val => {
-              if (val >= 1_000_000) return (val / 1_000_000).toFixed(1).replace('.', ',') + ' mio. kr.';
-              if (val >= 1_000)    return (val / 1_000).toFixed(0) + ' t. kr.';
-              return val + ' kr.';
-            },
-          },
-          grid: { color: '#f0f0f0' },
-        },
-        x: { grid: { display: false } },
-      },
-    },
-  });
-}
-
-// ─────────────────────────────────────────────
-//  TERMINAL ENHANCEMENT  (non-destructive overlay)
-//  All original functions kept intact — these are
-//  additive wrappers only.
-// ─────────────────────────────────────────────
-
-function _termAppend(cls, text, delay) {
-  const body = document.getElementById('terminalBody');
-  if (!body) return;
-  if (cls === 'blank') {
-    const spacer = document.createElement('div');
-    spacer.className = 'tl-blank';
-    body.appendChild(spacer);
-    return;
-  }
-  const row = document.createElement('div');
-  row.className = 'tl';
-  row.style.animationDelay = (delay || 0) + 'ms';
-  if (cls === 'prompt') {
-    row.innerHTML = `<span class="tl-prompt">$</span> <span class="tl-cmd">${text}<span class="term-cursor"></span></span>`;
-  } else {
-    row.innerHTML = `<span class="tl-${cls}">${text}</span>`;
-  }
-  body.appendChild(row);
-  setTimeout(() => { body.scrollTop = body.scrollHeight; }, 20);
-}
-
-function _termLines(lines) {
-  lines.forEach((l, i) => {
-    setTimeout(() => _termAppend(l[0], l[1]), i * 90);
-  });
-}
-
-function _termInit() {
-  const body = document.getElementById('terminalBody');
-  if (!body) return;
-  body.innerHTML = '';
-  const raw = document.getElementById('cvrInput') ? document.getElementById('cvrInput').value.trim() : '';
-  _termAppend('prompt', `gazelle-checker --analyse ${raw}`);
-  _termAppend('blank', '');
-}
-
-const _TERM_RUN = {
-  cvr:      () => [
-    ['dim',  '  # Validerer CVR-format'],
-    ['cmd',  `  extractCVR("${document.getElementById('cvrInput') ? document.getElementById('cvrInput').value.trim() : ''}")`],
-  ],
-  company:  () => [
-    ['dim',  '  # Henter virksomhedsregister'],
-    ['cmd',  `  GET https://cvrapi.dk/api/dk/search/company?vat=${_currentCVR || '?'}`],
-  ],
-  holding:  () => [
-    ['dim',  '  # Klassificerer selskabstype'],
-    ['cmd',  '  isHoldingCompany(cvrData)  →  /holding|invest|kapital/i'],
-  ],
-  slug:     () => [
-    ['dim',  '  # Genererer virkdata.dk URL-slug'],
-    ['cmd',  `  generateVirkdataSlug("${_cvrData ? _cvrData.name : '...'}")`],
-  ],
-  finances: () => [
-    ['dim',  '  # Henter regnskabsdata via proxy'],
-    ['cmd',  '  fetchVirkdata(cvr, slug)  →  PROXY_LIST[0..3]'],
-    ['dim',  '  Afventer HTTP 200…'],
-  ],
-  analyse:  () => [
-    ['dim',  '  # Parser regnskabsperioder'],
-    ['cmd',  '  extractBalancedArray(json, "gross_profit")'],
-    ['cmd',  '  normalise(years)  →  top4 selection'],
-  ],
-  gazelle:  () => [
-    ['dim',  '  # Evaluerer Gazelle-kriterier'],
-    ['cmd',  '  buildChecks(cvrData, top4)'],
-    ['cmd',  '  gazellePhase()  →  buildFuturePlan()'],
-  ],
-};
-
-const _TERM_DONE = {
-  cvr:      () => [['ok',  `✓  CVR valideret: ${_currentCVR || ''}`]],
-  company:  () => {
-    const n = _cvrData ? _cvrData.name : '—';
-    const t = _cvrData ? (_cvrData.companytype || _cvrData.companydesc || '—') : '—';
-    return [['info', '← 200 OK'], ['dim', `   navn: "${n}"  ·  type: "${t}"`]];
-  },
-  holding:  () => [['ok',  '✓  Ikke holdingselskab — analyse fortsætter']],
-  slug:     () => {
-    const s = _cvrData ? generateVirkdataSlug(_cvrData.name) : '—';
-    return [['ok', `✓  slug: "${s}"`]];
-  },
-  finances: (d) => [['info', '← 200 OK'], ['ok',  `✓  ${d || 'Regnskabsdata modtaget'}`]],
-  analyse:  (d) => [['ok',  `✓  ${d || '4 regnskabsår parsed'}`], ['dim', '   [gross_profit, balance_sheet_status] normalised']],
-  gazelle:  () => [['ok',  '✓  Beregning fuldført'], ['info', '   → Klar — venter på dig']],
-};
-
-const _TERM_ERR = {
-  cvr:      [['err', '✗  Ugyldigt CVR-format']],
-  company:  [['err', '✗  cvrapi.dk fetch mislykkedes']],
-  holding:  [['warn', '⚠  Holdingselskab fundet — analyse stoppet']],
-  slug:     [['err', '✗  Kunne ikke generere virkdata.dk slug']],
-  finances: [['warn', '⚠  Auto-fetch blokeret — skifter til manuel indtastning']],
-  analyse:  [['err', '✗  Kunne ikke parse regnskabsdata']],
-  gazelle:  [['err', '✗  Beregningsfejl']],
-};
-
-// ── Non-destructive wrappers ──────────────────
-const _orig_initLoadSteps = initLoadSteps;
-initLoadSteps = function() {
-  _orig_initLoadSteps();
-  _termInit();
-};
-
-const _orig_stepRun = stepRun;
-stepRun = function(id) {
-  _orig_stepRun(id);
-  const fn = _TERM_RUN[id];
-  if (fn) _termLines(fn());
-};
-
-const _orig_stepDone = stepDone;
-stepDone = function(id, detail) {
-  _orig_stepDone(id, detail);
-  const fn = _TERM_DONE[id];
-  if (fn) {
-    const lines = fn(detail);
-    _termLines(lines);
-    _termAppend('blank', '');
-    // Add blinking cursor after last step
-    if (id === 'gazelle') {
-      setTimeout(() => {
-        const body = document.getElementById('terminalBody');
-        if (body) {
-          const cur = document.createElement('div');
-          cur.className = 'tl';
-          cur.innerHTML = `<span class="tl-prompt">$</span> <span class="term-cursor"></span>`;
-          body.appendChild(cur);
-          body.scrollTop = body.scrollHeight;
-        }
-      }, lines.length * 90 + 120);
-    }
-  }
-};
-
-const _orig_stepErr = stepErr;
-stepErr = function(id) {
-  _orig_stepErr(id);
-  const lines = _TERM_ERR[id] || [['err', `✗  Fejl i trin "${id}"`]];
-  _termLines(lines);
-  _termAppend('blank', '');
-};
-
-// ── renderAll patch: show "Se resultat" button ─
-const _orig_renderAll = renderAll;
-renderAll = function(cvrData, top4) {
-  _orig_renderAll(cvrData, top4);
-  // Re-hide results (orig showed them), show reveal button instead
-  document.getElementById('results').style.display = 'none';
+  // Show reveal button
   const wrap = document.getElementById('revealWrap');
   if (wrap) {
     wrap.style.display = 'flex';
     setTimeout(() => wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
   }
+}
+
+// ── REVEAL RESULTS ────────────────────────────────────────────────────────────
+function revealResults() {
+  window.location.href = 'resultat.html';
+}
+
+// ── CHECK GAZELLE (main flow) ─────────────────────────────────────────────────
+async function checkGazelle() {
+  hideErr();
+  document.getElementById('companyCard').style.display  = 'none';
+  document.getElementById('holdingCard').style.display  = 'none';
+  document.getElementById('manualCard').style.display   = 'none';
+  document.getElementById('revealWrap').style.display   = 'none';
+
+  const raw = document.getElementById('cvrInput').value.trim();
+  const cvr = extractCVR(raw);
+  if (!cvr) {
+    showErr('Indtast venligst et gyldigt 8-cifret CVR-nummer.');
+    return;
+  }
+  _currentCVR = cvr;
+
+  initLoadSteps();
+  stepRun('step-cvr');
+
+  // 1. Fetch CVR data
+  let cvrData = null;
+  try {
+    cvrData = await fetchCVR(cvr);
+    _cvrData = cvrData;
+  } catch (e) {
+    _termAppend(`CVR-fejl: ${e.message}`, 't-err');
+  }
+
+  if (cvrData) {
+    stepDone('step-cvr');
+    renderCompanyCard(cvrData, cvr);
+
+    // Check for holding company
+    if (isHoldingCompany(cvrData)) {
+      const related = await searchRelatedCompanies(cvr);
+      showHoldingCard(cvrData, related);
+    }
+  } else {
+    stepErr('step-cvr');
+    _termAppend('Kunne ikke hente CVR-data — fortsætter med CVR-nummer alene', 't-warn');
+    cvrData = { name: 'CVR ' + cvr, vat: cvr };
+    _cvrData = cvrData;
+  }
+
+  // 2. Fetch financial data
+  stepRun('step-fin');
+  let financials = null;
+  try {
+    financials = await fetchVirkdata(cvr, cvrData.name);
+  } catch (e) {
+    _termAppend(`Regnskabsfejl: ${e.message}`, 't-err');
+  }
+
+  if (!financials || financials.length < 2) {
+    stepErr('step-fin');
+    _termAppend('Kunne ikke hente regnskabsdata automatisk — viser manuel indtastning', 't-warn');
+    showManualCard(cvr, cvrData);
+    return;
+  }
+
+  stepDone('step-fin');
+  financials.sort((a, b) => b.year - a.year);
+  const top4 = financials.slice(0, 4);
+
+  // 3. Calculate
+  stepRun('step-calc');
+  await new Promise(r => setTimeout(r, 300)); // slight delay for UX
+  stepDone('step-calc');
+
+  renderAll(cvrData, top4);
+}
+
+// ── TERMINAL ENHANCEMENTS ─────────────────────────────────────────────────────
+const _termBox  = document.getElementById('termBox');
+const _termLines = [];
+const MAX_TERM   = 80;
+
+function _termAppend(msg, cls = '') {
+  if (!_termBox) return;
+  _termBox.style.display = 'block';
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = `> ${msg}`;
+  _termBox.appendChild(line);
+  _termLines.push(line);
+  if (_termLines.length > MAX_TERM) {
+    _termLines.shift().remove();
+  }
+  _termBox.scrollTop = _termBox.scrollHeight;
+}
+
+function _termInit() {
+  if (_termBox) {
+    _termBox.innerHTML = '';
+    _termBox.style.display = 'block';
+  }
+}
+
+// Wrap initLoadSteps to also init terminal
+const _origInitLoadSteps = initLoadSteps;
+initLoadSteps = function() {
+  _termInit();
+  _termAppend('Starter Gazelle-analyse...', 't-dim');
+  _origInitLoadSteps();
 };
 
-function revealResults() {
-  document.getElementById('revealWrap').style.display = 'none';
-  const results = document.getElementById('results');
-  results.style.display = 'block';
-  // Collapse hero so results fill cleanly
-  const hero = document.getElementById('heroSection');
-  if (hero) { hero.style.minHeight = '0'; hero.style.paddingBottom = '0'; }
-  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-</script>
+// Wrap stepRun
+const _origStepRun = stepRun;
+stepRun = function(id) {
+  const step = LOAD_STEPS.find(s => s.id === id);
+  if (step) _termAppend(step.label + '...', 't-step');
+  _origStepRun(id);
+};
 
+// Wrap stepDone
+const _origStepDone = stepDone;
+stepDone = function(id) {
+  const step = LOAD_STEPS.find(s => s.id === id);
+  if (step) _termAppend('✓ ' + step.label, 't-ok');
+  _origStepDone(id);
+};
+
+// Wrap stepErr
+const _origStepErr = stepErr;
+stepErr = function(id) {
+  const step = LOAD_STEPS.find(s => s.id === id);
+  if (step) _termAppend('✗ ' + step.label, 't-err');
+  _origStepErr(id);
+};
+
+// ── KEYBOARD HANDLER ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('cvrInput');
+  if (inp) {
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkGazelle();
+    });
+  }
+});
+
+// ── PARTICLE ANIMATION ────────────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('particleCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let dots = [];
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  function init() {
+    resize();
+    dots = Array.from({length: 80}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + .5,
+      vx: (Math.random() - .5) * .3,
+      vy: (Math.random() - .5) * .3,
+      o: Math.random() * .5 + .1
+    }));
+  }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    dots.forEach(d => {
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,255,255,${d.o})`;
+      ctx.fill();
+      d.x += d.vx; d.y += d.vy;
+      if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+      if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+    });
+    requestAnimationFrame(draw);
+  }
+  init();
+  draw();
+  window.addEventListener('resize', init);
+})();
+</script>
 </body>
 </html>
