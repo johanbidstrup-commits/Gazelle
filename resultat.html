@@ -11,19 +11,19 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --green: #4F46E5;
-  --green-mid: #4338CA;
-  --green-dark: #3730A3;
-  --green-ghost: #EEF2FF;
-  --red: #EF4444;
-  --red-ghost: #FEF2F2;
-  --amber: #F59E0B;
-  --amber-ghost: #FFFBEB;
-  --text: #0F172A;
-  --text-soft: #64748B;
-  --border: #E2E8F0;
-  --surface: #fff;
-  --bg: #F8FAFC;
+  --green: #6366F1;
+  --green-mid: #4F46E5;
+  --green-dark: #4338CA;
+  --green-ghost: rgba(99,102,241,0.15);
+  --red: #F87171;
+  --red-ghost: rgba(248,113,113,0.12);
+  --amber: #FBBF24;
+  --amber-ghost: rgba(251,191,36,0.12);
+  --text: #F1F5F9;
+  --text-soft: rgba(255,255,255,0.45);
+  --border: rgba(255,255,255,0.08);
+  --surface: #1E293B;
+  --bg: #0F172A;
 }
 body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text); min-height: 100vh; }
 
@@ -118,7 +118,7 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   font-size: 1.1rem;
   font-weight: 800;
   margin-bottom: 1rem;
-  color: var(--text);
+  color: #fff;
   letter-spacing: -.5px;
 }
 .eyebrow {
@@ -143,12 +143,12 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 #companyCard {
   background: var(--surface);
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.08);
+  border: 1px solid var(--border);
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
   display: none;
 }
-.company-name { font-size: 1.25rem; font-weight: 800; margin-bottom: .25rem; }
+.company-name { font-size: 1.25rem; font-weight: 800; margin-bottom: .25rem; color: #fff; }
 .company-meta { font-size: .85rem; color: var(--text-soft); }
 .company-meta span { margin-right: 1rem; }
 
@@ -156,12 +156,12 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 #manualSection {
   background: var(--surface);
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.08);
+  border: 1px solid var(--border);
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
   display: none;
 }
-.manual-title { font-size: 1rem; font-weight: 700; margin-bottom: .35rem; }
+.manual-title { font-size: 1rem; font-weight: 700; margin-bottom: .35rem; color: #fff; }
 .manual-desc { font-size: .86rem; color: var(--text-soft); margin-bottom: 1rem; line-height: 1.5; }
 .manual-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
 .manual-table th {
@@ -172,14 +172,16 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   padding: .4rem .5rem;
   border-bottom: 1.5px solid var(--border);
 }
-.manual-table td { padding: .45rem .5rem; border-bottom: 1px solid var(--border); font-size: .88rem; }
+.manual-table td { padding: .45rem .5rem; border-bottom: 1px solid var(--border); font-size: .88rem; color: var(--text); }
 .manual-table td input {
   width: 100%;
+  background: rgba(255,255,255,0.06);
   border: 1.5px solid var(--border);
   border-radius: 6px;
   padding: .3rem .5rem;
   font-size: .88rem;
   font-family: inherit;
+  color: #fff;
   outline: none;
 }
 .manual-table td input:focus { border-color: var(--green); }
@@ -210,14 +212,14 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 .check-card {
   background: var(--surface);
   border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.07);
+  border: 1px solid var(--border);
   padding: 1.1rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: .35rem;
 }
 .check-label { font-size: .78rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
-.check-value { font-size: 1.05rem; font-weight: 700; }
+.check-value { font-size: 1.05rem; font-weight: 700; color: #fff; }
 .check-sub   { font-size: .8rem; color: var(--text-soft); }
 .check-ok    { border-left: 3px solid #22C55E; }
 .check-fail  { border-left: 3px solid var(--red); }
@@ -231,9 +233,9 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   padding: .2rem .55rem;
   border-radius: 99px;
 }
-.badge-ok   { background: #DCFCE7; color: #166534; }
-.badge-fail { background: var(--red-ghost); color: #991B1B; }
-.badge-warn { background: var(--amber-ghost); color: #92400E; }
+.badge-ok   { background: rgba(34,197,94,.18); color: #4ADE80; }
+.badge-fail { background: var(--red-ghost); color: #F87171; }
+.badge-warn { background: var(--amber-ghost); color: #FBBF24; }
 
 /* ── VERDICT ── */
 #verdictEl {
@@ -243,26 +245,26 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   text-align: center;
 }
 .verdict-pass {
-  background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
-  border: 2px solid #86EFAC;
+  background: linear-gradient(135deg, rgba(16,185,129,.12), rgba(34,197,94,.08));
+  border: 1px solid rgba(34,197,94,.3);
 }
 .verdict-fail {
-  background: linear-gradient(135deg, #FFF1F2, #FFE4E6);
-  border: 2px solid #FECDD3;
+  background: linear-gradient(135deg, rgba(239,68,68,.12), rgba(248,113,113,.08));
+  border: 1px solid rgba(248,113,113,.25);
 }
 .verdict-warn {
-  background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
-  border: 2px solid #FDE68A;
+  background: linear-gradient(135deg, rgba(251,191,36,.1), rgba(245,158,11,.06));
+  border: 1px solid rgba(251,191,36,.25);
 }
 .verdict-icon { font-size: 2.5rem; margin-bottom: .5rem; }
-.verdict-title { font-size: 1.4rem; font-weight: 900; margin-bottom: .35rem; }
+.verdict-title { font-size: 1.4rem; font-weight: 900; margin-bottom: .35rem; color: #fff; }
 .verdict-desc { font-size: .92rem; color: var(--text-soft); line-height: 1.55; max-width: 480px; margin: 0 auto; }
 
 /* ── CHART ── */
 .chart-card {
   background: var(--surface);
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.08);
+  border: 1px solid var(--border);
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
 }
@@ -285,12 +287,12 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 .future-card {
   background: var(--surface);
   border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.07);
+  border: 1px solid var(--border);
   padding: 1.1rem 1.25rem;
   border-top: 4px solid var(--green);
 }
 .future-year  { font-size: .78rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .35rem; }
-.future-val   { font-size: 1rem; font-weight: 700; margin-bottom: .2rem; }
+.future-val   { font-size: 1rem; font-weight: 700; margin-bottom: .2rem; color: #fff; }
 .future-delta { font-size: .8rem; color: var(--text-soft); }
 
 /* ── PHASE TIMELINE ── */
@@ -315,11 +317,12 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   flex-shrink: 0;
   margin-top: .1rem;
 }
-.phase-dot.done  { background: #DCFCE7; }
+.phase-dot.done  { background: rgba(34,197,94,.2); }
 .phase-dot.prog  { background: var(--green-ghost); }
-.phase-dot.future{ background: var(--bg); border: 2px dashed var(--border); }
+.phase-dot.future{ background: rgba(255,255,255,.04); border: 2px dashed var(--border); }
+.phase-item { border-bottom-color: var(--border); }
 .phase-info { flex: 1; }
-.phase-label { font-weight: 700; font-size: .95rem; margin-bottom: .15rem; }
+.phase-label { font-weight: 700; font-size: .95rem; margin-bottom: .15rem; color: #fff; }
 .phase-desc  { font-size: .83rem; color: var(--text-soft); line-height: 1.5; }
 
 /* ── SUPPLEMENT CARD ── */
@@ -327,7 +330,7 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 .supplement-card {
   background: var(--surface);
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.08);
+  border: 1px solid var(--border);
   padding: 1.5rem 2rem;
   border-top: 4px solid var(--amber);
 }
@@ -346,11 +349,13 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 .supp-field { display: flex; flex-direction: column; gap: .35rem; flex: 1; min-width: 140px; }
 .supp-field label { font-size: .78rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
 .supp-field input {
+  background: rgba(255,255,255,0.06);
   border: 1.5px solid var(--border);
   border-radius: 8px;
   padding: .6rem .75rem;
   font-size: .9rem;
   font-family: inherit;
+  color: #fff;
   outline: none;
   transition: border-color .15s;
 }
@@ -376,11 +381,11 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   gap: .4rem;
   font-size: .85rem;
   font-weight: 600;
-  color: var(--green);
+  color: rgba(255,255,255,0.5);
   text-decoration: none;
   margin-bottom: 1.5rem;
 }
-.back-link:hover { color: var(--green-mid); }
+.back-link:hover { color: #fff; }
 
 /* ── FOOTER ── */
 footer {
@@ -401,6 +406,140 @@ footer a:hover { color: #fff; }
   #futureGrid { grid-template-columns: 1fr 1fr; }
   .supp-row { flex-direction: column; }
 }
+
+/* ── GAZELLE HISTORY ── */
+.history-section { margin-bottom: 2rem; }
+.history-grid {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #1E293B;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  border: 1px solid rgba(255,255,255,0.07);
+  position: relative;
+}
+.history-row.pass { border-left: 4px solid #10B981; }
+.history-row.fail { border-left: 4px solid #EF4444; }
+.history-row.pending { border-left: 4px solid #F59E0B; }
+.history-row.first-gazelle { border-color: #10B981; box-shadow: 0 0 0 1px #10B981; }
+.history-year {
+  font-family: 'SF Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  min-width: 60px;
+}
+.history-badge {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .2rem .6rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.badge-pass { background: rgba(16,185,129,.2); color: #10B981; }
+.badge-fail { background: rgba(239,68,68,.15); color: #EF4444; }
+.badge-pending { background: rgba(245,158,11,.15); color: #F59E0B; }
+.badge-first { background: #10B981; color: #fff; }
+.history-detail {
+  flex: 1;
+  font-size: .82rem;
+  color: rgba(255,255,255,0.5);
+  font-family: 'SF Mono', monospace;
+}
+.history-window {
+  font-size: .75rem;
+  color: rgba(255,255,255,0.3);
+  font-family: 'SF Mono', monospace;
+  white-space: nowrap;
+}
+.history-criteria {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+.hc { font-size: .7rem; padding: .15rem .4rem; border-radius: 4px; }
+.hc-ok { background: rgba(16,185,129,.15); color: #10B981; }
+.hc-fail { background: rgba(239,68,68,.1); color: #EF4444; }
+
+/* ── 2026 REQUIREMENT CARD ── */
+.req-card {
+  background: #1E293B;
+  border: 1px solid rgba(245,158,11,0.3);
+  border-left: 4px solid #F59E0B;
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 2rem;
+}
+.req-label {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #F59E0B;
+  margin-bottom: .5rem;
+}
+.req-amount {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #fff;
+  font-family: 'SF Mono', monospace;
+  margin-bottom: .25rem;
+}
+.req-sub {
+  font-size: .82rem;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 1.25rem;
+}
+.req-input-row {
+  display: flex;
+  gap: .75rem;
+  align-items: stretch;
+}
+.req-input {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 9px;
+  padding: .75rem 1rem;
+  color: #fff;
+  font-family: 'SF Mono', monospace;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color .2s;
+}
+.req-input:focus { border-color: #F59E0B; }
+.req-input::placeholder { color: rgba(255,255,255,0.25); }
+.btn-req {
+  background: #F59E0B;
+  color: #000;
+  border: none;
+  border-radius: 9px;
+  padding: .75rem 1.5rem;
+  font-weight: 700;
+  font-size: .9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.btn-req:hover { background: #D97706; }
+.req-result {
+  margin-top: 1rem;
+  padding: .9rem 1.1rem;
+  border-radius: 8px;
+  font-size: .9rem;
+  font-weight: 600;
+  display: none;
+}
+.req-result.pass { background: rgba(16,185,129,.15); color: #10B981; border: 1px solid rgba(16,185,129,.3); }
+.req-result.fail { background: rgba(239,68,68,.1); color: #EF4444; border: 1px solid rgba(239,68,68,.2); }
 </style>
 </head>
 <body>
@@ -433,8 +572,8 @@ footer a:hover { color: #fff; }
   <!-- NO DATA MESSAGE -->
   <div id="noDataMsg" style="display:none; text-align:center; padding: 4rem 1rem;">
     <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
-    <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:.75rem">Ingen analyse fundet</h2>
-    <p style="color:var(--text-soft);margin-bottom:1.5rem">Gå til forsiden og indtast dit CVR-nummer for at starte en analyse.</p>
+    <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:.75rem;color:#fff">Ingen analyse fundet</h2>
+    <p style="color:rgba(255,255,255,0.5);margin-bottom:1.5rem">Gå til forsiden og indtast dit CVR-nummer for at starte en analyse.</p>
     <a href="index.html" style="display:inline-block;padding:.85rem 2rem;background:var(--green);color:#fff;border-radius:10px;text-decoration:none;font-weight:700">← Tilbage til forsiden</a>
   </div>
 
@@ -460,6 +599,30 @@ footer a:hover { color: #fff; }
       <tbody id="manualBody"></tbody>
     </table>
     <button class="btn-calc" onclick="calcFromManual()">Beregn Gazelle →</button>
+  </div>
+
+  <!-- GAZELLE HISTORY -->
+  <div id="historySection" style="display:none">
+    <div class="eyebrow">GAZELLE HISTORIK</div>
+    <h2 class="section-title" style="margin-bottom:1.25rem">Alle Gazelle-år analyseret</h2>
+    <div class="history-grid" id="historyGrid"></div>
+  </div>
+
+  <!-- 2026 REQUIREMENT -->
+  <div id="req2026Section" style="display:none">
+    <div class="eyebrow" style="margin-top:2rem">GAZELLE 2026 — HVAD KRÆVES?</div>
+    <h2 class="section-title" style="margin-bottom:1rem">Minimum bruttoresultat 2025</h2>
+    <div class="req-card">
+      <div class="req-label">Minimumskrav — Bruttoresultat 2025</div>
+      <div class="req-amount" id="reqAmount">—</div>
+      <div class="req-sub" id="reqSub">For at kvalificere til Gazelle 2026 baseret på 2022–2025</div>
+      <div class="req-input-row">
+        <input class="req-input" type="number" id="req2025Input" placeholder="Bruttoresultat 2025 (kr.)...">
+        <input class="req-input" type="number" id="req2025Drift" placeholder="Årets resultat 2025 (valgfrit)" style="max-width:260px">
+        <button class="btn-req" onclick="check2025()">Beregn →</button>
+      </div>
+      <div class="req-result" id="reqResult"></div>
+    </div>
   </div>
 
   <!-- RESULTS -->
@@ -889,7 +1052,7 @@ function renderChart(top4, plans) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, boxWidth: 14 } },
+        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, boxWidth: 14, color: 'rgba(255,255,255,0.6)' } },
         tooltip: {
           callbacks: {
             label: ctx => `${ctx.dataset.label}: ${fmtDKK(ctx.raw)}`,
@@ -905,11 +1068,12 @@ function renderChart(top4, plans) {
               return v;
             },
             font: { family: 'Inter', size: 11 },
+            color: 'rgba(255,255,255,0.4)',
           },
-          grid: { color: 'rgba(0,0,0,.05)' },
+          grid: { color: 'rgba(255,255,255,0.06)' },
         },
         x: {
-          ticks: { font: { family: 'Inter', size: 11 } },
+          ticks: { font: { family: 'Inter', size: 11 }, color: 'rgba(255,255,255,0.4)' },
           grid: { display: false },
         },
       },
@@ -1032,6 +1196,204 @@ function submitSupplement() {
   renderAll(_cvrData, combined);
 }
 
+// ── GAZELLE HISTORY ────────────────────────────────────────────────────────
+function buildGazelleHistory(allFinancials, cvrData) {
+  const sorted = [...allFinancials].sort((a, b) => a.year - b.year);
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  // Current Gazelle year: the one being announced this year or next
+  // Gazelle N uses accounts N-4 to N-1
+  // In 2026: Gazelle 2026 uses 2022-2025
+  const currentGazelleYear = currentYear; // 2026
+
+  const rows = [];
+  let firstGazelle = null;
+
+  // Check all possible 4-year windows from available data
+  for (let i = 0; i <= sorted.length - 4; i++) {
+    const window4 = sorted.slice(i, i + 4);
+    // Must be consecutive years
+    let consecutive = true;
+    for (let j = 1; j < 4; j++) {
+      if (window4[j].year !== window4[j-1].year + 1) { consecutive = false; break; }
+    }
+    if (!consecutive) continue;
+
+    const gazelleYear = window4[3].year + 1;
+    const checks = buildChecks(cvrData, window4);
+    const pass = checks.every(c => c.pass === true);
+
+    if (pass && !firstGazelle) firstGazelle = gazelleYear;
+
+    rows.push({
+      gazelleYear,
+      window4,
+      checks,
+      pass,
+      isFirst: pass && firstGazelle === gazelleYear,
+      isCurrent: gazelleYear === currentGazelleYear,
+    });
+  }
+
+  // Add current/next Gazelle year if 2025 data missing
+  const latestYear = sorted[sorted.length - 1]?.year;
+  const neededLastYear = currentGazelleYear - 1; // 2025
+  if (latestYear < neededLastYear) {
+    // 2025 not available — show pending row
+    const partialWindow = sorted.filter(f => f.year >= currentGazelleYear - 4 && f.year < currentGazelleYear);
+    rows.push({
+      gazelleYear: currentGazelleYear,
+      window4: partialWindow,
+      checks: null,
+      pass: null,
+      pending: true,
+      isCurrent: true,
+      missingYear: neededLastYear,
+    });
+  }
+
+  return rows;
+}
+
+function renderGazelleHistory(rows, cvrData) {
+  const grid = document.getElementById('historyGrid');
+  const section = document.getElementById('historySection');
+  if (!grid || !section || rows.length === 0) return;
+
+  section.style.display = 'block';
+  grid.innerHTML = '';
+
+  rows.forEach(row => {
+    const div = document.createElement('div');
+    let cls = 'history-row';
+    if (row.pending) cls += ' pending';
+    else if (row.pass) { cls += ' pass'; if (row.isFirst) cls += ' first-gazelle'; }
+    else cls += ' fail';
+    div.className = cls;
+
+    const windowYears = row.window4.map(f => f.year).join('–');
+    const windowStr = row.window4.length < 4
+      ? `${windowYears}–${row.missingYear || '?'}`
+      : windowYears;
+
+    let badgeHtml = '';
+    if (row.pending) {
+      badgeHtml = `<span class="history-badge badge-pending">⏳ Afventer 2025-data</span>`;
+    } else if (row.isFirst) {
+      badgeHtml = `<span class="history-badge badge-first">🏆 Første Gazelle!</span>`;
+    } else if (row.pass) {
+      badgeHtml = `<span class="history-badge badge-pass">✓ Gazelle</span>`;
+    } else {
+      badgeHtml = `<span class="history-badge badge-fail">✗ Ikke opfyldt</span>`;
+    }
+
+    let criteriaHtml = '';
+    if (row.checks) {
+      const labels = ['Type', '4 år', 'Vækst', '100%', 'Drift'];
+      criteriaHtml = `<div class="history-criteria">${row.checks.map((c, i) =>
+        `<span class="hc ${c.pass ? 'hc-ok' : 'hc-fail'}">${labels[i]}</span>`
+      ).join('')}</div>`;
+    } else {
+      criteriaHtml = `<div style="font-size:.8rem;color:rgba(255,255,255,0.4)">Indtast 2025-data for at beregne</div>`;
+    }
+
+    div.innerHTML = `
+      <div class="history-year">${row.gazelleYear}</div>
+      ${badgeHtml}
+      <div class="history-detail">${criteriaHtml}</div>
+      <div class="history-window">Regnskaber: ${windowStr}</div>`;
+
+    grid.appendChild(div);
+  });
+}
+
+function buildAndRender2026Requirement(allFinancials, cvrData) {
+  const section = document.getElementById('req2026Section');
+  if (!section) return;
+
+  const now = new Date();
+  const currentGazelleYear = now.getFullYear(); // 2026
+  const neededLastYear = currentGazelleYear - 1; // 2025
+
+  const sorted = [...allFinancials].sort((a, b) => a.year - b.year);
+  const latestAvailable = sorted[sorted.length - 1]?.year;
+
+  // Only show if 2025 is missing
+  if (latestAvailable >= neededLastYear) return;
+
+  // Get the 3 known years of the Gazelle 2026 window (2022, 2023, 2024)
+  const windowStart = currentGazelleYear - 4; // 2022
+  const knownYears = sorted.filter(f => f.year >= windowStart && f.year < currentGazelleYear);
+
+  if (knownYears.length < 3) return; // Not enough data to compute requirements
+
+  const prevYear = knownYears[knownYears.length - 1]; // 2024 data
+  const firstYear = knownYears[0]; // 2022 data
+
+  // Criterion 3: must exceed previous year
+  const minForGrowth = prevYear.gross_profit + 1;
+  // Criterion 4: total growth >= 100% (last/first >= 2)
+  const minForDoubling = firstYear.gross_profit * 2;
+  const minRequired = Math.max(minForGrowth, minForDoubling);
+
+  // Criterion 5: net result sum must be positive
+  const knownNetSum = knownYears.reduce((s, f) => s + (f.balance_sheet_status || 0), 0);
+
+  section.style.display = 'block';
+  document.getElementById('reqAmount').textContent = new Intl.NumberFormat('da-DK').format(Math.round(minRequired)) + ' kr.';
+  document.getElementById('reqSub').textContent =
+    `Minimum bruttoresultat i 2025 for at kvalificere til Gazelle 2026 (vindue: ${windowStart}–2025). Skal overgå 2024 (${new Intl.NumberFormat('da-DK').format(prevYear.gross_profit)} kr.) og fordoble 2022 (${new Intl.NumberFormat('da-DK').format(firstYear.gross_profit)} kr. × 2).`;
+
+  // Store for check2025
+  window._req2026 = { minRequired, knownNetSum, knownYears, cvrData, allFinancials };
+}
+
+function check2025() {
+  const input = document.getElementById('req2025Input');
+  const resultEl = document.getElementById('reqResult');
+  if (!input || !resultEl || !window._req2026) return;
+
+  const val = parseFloat(String(input.value).replace(/[^\d.-]/g, ''));
+  if (isNaN(val) || val <= 0) {
+    resultEl.style.display = 'block';
+    resultEl.className = 'req-result fail';
+    resultEl.textContent = 'Indtast et gyldigt beløb.';
+    return;
+  }
+
+  const { minRequired, knownNetSum, knownYears, cvrData, allFinancials } = window._req2026;
+  const driftInput = document.getElementById('req2025Drift');
+  const drift2025 = driftInput && driftInput.value ? parseFloat(String(driftInput.value).replace(/[^\d.-]/g, '')) || 0 : 0;
+
+  const meetsGrowth = val >= minRequired;
+  const totalNet = knownNetSum + drift2025;
+  const meetsDrift = totalNet > 0;
+
+  resultEl.style.display = 'block';
+
+  if (meetsGrowth && (drift2025 === 0 || meetsDrift)) {
+    resultEl.className = 'req-result pass';
+    resultEl.innerHTML = `✓ Med et bruttoresultat på ${new Intl.NumberFormat('da-DK').format(Math.round(val))} kr. i 2025 opfylder I vækstkriteriet. ${drift2025 ? (meetsDrift ? 'Driftsresultatkravet er også opfyldt.' : 'OBS: Samlet driftsresultat er stadig negativt.') : 'Tilføj årets resultat for at tjekke driftsresultatkravet.'}`;
+
+    // Re-render history with 2025 data added
+    const year2025 = { year: 2025, gross_profit: val, balance_sheet_status: drift2025 };
+    const newAll = [...allFinancials.filter(f => f.year !== 2025), year2025];
+    const newRows = buildGazelleHistory(newAll, cvrData);
+    renderGazelleHistory(newRows, cvrData);
+
+    // Store updated data
+    localStorage.setItem('gazelleResult', JSON.stringify({
+      ...JSON.parse(localStorage.getItem('gazelleResult') || '{}'),
+      allFinancials: newAll,
+      top4: newAll.sort((a,b) => b.year - a.year).slice(0,4),
+    }));
+  } else {
+    resultEl.className = 'req-result fail';
+    const diff = minRequired - val;
+    resultEl.innerHTML = `✗ Ikke nok — mangler ${new Intl.NumberFormat('da-DK').format(Math.round(diff))} kr. i bruttoresultat for at nå minimumsgrænsen på ${new Intl.NumberFormat('da-DK').format(Math.round(minRequired))} kr.`;
+  }
+}
+
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   const stored = localStorage.getItem('gazelleResult');
@@ -1068,6 +1430,13 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     }
   } else if (data.top4) {
+    // Render history and 2026 requirement BEFORE main scorecard
+    const allFin = data.allFinancials || data.top4 || [];
+    if (allFin.length > 0) {
+      const historyRows = buildGazelleHistory(allFin, data.cvrData);
+      renderGazelleHistory(historyRows, data.cvrData);
+      buildAndRender2026Requirement(allFin, data.cvrData);
+    }
     renderAll(data.cvrData, data.top4);
   }
 });

@@ -889,6 +889,7 @@ function calcWithManual() {
 
   localStorage.setItem('gazelleResult', JSON.stringify({
     cvrData: _cvrData || { name: 'Manuel indtastning', vat: _currentCVR },
+    allFinancials: financials.slice(0, 4),
     top4: financials.slice(0, 4),
     currentCVR: _currentCVR,
     manualNeeded: false,
@@ -898,9 +899,11 @@ function calcWithManual() {
 }
 
 // ── RENDER ALL (stores data + shows reveal button) ────────────────────────────
-function renderAll(cvrData, top4) {
+function renderAll(cvrData, allFinancials, top4) {
+  if (!top4) top4 = allFinancials.slice(0, 4);
   localStorage.setItem('gazelleResult', JSON.stringify({
     cvrData,
+    allFinancials,
     top4,
     currentCVR: _currentCVR,
     manualNeeded: false,
@@ -1013,7 +1016,7 @@ async function checkGazelle() {
 
   stepDone('step-fin');
   financials.sort((a, b) => b.year - a.year);
-  const top4 = financials.slice(0, 4);
+  const top4 = financials.slice(0, 4); // kept for compat
   await delay(300);
   _termAppend(`  Regnskabsår fundet: ${top4.map(f => f.year).join(', ')}`, 't-dim');
 
@@ -1044,7 +1047,7 @@ async function checkGazelle() {
   await delay(300);
   stepDone('step-calc');
 
-  renderAll(cvrData, top4);
+  renderAll(cvrData, financials, top4);
 }
 
 // ── TERMINAL ENHANCEMENTS ─────────────────────────────────────────────────────
