@@ -100,7 +100,7 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 .hr.pass  { border-left-color: var(--emerald); }
 .hr.fail  { border-left-color: var(--red); }
 .hr.pending { border-left-color: var(--amber); }
-.hr.first-pass { box-shadow: 0 0 0 1px var(--emerald); }
+/* .hr.first-pass — no extra glow, left border is enough */
 
 /* Row top bar */
 .hr-top {
@@ -128,6 +128,15 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   color: rgba(255,255,255,0.3); font-family: 'SF Mono', monospace;
   white-space: nowrap;
 }
+.btn-edit-year {
+  background: none; border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 7px; padding: .25rem .5rem;
+  color: rgba(255,255,255,0.45); font-size: .8rem; cursor: pointer;
+  transition: color .15s, border-color .15s; flex-shrink: 0;
+}
+.btn-edit-year:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+.hr-edit-block { display: none; }
+.hr-edit-block.open { display: block; }
 
 /* Criteria pills row */
 .hr-criteria {
@@ -139,6 +148,7 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   border-radius: 6px; display: flex; align-items: center; gap: .25rem;
 }
 .hc-ok   { background: rgba(16,185,129,.12); color: var(--emerald); }
+.hc-warn { background: rgba(251,191,36,.12);  color: var(--amber); }
 .hc-fail { background: rgba(248,113,113,.1);  color: var(--red); }
 
 /* Metrics strip */
@@ -519,19 +529,30 @@ function renderGazelleHistory(rows, cvrData, allFin) {
     else if (row.conditional) badge = `<span class="hr-badge badge-pending">~ Mangler driftsdata</span>`;
     else                      badge = `<span class="hr-badge badge-fail">✗ Ikke opfyldt</span>`;
 
+    // Pencil edit button — show on current Gazelle year when data has been entered (not pending)
+    const currentYear = new Date().getFullYear();
+    const isCurrentYear = row.gazelleYear === currentYear;
+    const hasEnteredData = isCurrentYear && !row.pending && allFin.some(f => f.year === currentYear - 1);
+    const pencilBtn = hasEnteredData
+      ? `<button class="btn-edit-year" onclick="toggleEditYear(this)" title="Rediger 2025-data">✏️</button>`
+      : '';
+
     // Header
     div.innerHTML = `<div class="hr-top">
       <div class="hr-year">${row.gazelleYear}</div>
       ${badge}
       <div class="hr-window">Regnskaber: ${winStr}</div>
+      ${pencilBtn}
     </div>`;
 
     // Criteria pills (for completed windows)
     if (row.checks) {
       const labels = ['Type', 'Vækst', '100%', 'Drift', 'Start'];
-      const pills = row.checks.map((c, i) =>
-        `<span class="hc ${c.pass ? 'hc-ok' : 'hc-fail'}">${c.pass ? '✓' : '✗'} ${labels[i]}: ${c.value}</span>`
-      ).join('');
+      const pills = row.checks.map((c, i) => {
+        const cls = c.pass ? 'hc-ok' : c.warn ? 'hc-warn' : 'hc-fail';
+        const icon = c.pass ? '✓' : c.warn ? '~' : '✗';
+        return `<span class="hc ${cls}">${icon} ${labels[i]}: ${c.value}</span>`;
+      }).join('');
       div.innerHTML += `<div class="hr-criteria">${pills}</div>`;
 
       // Metrics strip
@@ -563,6 +584,22 @@ function renderGazelleHistory(rows, cvrData, allFin) {
       </div>`;
     }
 
+    // Edit block for current year (shown when pencil clicked)
+    if (hasEnteredData && req) {
+      const entered2025 = allFin.find(f => f.year === currentYear - 1);
+      const preGross = entered2025?.gross_profit ?? '';
+      const preDrift = entered2025?.balance_sheet_status != null ? entered2025.balance_sheet_status : '';
+      div.innerHTML += `<div class="hr-edit-block hr-req" id="editBlock${row.gazelleYear}">
+        <div class="req-label" style="color:rgba(255,255,255,0.45)">Rediger — Bruttoresultat ${currentYear - 1}</div>
+        <div class="req-inputs">
+          <input class="req-input" type="number" id="reqGross" placeholder="Bruttoresultat ${currentYear - 1}" value="${preGross}">
+          <input class="req-input" type="number" id="reqDrift" placeholder="Årets resultat (valgfrit)" style="max-width:250px" value="${preDrift}">
+          <button class="btn-req" onclick="checkCurrentYear()">Gem →</button>
+        </div>
+        <div class="req-result" id="reqResult"></div>
+      </div>`;
+    }
+
     // Pending row: inline requirement + input
     if (row.pending && req) {
       const bigger = req.minForDoubling > req.minForGrowth
@@ -588,6 +625,15 @@ function renderGazelleHistory(rows, cvrData, allFin) {
   });
 
   document.getElementById('fremtidenLink').style.display = 'block';
+}
+
+// ── TOGGLE EDIT BLOCK ─────────────────────────────────────────────────────────
+function toggleEditYear(btn) {
+  const row = btn.closest('.hr');
+  const block = row.querySelector('.hr-edit-block');
+  if (!block) return;
+  const isOpen = block.classList.toggle('open');
+  btn.textContent = isOpen ? '✕' : '✏️';
 }
 
 // ── CHECK CURRENT YEAR INPUT ──────────────────────────────────────────────────
