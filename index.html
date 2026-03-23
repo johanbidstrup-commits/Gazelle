@@ -215,15 +215,37 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   display: none;
   background: #0D1117;
   border-radius: 12px;
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.5rem 0;
   margin-bottom: 1.5rem;
   font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
   font-size: .8rem;
   color: #C9D1D9;
-  min-height: 260px;
-  max-height: 420px;
-  overflow-y: auto;
   line-height: 1.75;
+  overflow: hidden;
+}
+#termLines {
+  height: 172px;   /* ~6 lines at 1.75 × .8rem × 16px */
+  overflow-y: auto;
+  padding-bottom: .5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+#termLines::-webkit-scrollbar { width: 4px; }
+#termLines::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+/* Status bar with spinner */
+#termStatus {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: .5rem 0 .75rem;
+  display: flex; align-items: center; gap: .6rem;
+  min-height: 2rem;
+}
+#termSpinner { color: #79C0FF; font-size: .85rem; width: 1ch; }
+#termStatusText { font-size: .75rem; color: #484F58; }
+@keyframes termSpin {
+  0%   { content: '/';  }
+  25%  { content: '—';  }
+  50%  { content: '\\'; }
+  75%  { content: '|';  }
 }
 #termBox .t-ok   { color: #3FB950; }
 #termBox .t-err  { color: #F85149; }
@@ -446,7 +468,13 @@ footer a:hover { color: #fff; }
   </div>
 
   <!-- TERMINAL -->
-  <div id="termBox"></div>
+  <div id="termBox">
+    <div id="termLines"></div>
+    <div id="termStatus">
+      <span id="termSpinner"></span>
+      <span id="termStatusText"></span>
+    </div>
+  </div>
 
   <!-- MANUAL CARD (shown when proxies fail) -->
   <div id="manualCard">
@@ -1069,9 +1097,32 @@ async function checkGazelle() {
 }
 
 // ── TERMINAL ENHANCEMENTS ─────────────────────────────────────────────────────
-const _termBox  = document.getElementById('termBox');
-const _termLines = [];
-const MAX_TERM   = 80;
+const _termBox        = document.getElementById('termBox');
+const _termLinesEl    = document.getElementById('termLines');
+const _termSpinnerEl  = document.getElementById('termSpinner');
+const _termStatusEl   = document.getElementById('termStatusText');
+const _termLineQueue  = [];
+const MAX_TERM        = 80;
+
+// Spinner state
+let _spinInterval = null;
+const _spinFrames  = ['/', '—', '\\', '|'];
+let   _spinIdx     = 0;
+
+function _spinnerStart(statusText = '') {
+  if (_termStatusEl) _termStatusEl.textContent = statusText;
+  if (_spinInterval) return;
+  _spinInterval = setInterval(() => {
+    _spinIdx = (_spinIdx + 1) % _spinFrames.length;
+    if (_termSpinnerEl) _termSpinnerEl.textContent = _spinFrames[_spinIdx];
+  }, 120);
+}
+
+function _spinnerStop() {
+  if (_spinInterval) { clearInterval(_spinInterval); _spinInterval = null; }
+  if (_termSpinnerEl) _termSpinnerEl.textContent = '';
+  if (_termStatusEl)  _termStatusEl.textContent  = '';
+}
 
 function _termAppend(msg, cls = '') {
   if (!_termBox) return;
@@ -1079,19 +1130,20 @@ function _termAppend(msg, cls = '') {
   const line = document.createElement('div');
   if (cls) line.className = cls;
   line.textContent = `> ${msg}`;
-  _termBox.appendChild(line);
-  _termLines.push(line);
-  if (_termLines.length > MAX_TERM) {
-    _termLines.shift().remove();
+  (_termLinesEl || _termBox).appendChild(line);
+  _termLineQueue.push(line);
+  if (_termLineQueue.length > MAX_TERM) {
+    _termLineQueue.shift().remove();
   }
-  _termBox.scrollTop = _termBox.scrollHeight;
+  if (_termLinesEl) _termLinesEl.scrollTop = _termLinesEl.scrollHeight;
 }
 
 function _termInit() {
-  if (_termBox) {
-    _termBox.innerHTML = '';
-    _termBox.style.display = 'block';
-  }
+  if (!_termBox) return;
+  if (_termLinesEl) _termLinesEl.innerHTML = '';
+  _termLineQueue.length = 0;
+  _spinnerStop();
+  _termBox.style.display = 'block';
 }
 
 // Wrap initLoadSteps to also init terminal
@@ -1099,6 +1151,7 @@ const _origInitLoadSteps = initLoadSteps;
 initLoadSteps = function() {
   _termInit();
   _termAppend('Starter Gazelle-analyse...', 't-dim');
+  _spinnerStart('Henter data...');
   _origInitLoadSteps();
 };
 
@@ -1106,7 +1159,10 @@ initLoadSteps = function() {
 const _origStepRun = stepRun;
 stepRun = function(id) {
   const step = LOAD_STEPS.find(s => s.id === id);
-  if (step) _termAppend(step.label + '...', 't-step');
+  if (step) {
+    _termAppend(step.label + '...', 't-step');
+    _spinnerStart(step.label + '...');
+  }
   _origStepRun(id);
 };
 
@@ -1115,6 +1171,8 @@ const _origStepDone = stepDone;
 stepDone = function(id) {
   const step = LOAD_STEPS.find(s => s.id === id);
   if (step) _termAppend('✓ ' + step.label, 't-ok');
+  // Stop spinner on last step
+  if (id === 'step-calc') _spinnerStop();
   _origStepDone(id);
 };
 
@@ -1123,6 +1181,7 @@ const _origStepErr = stepErr;
 stepErr = function(id) {
   const step = LOAD_STEPS.find(s => s.id === id);
   if (step) _termAppend('✗ ' + step.label, 't-err');
+  _spinnerStop();
   _origStepErr(id);
 };
 

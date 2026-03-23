@@ -495,6 +495,26 @@ function computeReq(allFinancials) {
   return { minRequired, minForGrowth, minForDoubling, knownNetSum, prev, first, known, neededLast, currentYear };
 }
 
+// ── COMPUTE REQ IGNORING TARGET YEAR (for edit mode) ──────────────────────────
+function computeReqForEdit(allFin, targetYear) {
+  // Same as computeReq but always works, even if targetYear is already in allFin
+  const gazelleYear  = targetYear + 1;
+  const windowStart  = gazelleYear - 4;
+  // Use the 3 known years from the window, excluding targetYear itself
+  const known = [...allFin]
+    .sort((a, b) => a.year - b.year)
+    .filter(f => f.year >= windowStart && f.year < gazelleYear && f.year !== targetYear);
+  if (known.length < 3) return null;
+  const prev  = known[known.length - 1];
+  const first = known[0];
+  const minForGrowth   = prev.gross_profit + 1;
+  const minForDoubling = first.gross_profit * 2;
+  const minRequired    = Math.max(minForGrowth, minForDoubling);
+  const knownNetSum    = known.reduce((s, f) => s + (f.balance_sheet_status || 0), 0);
+  return { minRequired, minForGrowth, minForDoubling, knownNetSum, prev, first, known,
+           neededLast: targetYear, currentYear: gazelleYear };
+}
+
 // ── RENDER HISTORY ────────────────────────────────────────────────────────────
 function renderGazelleHistory(rows, cvrData, allFin) {
   const grid    = document.getElementById('historyGrid');
@@ -502,8 +522,13 @@ function renderGazelleHistory(rows, cvrData, allFin) {
   if (!grid || !section || rows.length === 0) return;
   section.style.display = 'block';
 
-  const req = computeReq(allFin);
-  window._req = req ? { ...req, cvrData, allFinancials: allFin } : null;
+  const thisYear = new Date().getFullYear();
+  // Compute req for the current pending/edit year regardless of whether data exists
+  const editReq = computeReqForEdit(allFin, thisYear - 1);
+  const req     = computeReq(allFin);   // used only for the pending row display
+  window._req   = (editReq || req)
+    ? { ...(editReq || req), cvrData, allFinancials: allFin }
+    : null;
 
   grid.innerHTML = '';
 
@@ -529,12 +554,11 @@ function renderGazelleHistory(rows, cvrData, allFin) {
     else if (row.conditional) badge = `<span class="hr-badge badge-pending">~ Mangler driftsdata</span>`;
     else                      badge = `<span class="hr-badge badge-fail">✗ Ikke opfyldt</span>`;
 
-    // Pencil edit button — show on current Gazelle year when data has been entered (not pending)
-    const currentYear = new Date().getFullYear();
-    const isCurrentYear = row.gazelleYear === currentYear;
-    const hasEnteredData = isCurrentYear && !row.pending && allFin.some(f => f.year === currentYear - 1);
+    // Pencil edit button — show on current Gazelle year when user has previously entered data
+    const isCurrentYear = row.gazelleYear === thisYear;
+    const hasEnteredData = isCurrentYear && !row.pending && allFin.some(f => f.year === thisYear - 1);
     const pencilBtn = hasEnteredData
-      ? `<button class="btn-edit-year" onclick="toggleEditYear(this)" title="Rediger 2025-data">✏️</button>`
+      ? `<button class="btn-edit-year" onclick="toggleEditYear(this)" title="Rediger ${thisYear - 1}-data">✏️</button>`
       : '';
 
     // Header
@@ -584,15 +608,17 @@ function renderGazelleHistory(rows, cvrData, allFin) {
       </div>`;
     }
 
-    // Edit block for current year (shown when pencil clicked)
-    if (hasEnteredData && req) {
-      const entered2025 = allFin.find(f => f.year === currentYear - 1);
-      const preGross = entered2025?.gross_profit ?? '';
-      const preDrift = entered2025?.balance_sheet_status != null ? entered2025.balance_sheet_status : '';
+    // Edit block for current year (shown when pencil clicked, always rendered when hasEnteredData)
+    if (hasEnteredData) {
+      const entered = allFin.find(f => f.year === thisYear - 1);
+      const preGross = entered?.gross_profit ?? '';
+      const preDrift = entered?.balance_sheet_status != null && entered.balance_sheet_status !== 0
+        ? entered.balance_sheet_status : '';
+      const minHint = editReq ? `Min. ${fmtNum(Math.round(editReq.minRequired))} kr.` : '';
       div.innerHTML += `<div class="hr-edit-block hr-req" id="editBlock${row.gazelleYear}">
-        <div class="req-label" style="color:rgba(255,255,255,0.45)">Rediger — Bruttoresultat ${currentYear - 1}</div>
+        <div class="req-label" style="color:rgba(255,255,255,0.45)">Opdater ${thisYear - 1}-data ${minHint ? '— ' + minHint : ''}</div>
         <div class="req-inputs">
-          <input class="req-input" type="number" id="reqGross" placeholder="Bruttoresultat ${currentYear - 1}" value="${preGross}">
+          <input class="req-input" type="number" id="reqGross" placeholder="Bruttoresultat ${thisYear - 1}" value="${preGross}">
           <input class="req-input" type="number" id="reqDrift" placeholder="Årets resultat (valgfrit)" style="max-width:250px" value="${preDrift}">
           <button class="btn-req" onclick="checkCurrentYear()">Gem →</button>
         </div>
