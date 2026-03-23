@@ -333,8 +333,8 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   left: 0;
   right: 0;
   z-index: 200;
-  padding: 1rem 1.5rem 1.25rem;
-  background: linear-gradient(to top, #0F172A 60%, transparent);
+  padding: 1rem 1rem 1.25rem;
+  background: linear-gradient(to top, #0F172A 65%, transparent);
   justify-content: center;
   pointer-events: none;
 }
@@ -351,12 +351,13 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   font-size: 1rem;
   font-weight: 700;
   font-family: 'SF Mono', 'Fira Code', monospace;
-  letter-spacing: .08em;
+  letter-spacing: .06em;
   cursor: pointer;
   box-shadow: 0 4px 32px rgba(124,58,237,0.55), 0 0 0 1px rgba(124,58,237,0.3);
   transition: transform .15s, box-shadow .15s, background .15s;
-  max-width: 480px;
+  max-width: 640px;
   width: 100%;
+  white-space: nowrap;
 }
 .btn-reveal::before { content: '[ '; opacity: .7; }
 .btn-reveal::after  { content: ' ]'; opacity: .7; }

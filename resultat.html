@@ -413,9 +413,9 @@ function buildChecks(cvrData, window4) {
   }
   checks.push({ label: '100%', value: totalGrowth !== null ? fmtPct(totalGrowth) : '–', pass: totalGrowth !== null && totalGrowth >= 100, warn: totalGrowth !== null && totalGrowth >= 50 && totalGrowth < 100 });
 
-  // 4. Positive net result latest year
+  // 4. Positive net result latest year (null = not yet entered = warn, not fail)
   const latestNet = sorted[n-1]?.balance_sheet_status;
-  checks.push({ label: 'Drift', value: latestNet != null ? fmtDKK(latestNet) : '–', pass: latestNet != null && latestNet > 0, warn: latestNet === 0 });
+  checks.push({ label: 'Drift', value: latestNet != null ? fmtDKK(latestNet) : '?', pass: latestNet != null && latestNet > 0, warn: latestNet == null || latestNet === 0 });
 
   // 5. Base year > 1 mio
   const baseGross = sorted[0]?.gross_profit;
@@ -442,9 +442,11 @@ function buildGazelleHistory(allFinancials, cvrData) {
     const gazelleYear = w[3].year + 1;
     const checks = buildChecks(cvrData, w);
     const pass = checks.every(c => c.pass === true);
+    // "conditional" = all checks are pass or warn (no hard fails) but not all fully passing
+    const conditional = !pass && checks.every(c => c.pass === true || c.warn === true);
     if (pass && !firstGazelle) firstGazelle = gazelleYear;
 
-    rows.push({ gazelleYear, window4: w, checks, pass, isFirst: pass && firstGazelle === gazelleYear });
+    rows.push({ gazelleYear, window4: w, checks, pass, conditional, isFirst: pass && firstGazelle === gazelleYear });
   }
 
   // Pending row if current year's last required account is missing
@@ -498,9 +500,10 @@ function renderGazelleHistory(rows, cvrData, allFin) {
   rows.forEach(row => {
     const div = document.createElement('div');
     let cls = 'hr';
-    if (row.pending) cls += ' pending';
-    else if (row.pass) { cls += ' pass'; if (row.isFirst) cls += ' first-pass'; }
-    else cls += ' fail';
+    if (row.pending)          cls += ' pending';
+    else if (row.pass)        { cls += ' pass'; if (row.isFirst) cls += ' first-pass'; }
+    else if (row.conditional) cls += ' pending';   // amber — almost there
+    else                      cls += ' fail';
     div.className = cls;
 
     // Window label
@@ -510,10 +513,11 @@ function renderGazelleHistory(rows, cvrData, allFin) {
 
     // Badge
     let badge = '';
-    if (row.pending)       badge = `<span class="hr-badge badge-pending">⏳ Afventer ${row.missingYear}-data</span>`;
-    else if (row.isFirst)  badge = `<span class="hr-badge badge-first">🏆 Første Gazelle!</span>`;
-    else if (row.pass)     badge = `<span class="hr-badge badge-pass">✓ Gazelle</span>`;
-    else                   badge = `<span class="hr-badge badge-fail">✗ Ikke opfyldt</span>`;
+    if (row.pending)          badge = `<span class="hr-badge badge-pending">⏳ Afventer ${row.missingYear}-data</span>`;
+    else if (row.isFirst)     badge = `<span class="hr-badge badge-first">🏆 Første Gazelle!</span>`;
+    else if (row.pass)        badge = `<span class="hr-badge badge-pass">✓ Gazelle</span>`;
+    else if (row.conditional) badge = `<span class="hr-badge badge-pending">~ Mangler driftsdata</span>`;
+    else                      badge = `<span class="hr-badge badge-fail">✗ Ikke opfyldt</span>`;
 
     // Header
     div.innerHTML = `<div class="hr-top">
@@ -594,7 +598,8 @@ function checkCurrentYear() {
   if (!resultEl || !grossEl || !window._req) return;
 
   const gross = parseFloat(String(grossEl.value).replace(/[^\d.-]/g, ''));
-  const drift = driftEl?.value ? parseFloat(String(driftEl.value).replace(/[^\d.-]/g, '')) || 0 : 0;
+  const driftRaw = driftEl?.value?.trim();
+  const drift = driftRaw ? parseFloat(String(driftRaw).replace(/[^\d.-]/g, '')) : null;
 
   if (isNaN(gross) || gross <= 0) {
     resultEl.style.display = 'block';
@@ -605,20 +610,20 @@ function checkCurrentYear() {
 
   const { minRequired, knownNetSum, cvrData, allFinancials, neededLast } = window._req;
   const meetsGrowth = gross >= minRequired;
-  const totalNet    = knownNetSum + drift;
-  const meetsDrift  = drift === 0 || totalNet > 0;
+  const totalNet    = drift !== null ? knownNetSum + drift : null;
+  const meetsDrift  = drift === null || totalNet > 0;
 
   resultEl.style.display = 'block';
 
   if (meetsGrowth) {
-    const driftMsg = drift === 0
+    const driftMsg = drift === null
       ? 'Tilføj årets resultat for at tjekke driftsresultatkravet.'
       : (meetsDrift ? 'Driftsresultatkravet er også opfyldt ✓' : '⚠ Samlet driftsresultat er stadig negativt.');
     resultEl.className = 'req-result pass';
     resultEl.innerHTML = `✓ ${fmtNum(Math.round(gross))} kr. opfylder vækstkriteriet (min. ${fmtNum(Math.round(minRequired))} kr.) — ${driftMsg}`;
 
     // Re-render history with input year injected
-    const newEntry = { year: neededLast, gross_profit: gross, balance_sheet_status: drift };
+    const newEntry = { year: neededLast, gross_profit: gross, balance_sheet_status: drift !== null ? drift : null };
     const newAll   = [...allFinancials.filter(f => f.year !== neededLast), newEntry];
     const newRows  = buildGazelleHistory(newAll, cvrData);
     window._req.allFinancials = newAll;
