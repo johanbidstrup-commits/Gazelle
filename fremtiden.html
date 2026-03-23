@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fremtidig Gazelle Plan — Børsen Gazelle Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #6366F1;
+  --green-mid: #4F46E5;
+  --amber: #FBBF24;
+  --emerald: #10B981;
+  --red: #F87171;
+  --text: #F1F5F9;
+  --text-soft: rgba(255,255,255,0.45);
+  --border: rgba(255,255,255,0.08);
+  --surface: #1E293B;
+}
+body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text); min-height: 100vh; }
+
+/* ── NAV ── */
+.site-nav { background: #0F172A; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+.nav-inner { max-width: 920px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; height: 54px; gap: 1.5rem; }
+.nav-logo { font-weight: 800; font-size: .85rem; color: #fff; text-decoration: none; letter-spacing: 2px; text-transform: uppercase; flex-shrink: 0; line-height: 1.2; }
+.nav-logo span { display: block; color: rgba(255,255,255,0.45); }
+.nav-links { display: flex; gap: 0; flex: 1; overflow-x: auto; }
+.nav-links a { font-size: .75rem; font-weight: 500; color: rgba(255,255,255,0.55); text-decoration: none; padding: .4rem .75rem; border-radius: 7px; white-space: nowrap; text-transform: uppercase; letter-spacing: 1.5px; transition: color .15s, background .15s; }
+.nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-cta { background: var(--green) !important; color: #fff !important; font-weight: 600 !important; }
+
+/* ── CONTAINER ── */
+.container { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+
+/* ── HEADER ── */
+.page-header { margin-bottom: 2.5rem; }
+.eyebrow { font-size: .68rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--green); margin-bottom: .4rem; }
+.page-title { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 900; color: #fff; letter-spacing: -.5px; margin-bottom: .5rem; }
+.page-sub { font-size: .92rem; color: var(--text-soft); line-height: 1.6; }
+
+/* ── BACK LINK ── */
+.back-link { display: inline-flex; align-items: center; gap: .4rem; font-size: .82rem; font-weight: 600; color: var(--text-soft); text-decoration: none; margin-bottom: 1.75rem; }
+.back-link:hover { color: #fff; }
+
+/* ── COMPANY STRIP ── */
+#companyStrip { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: none; }
+.co-name { font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: .25rem; }
+.co-meta { font-size: .8rem; color: var(--text-soft); }
+
+/* ── PHASE SECTION ── */
+.section-title { font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 1.1rem; }
+.phase-list { margin-bottom: 2.5rem; }
+.phase-item { display: flex; align-items: flex-start; gap: 1rem; padding: .9rem 0; border-bottom: 1px solid var(--border); }
+.phase-item:last-child { border-bottom: none; }
+.phase-dot { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .95rem; flex-shrink: 0; margin-top: .05rem; }
+.phase-dot.done   { background: rgba(16,185,129,.18); }
+.phase-dot.active { background: rgba(99,102,241,.18); }
+.phase-dot.future { background: rgba(255,255,255,.04); border: 1.5px dashed var(--border); }
+.phase-info { flex: 1; }
+.phase-label { font-weight: 700; font-size: .95rem; color: #fff; margin-bottom: .18rem; }
+.phase-desc  { font-size: .83rem; color: var(--text-soft); line-height: 1.5; }
+
+/* ── PROJECTION GRID ── */
+.proj-intro { font-size: .88rem; color: var(--text-soft); margin-bottom: 1.1rem; line-height: 1.6; }
+.proj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+.proj-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-top: 4px solid var(--green); border-radius: 12px; padding: 1.1rem 1.25rem;
+}
+.proj-year  { font-size: .72rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; }
+.proj-val   { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: .2rem; }
+.proj-delta { font-size: .8rem; color: var(--text-soft); }
+
+/* ── SUPPLEMENT ── */
+.supp-card { background: var(--surface); border: 1px solid var(--border); border-top: 4px solid var(--amber); border-radius: 12px; padding: 1.5rem 1.75rem; }
+.supp-title { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: .35rem; }
+.supp-desc  { font-size: .85rem; color: var(--text-soft); margin-bottom: 1.25rem; line-height: 1.5; }
+.supp-row   { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.supp-field { display: flex; flex-direction: column; gap: .35rem; flex: 1; min-width: 140px; }
+.supp-field label { font-size: .72rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .06em; }
+.supp-input { background: rgba(255,255,255,0.06); border: 1.5px solid var(--border); border-radius: 8px; padding: .6rem .75rem; font-size: .9rem; font-family: inherit; color: #fff; outline: none; transition: border-color .15s; }
+.supp-input:focus { border-color: var(--amber); }
+.btn-supp { background: var(--amber); color: #000; border: none; border-radius: 9px; padding: .75rem 1.5rem; font-size: .9rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: background .15s; }
+.btn-supp:hover { background: #D97706; }
+
+/* ── NO DATA ── */
+#noDataMsg { text-align: center; padding: 5rem 1rem; display: none; }
+
+/* ── FOOTER ── */
+footer { background: #0F172A; color: rgba(255,255,255,0.4); padding: 3rem 1.5rem; text-align: center; font-size: .78rem; border-top: 1px solid var(--border); }
+footer a { color: rgba(255,255,255,0.6); text-decoration: none; }
+footer a:hover { color: #fff; }
+
+@media (max-width: 540px) {
+  .nav-links { display: none; }
+  .supp-row  { flex-direction: column; }
+  .proj-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Gazelle<span>Checker</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-cta">Tjek CVR</a>
+      <a href="om-gazelle-prisen.html">Om prisen</a>
+      <a href="krav.html">Kravene</a>
+      <a href="hvornaar.html">Hvornår?</a>
+      <a href="2026.html">Gazelle 2026</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+  <div id="noDataMsg">
+    <div style="font-size:3rem;margin-bottom:1rem">📈</div>
+    <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:.75rem;color:#fff">Ingen analyse fundet</h2>
+    <p style="color:var(--text-soft);margin-bottom:1.5rem">Start med at tjekke dit CVR-nummer på forsiden.</p>
+    <a href="index.html" style="display:inline-block;padding:.85rem 2rem;background:var(--green);color:#fff;border-radius:10px;text-decoration:none;font-weight:700">← Tjek CVR</a>
+  </div>
+
+  <div id="mainContent" style="display:none">
+
+    <a href="resultat.html" class="back-link">← Tilbage til analyse</a>
+
+    <!-- Company strip -->
+    <div id="companyStrip"></div>
+
+    <div class="page-header">
+      <div class="eyebrow">Del 2 — Fremtidig Plan</div>
+      <h1 class="page-title">Fremtidig Gazelle Plan</h1>
+      <p class="page-sub">Baseret på din virksomheds nuværende væksttrend viser vi din fase og en fremskrivning af hvad der kræves for at opnå Gazelle de kommende år.</p>
+    </div>
+
+    <!-- Phase timeline -->
+    <h2 class="section-title">Din vækstfase</h2>
+    <div class="phase-list" id="phaseList"></div>
+
+    <!-- Projection -->
+    <h2 class="section-title">Fremskrivning (25% CAGR)</h2>
+    <p class="proj-intro">Estimater baseret på 25% årlig vækst fra seneste kendte bruttoresultat. Disse tal er vejledende — din faktiske udvikling afhænger af din forretning.</p>
+    <div class="proj-grid" id="projGrid"></div>
+
+    <!-- Supplement / add year -->
+    <h2 class="section-title">Tilføj uindberettet regnskabsår</h2>
+    <div class="supp-card">
+      <div class="supp-title">📋 Kender du allerede resultatet?</div>
+      <p class="supp-desc">Har du et regnskabsår klar, der endnu ikke er indberettet? Tilføj det her for en opdateret analyse.</p>
+      <div class="supp-row">
+        <div class="supp-field">
+          <label>Regnskabsår</label>
+          <input class="supp-input" type="number" id="suppYear" min="2000" max="2099" placeholder="f.eks. 2025">
+        </div>
+        <div class="supp-field">
+          <label>Bruttoresultat (kr.)</label>
+          <input class="supp-input" type="number" id="suppGross" placeholder="f.eks. 9.000.000">
+        </div>
+        <div class="supp-field">
+          <label>Årets resultat (valgfrit)</label>
+          <input class="supp-input" type="number" id="suppDrift" placeholder="valgfrit">
+        </div>
+      </div>
+      <button class="btn-supp" onclick="submitSupplement()">Opdater analyse →</button>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <p>GazelleChecker er et uafhængigt værktøj og er ikke tilknyttet Børsen. Data hentes fra offentlige registre. <a href="om-gazelle-prisen.html">Om prisen</a></p>
+</footer>
+
+<script>
+'use strict';
+
+function fmtDKK(n) {
+  if (n == null || isNaN(n)) return '–';
+  return new Intl.NumberFormat('da-DK', { style: 'currency', currency: 'DKK', maximumFractionDigits: 0 }).format(n);
+}
+function fmtPct(n) {
+  if (n == null || isNaN(n)) return '–';
+  return (n >= 0 ? '+' : '') + n.toFixed(1) + ' %';
+}
+function normalise(str) {
+  if (str == null) return null;
+  const s = String(str).replace(/\s/g,'').replace(/\./g,'').replace(/,/g,'.').replace(/kr\.?/gi,'').trim();
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
+function gazellePhase(top4) {
+  const sorted = [...top4].sort((a, b) => a.year - b.year);
+  const n = sorted.length;
+  if (n < 2) return 0;
+  const base = sorted[0].gross_profit, latest = sorted[n-1].gross_profit;
+  const totalGrowth = base > 0 ? ((latest - base) / base) * 100 : 0;
+  let allPositive = true;
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].gross_profit <= sorted[i-1].gross_profit) { allPositive = false; break; }
+  }
+  if (n >= 4 && allPositive && totalGrowth >= 100) return 4;
+  if (n >= 3 && totalGrowth >= 60) return 3;
+  if (n >= 2 && totalGrowth >= 25) return 2;
+  return 1;
+}
+
+function renderPhase(top4) {
+  const phase = gazellePhase(top4);
+  const phases = [
+    { label: 'Vækst begynder',   desc: 'Virksomheden starter konsekvent vækstrejse' },
+    { label: 'Stabil vækst',     desc: '2+ år med positiv vækst i bruttoresultat' },
+    { label: 'Acceleration',     desc: '3+ år med stigende omsætning og stærke tal' },
+    { label: 'Gazelle-klar',     desc: '4 år med vækst og minimum 100% samlet stigning' },
+  ];
+  const list = document.getElementById('phaseList');
+  if (!list) return;
+  list.innerHTML = phases.map((p, i) => {
+    const done   = i + 1 < phase;
+    const active = i + 1 === phase;
+    const cls    = done ? 'done' : active ? 'active' : 'future';
+    const icon   = done ? '✅' : active ? '🔄' : '○';
+    return `<div class="phase-item">
+      <div class="phase-dot ${cls}">${icon}</div>
+      <div class="phase-info">
+        <div class="phase-label">${p.label}</div>
+        <div class="phase-desc">${p.desc}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderProjections(top4) {
+  const sorted = [...top4].sort((a, b) => a.year - b.year);
+  const n = sorted.length;
+  if (n < 1) return;
+  const latest     = sorted[n-1];
+  const latestGross = latest.gross_profit || 0;
+  const grid = document.getElementById('projGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (let i = 1; i <= 3; i++) {
+    const futureYear = latest.year + i;
+    const projected  = Math.round(latestGross * Math.pow(1.25, i));
+    const delta      = ((projected - latestGross) / latestGross) * 100;
+    const card = document.createElement('div');
+    card.className = 'proj-card';
+    card.innerHTML = `
+      <div class="proj-year">${futureYear} (estimat)</div>
+      <div class="proj-val">${fmtDKK(projected)}</div>
+      <div class="proj-delta">${fmtPct(delta)} vs. nu</div>`;
+    grid.appendChild(card);
+  }
+}
+
+function submitSupplement() {
+  const yr    = parseInt(document.getElementById('suppYear')?.value, 10);
+  const gross = normalise(document.getElementById('suppGross')?.value);
+  const drift = normalise(document.getElementById('suppDrift')?.value);
+
+  if (!yr || yr < 2000 || yr > 2099) { alert('Indtast et gyldigt årstal.'); return; }
+  if (gross === null || gross <= 0)   { alert('Indtast et gyldigt bruttoresultat.'); return; }
+
+  const stored = JSON.parse(localStorage.getItem('gazelleResult') || '{}');
+  const allFin = stored.allFinancials || stored.top4 || [];
+  const newEntry = { year: yr, gross_profit: gross, balance_sheet_status: drift || 0 };
+  const newAll   = [...allFin.filter(e => e.year !== yr), newEntry].sort((a,b) => b.year - a.year);
+  const newTop4  = newAll.slice(0, 4);
+
+  localStorage.setItem('gazelleResult', JSON.stringify({
+    ...stored, allFinancials: newAll, top4: newTop4,
+  }));
+  localStorage.setItem('gazelleFremtid', JSON.stringify({
+    ...JSON.parse(localStorage.getItem('gazelleFremtid') || '{}'),
+    allFinancials: newAll, top4: newTop4,
+  }));
+
+  renderPhase(newTop4);
+  renderProjections(newTop4);
+  alert(`Tilføjet ${yr} — data opdateret. Gå til analysen for fuld Gazelle-historik.`);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const stored = localStorage.getItem('gazelleFremtid') || localStorage.getItem('gazelleResult');
+  if (!stored) { document.getElementById('noDataMsg').style.display = 'block'; return; }
+
+  let data;
+  try { data = JSON.parse(stored); } catch (_) { document.getElementById('noDataMsg').style.display = 'block'; return; }
+
+  const top4 = data.top4 || data.allFinancials?.sort((a,b) => b.year - a.year).slice(0, 4) || [];
+  if (top4.length === 0) { document.getElementById('noDataMsg').style.display = 'block'; return; }
+
+  document.getElementById('mainContent').style.display = 'block';
+
+  if (data.cvrData) {
+    const strip = document.getElementById('companyStrip');
+    strip.style.display = 'block';
+    strip.innerHTML = `<div class="co-name">${data.cvrData.name || '–'}</div>
+      <div class="co-meta">CVR: ${data.currentCVR || '–'}</div>`;
+  }
+
+  renderPhase(top4);
+  renderProjections(top4);
+
+  // Pre-fill supplement year
+  const latestYear = top4[0]?.year || new Date().getFullYear() - 1;
+  const suppYearEl = document.getElementById('suppYear');
+  if (suppYearEl) suppYearEl.value = latestYear + 1;
+});
+</script>
+</body>
+</html>

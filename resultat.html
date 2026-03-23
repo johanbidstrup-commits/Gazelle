@@ -13,12 +13,9 @@
 :root {
   --green: #6366F1;
   --green-mid: #4F46E5;
-  --green-dark: #4338CA;
-  --green-ghost: rgba(99,102,241,0.15);
   --red: #F87171;
-  --red-ghost: rgba(248,113,113,0.12);
   --amber: #FBBF24;
-  --amber-ghost: rgba(251,191,36,0.12);
+  --emerald: #10B981;
   --text: #F1F5F9;
   --text-soft: rgba(255,255,255,0.45);
   --border: rgba(255,255,255,0.08);
@@ -30,521 +27,241 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 /* ── NAV ── */
 .site-nav {
   background: #0F172A;
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
 }
 .nav-inner {
-  max-width: 920px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-  display: flex;
-  align-items: center;
-  height: 54px;
-  gap: 1.5rem;
+  max-width: 920px; margin: 0 auto; padding: 0 1.5rem;
+  display: flex; align-items: center; height: 54px; gap: 1.5rem;
 }
 .nav-logo {
-  font-weight: 800;
-  font-size: .85rem;
-  color: #fff;
-  text-decoration: none;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-  line-height: 1.2;
+  font-weight: 800; font-size: .85rem; color: #fff;
+  text-decoration: none; letter-spacing: 2px; text-transform: uppercase;
+  flex-shrink: 0; line-height: 1.2;
 }
 .nav-logo span { display: block; color: rgba(255,255,255,0.45); }
-.nav-links {
-  display: flex;
-  gap: 0;
-  flex: 1;
-  overflow-x: auto;
-}
+.nav-links { display: flex; gap: 0; flex: 1; overflow-x: auto; }
 .nav-links a {
-  font-size: .75rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.55);
-  text-decoration: none;
-  padding: .4rem .75rem;
-  border-radius: 7px;
-  white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+  font-size: .75rem; font-weight: 500; color: rgba(255,255,255,0.55);
+  text-decoration: none; padding: .4rem .75rem; border-radius: 7px;
+  white-space: nowrap; text-transform: uppercase; letter-spacing: 1.5px;
   transition: color .15s, background .15s;
 }
 .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
-.nav-links a.active { color: #fff; font-weight: 600; }
-.nav-cta {
-  background: var(--green) !important;
-  color: #fff !important;
-  font-weight: 600 !important;
-}
+.nav-cta { background: var(--green) !important; color: #fff !important; font-weight: 600 !important; }
 .nav-cta:hover { background: var(--green-mid) !important; }
 
-/* ── HEADER ── */
-.hero {
-  background: #0F172A;
-  padding: 2rem 1.5rem 1.75rem;
-  text-align: center;
-  color: #fff;
-}
-.hero-eyebrow {
-  font-size: .68rem;
-  font-weight: 700;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  color: rgba(79,70,229,0.85);
-  margin-bottom: .6rem;
-}
-.hero h1 {
-  font-size: clamp(1.3rem, 3.5vw, 1.9rem);
-  font-weight: 900;
-  letter-spacing: -0.5px;
-  margin-bottom: .35rem;
-  text-transform: uppercase;
-}
-.hero-sub {
-  font-size: .92rem;
-  opacity: .65;
-}
-
-/* ── MAIN CONTAINER ── */
-.container { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
-
-/* ── SECTION TITLES ── */
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
-  color: #fff;
-  letter-spacing: -.5px;
-}
-.eyebrow {
-  font-size: .68rem;
-  font-weight: 700;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--green);
-  margin-bottom: .4rem;
-}
-
-/* ── CRITERION NUMBER ── */
-.c-num {
-  font-family: 'SF Mono', monospace;
-  font-size: .65rem;
-  letter-spacing: .1em;
-  color: var(--text-soft);
-  margin-bottom: .5rem;
-}
+/* ── CONTAINER ── */
+.container { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
 
 /* ── COMPANY CARD ── */
 #companyCard {
   background: var(--surface);
-  border-radius: 16px;
   border: 1px solid var(--border);
-  padding: 1.5rem 2rem;
-  margin-bottom: 1.5rem;
-  display: none;
-}
-.company-name { font-size: 1.25rem; font-weight: 800; margin-bottom: .25rem; color: #fff; }
-.company-meta { font-size: .85rem; color: var(--text-soft); }
-.company-meta span { margin-right: 1rem; }
-
-/* ── MANUAL SECTION ── */
-#manualSection {
-  background: var(--surface);
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  padding: 1.5rem 2rem;
-  margin-bottom: 1.5rem;
-  display: none;
-}
-.manual-title { font-size: 1rem; font-weight: 700; margin-bottom: .35rem; color: #fff; }
-.manual-desc { font-size: .86rem; color: var(--text-soft); margin-bottom: 1rem; line-height: 1.5; }
-.manual-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
-.manual-table th {
-  font-size: .78rem;
-  font-weight: 600;
-  color: var(--text-soft);
-  text-align: left;
-  padding: .4rem .5rem;
-  border-bottom: 1.5px solid var(--border);
-}
-.manual-table td { padding: .45rem .5rem; border-bottom: 1px solid var(--border); font-size: .88rem; color: var(--text); }
-.manual-table td input {
-  width: 100%;
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid var(--border);
-  border-radius: 6px;
-  padding: .3rem .5rem;
-  font-size: .88rem;
-  font-family: inherit;
-  color: #fff;
-  outline: none;
-}
-.manual-table td input:focus { border-color: var(--green); }
-.btn-calc {
-  background: var(--green);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: .75rem 1.5rem;
-  font-size: .95rem;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background .15s;
-}
-.btn-calc:hover { background: var(--green-mid); }
-
-/* ── RESULTS SECTION ── */
-#results { display: none; }
-
-/* ── SCORECARD ── */
-#scorecardWrap {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-.check-card {
-  background: var(--surface);
   border-radius: 14px;
-  border: 1px solid var(--border);
-  padding: 1.1rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: .35rem;
+  padding: 1.25rem 1.75rem;
+  margin-bottom: 2rem;
+  display: none;
 }
-.check-label { font-size: .78rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
-.check-value { font-size: 1.05rem; font-weight: 700; color: #fff; }
-.check-sub   { font-size: .8rem; color: var(--text-soft); }
-.check-ok    { border-left: 3px solid #22C55E; }
-.check-fail  { border-left: 3px solid var(--red); }
-.check-warn  { border-left: 3px solid var(--amber); }
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: .3rem;
-  font-size: .72rem;
-  font-weight: 700;
-  padding: .2rem .55rem;
-  border-radius: 99px;
-}
-.badge-ok   { background: rgba(34,197,94,.18); color: #4ADE80; }
-.badge-fail { background: var(--red-ghost); color: #F87171; }
-.badge-warn { background: var(--amber-ghost); color: #FBBF24; }
+.co-name { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: .4rem; }
+.co-meta { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; font-size: .82rem; color: var(--text-soft); }
+.co-meta span { display: flex; align-items: center; gap: .3rem; }
 
-/* ── VERDICT ── */
-#verdictEl {
-  border-radius: 16px;
-  padding: 1.5rem 2rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
+/* ── BACK LINK ── */
+.back-link {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .82rem; font-weight: 600; color: var(--text-soft);
+  text-decoration: none; margin-bottom: 1.5rem;
 }
-.verdict-pass {
-  background: linear-gradient(135deg, rgba(16,185,129,.12), rgba(34,197,94,.08));
-  border: 1px solid rgba(34,197,94,.3);
+.back-link:hover { color: #fff; }
+
+/* ── SECTION HEADER ── */
+.eyebrow {
+  font-size: .68rem; font-weight: 700; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--green); margin-bottom: .4rem;
 }
-.verdict-fail {
-  background: linear-gradient(135deg, rgba(239,68,68,.12), rgba(248,113,113,.08));
-  border: 1px solid rgba(248,113,113,.25);
+.section-title {
+  font-size: 1.15rem; font-weight: 800; color: #fff;
+  letter-spacing: -.3px; margin-bottom: 1.25rem;
 }
-.verdict-warn {
-  background: linear-gradient(135deg, rgba(251,191,36,.1), rgba(245,158,11,.06));
-  border: 1px solid rgba(251,191,36,.25);
+
+/* ── HISTORY GRID ── */
+.history-grid { display: flex; flex-direction: column; gap: .75rem; }
+
+/* ── HISTORY ROW ── */
+.hr {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color .2s;
 }
-.verdict-icon { font-size: 2.5rem; margin-bottom: .5rem; }
-.verdict-title { font-size: 1.4rem; font-weight: 900; margin-bottom: .35rem; color: #fff; }
-.verdict-desc { font-size: .92rem; color: var(--text-soft); line-height: 1.55; max-width: 480px; margin: 0 auto; }
+.hr.pass  { border-left-color: var(--emerald); }
+.hr.fail  { border-left-color: var(--red); }
+.hr.pending { border-left-color: var(--amber); }
+.hr.first-pass { box-shadow: 0 0 0 1px var(--emerald); }
+
+/* Row top bar */
+.hr-top {
+  display: flex; align-items: center; gap: .85rem;
+  padding: 1rem 1.5rem;
+  flex-wrap: wrap;
+}
+.hr-year {
+  font-family: 'SF Mono', monospace;
+  font-size: 1.2rem; font-weight: 800; color: #fff;
+  min-width: 52px;
+}
+.hr-badge {
+  font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; padding: .22rem .65rem;
+  border-radius: 20px; white-space: nowrap;
+}
+.badge-pass    { background: rgba(16,185,129,.18); color: var(--emerald); }
+.badge-fail    { background: rgba(248,113,113,.15); color: var(--red); }
+.badge-pending { background: rgba(251,191,36,.15);  color: var(--amber); }
+.badge-first   { background: var(--emerald); color: #fff; }
+
+.hr-window {
+  margin-left: auto; font-size: .75rem;
+  color: rgba(255,255,255,0.3); font-family: 'SF Mono', monospace;
+  white-space: nowrap;
+}
+
+/* Criteria pills row */
+.hr-criteria {
+  display: flex; gap: .35rem; flex-wrap: wrap;
+  padding: 0 1.5rem .85rem;
+}
+.hc {
+  font-size: .7rem; font-weight: 600; padding: .2rem .5rem;
+  border-radius: 6px; display: flex; align-items: center; gap: .25rem;
+}
+.hc-ok   { background: rgba(16,185,129,.12); color: var(--emerald); }
+.hc-fail { background: rgba(248,113,113,.1);  color: var(--red); }
+
+/* Metrics strip */
+.hr-metrics {
+  display: flex; gap: 0;
+  border-top: 1px solid var(--border);
+}
+.hr-metric {
+  flex: 1; padding: .7rem 1rem; text-align: center;
+  border-right: 1px solid var(--border);
+}
+.hr-metric:last-child { border-right: none; }
+.hm-label { font-size: .65rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .2rem; }
+.hm-val   { font-size: .9rem; font-weight: 700; color: #fff; }
+.hm-val.good { color: var(--emerald); }
+.hm-val.bad  { color: var(--red); }
+
+/* ── PENDING / REQUIREMENT BLOCK ── */
+.hr-req {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+}
+.req-label {
+  font-size: .65rem; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--amber); margin-bottom: .35rem;
+}
+.req-amount {
+  font-size: 1.75rem; font-weight: 900; color: #fff;
+  font-family: 'SF Mono', monospace; margin-bottom: .2rem;
+}
+.req-sub {
+  font-size: .8rem; color: var(--text-soft); margin-bottom: 1rem; line-height: 1.5;
+}
+.req-inputs {
+  display: flex; gap: .6rem; flex-wrap: wrap; align-items: stretch;
+}
+.req-input {
+  flex: 1; min-width: 160px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 9px; padding: .65rem 1rem;
+  color: #fff; font-family: 'SF Mono', monospace;
+  font-size: .9rem; outline: none; transition: border-color .2s;
+}
+.req-input:focus { border-color: var(--amber); }
+.req-input::placeholder { color: rgba(255,255,255,0.2); font-size: .82rem; }
+.btn-req {
+  background: var(--amber); color: #000;
+  border: none; border-radius: 9px; padding: .65rem 1.4rem;
+  font-weight: 700; font-size: .9rem; cursor: pointer; white-space: nowrap;
+  transition: background .15s; font-family: inherit;
+}
+.btn-req:hover { background: #D97706; }
+.req-result {
+  margin-top: .85rem; padding: .85rem 1.1rem;
+  border-radius: 8px; font-size: .88rem; font-weight: 600; display: none;
+}
+.req-result.pass { background: rgba(16,185,129,.15); color: var(--emerald); border: 1px solid rgba(16,185,129,.3); }
+.req-result.fail { background: rgba(248,113,113,.1); color: var(--red); border: 1px solid rgba(248,113,113,.2); }
 
 /* ── CHART ── */
 .chart-card {
   background: var(--surface);
-  border-radius: 16px;
   border: 1px solid var(--border);
-  padding: 1.5rem 2rem;
-  margin-bottom: 1.5rem;
-}
-.chart-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-soft); }
-.chart-wrap { position: relative; height: 220px; }
-
-/* ── FUTURE GRID ── */
-#futureIntro {
-  font-size: .9rem;
-  color: var(--text-soft);
-  margin-bottom: 1rem;
-  line-height: 1.55;
-}
-#futureGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-.future-card {
-  background: var(--surface);
   border-radius: 14px;
-  border: 1px solid var(--border);
-  padding: 1.1rem 1.25rem;
-  border-top: 4px solid var(--green);
+  padding: 1.5rem 1.75rem;
+  margin-top: 2rem;
 }
-.future-year  { font-size: .78rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .35rem; }
-.future-val   { font-size: 1rem; font-weight: 700; margin-bottom: .2rem; color: #fff; }
-.future-delta { font-size: .8rem; color: var(--text-soft); }
+.chart-title { font-size: .88rem; font-weight: 700; color: var(--text-soft); margin-bottom: 1rem; }
+.chart-legend {
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  font-size: .75rem; color: var(--text-soft); margin-bottom: .85rem;
+}
+.chart-legend span { display: flex; align-items: center; gap: .35rem; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.chart-wrap { position: relative; height: 200px; }
 
-/* ── PHASE TIMELINE ── */
-#phaseTimeline {
-  margin-bottom: 1rem;
+/* ── MANUAL SECTION ── */
+#manualSection {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.5rem 1.75rem; margin-bottom: 2rem; display: none;
 }
-.phase-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: .85rem 0;
-  border-bottom: 1px solid var(--border);
+.manual-title { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: .35rem; }
+.manual-desc { font-size: .85rem; color: var(--text-soft); margin-bottom: 1rem; line-height: 1.5; }
+.manual-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+.manual-table th {
+  font-size: .78rem; font-weight: 600; color: var(--text-soft);
+  text-align: left; padding: .4rem .5rem; border-bottom: 1.5px solid var(--border);
 }
-.phase-item:last-child { border-bottom: none; }
-.phase-dot {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .9rem;
-  flex-shrink: 0;
-  margin-top: .1rem;
+.manual-table td { padding: .45rem .5rem; border-bottom: 1px solid var(--border); font-size: .88rem; color: var(--text); }
+.manual-table td input {
+  width: 100%; background: rgba(255,255,255,0.06);
+  border: 1.5px solid var(--border); border-radius: 6px;
+  padding: .3rem .5rem; font-size: .88rem; font-family: inherit; color: #fff; outline: none;
 }
-.phase-dot.done  { background: rgba(34,197,94,.2); }
-.phase-dot.prog  { background: var(--green-ghost); }
-.phase-dot.future{ background: rgba(255,255,255,.04); border: 2px dashed var(--border); }
-.phase-item { border-bottom-color: var(--border); }
-.phase-info { flex: 1; }
-.phase-label { font-weight: 700; font-size: .95rem; margin-bottom: .15rem; color: #fff; }
-.phase-desc  { font-size: .83rem; color: var(--text-soft); line-height: 1.5; }
-
-/* ── SUPPLEMENT CARD ── */
-#supplementCard { margin-top: 2rem; display: none; }
-.supplement-card {
-  background: var(--surface);
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  padding: 1.5rem 2rem;
-  border-top: 4px solid var(--amber);
+.manual-table td input:focus { border-color: var(--green); }
+.btn-calc {
+  background: var(--green); color: #fff; border: none; border-radius: 10px;
+  padding: .75rem 1.5rem; font-size: .92rem; font-weight: 700;
+  font-family: inherit; cursor: pointer; transition: background .15s;
 }
-.supp-desc {
-  font-size: .88rem;
-  color: var(--text-soft);
-  margin-bottom: 1.25rem;
-  line-height: 1.5;
-}
-.supp-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.25rem;
-}
-.supp-field { display: flex; flex-direction: column; gap: .35rem; flex: 1; min-width: 140px; }
-.supp-field label { font-size: .78rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
-.supp-field input {
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: .6rem .75rem;
-  font-size: .9rem;
-  font-family: inherit;
-  color: #fff;
-  outline: none;
-  transition: border-color .15s;
-}
-.supp-field input:focus { border-color: var(--amber); }
-.btn-supp {
-  background: var(--amber);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: .75rem 1.5rem;
-  font-size: .95rem;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background .15s;
-}
-.btn-supp:hover { background: #D97706; }
-
-/* ── BACK LINK ── */
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: .4rem;
-  font-size: .85rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.5);
-  text-decoration: none;
-  margin-bottom: 1.5rem;
-}
-.back-link:hover { color: #fff; }
+.btn-calc:hover { background: var(--green-mid); }
 
 /* ── FOOTER ── */
 footer {
-  background: #0F172A;
-  color: rgba(255,255,255,0.5);
-  padding: 3rem 1.5rem;
-  text-align: center;
-  font-size: .78rem;
-  margin-top: 2rem;
+  background: #0F172A; color: rgba(255,255,255,0.4);
+  padding: 3rem 1.5rem; text-align: center; font-size: .78rem;
+  border-top: 1px solid var(--border);
 }
-footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
+footer a { color: rgba(255,255,255,0.6); text-decoration: none; }
 footer a:hover { color: #fff; }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 520px) {
+@media (max-width: 540px) {
   .nav-links { display: none; }
-  #scorecardWrap { grid-template-columns: 1fr 1fr; }
-  #futureGrid { grid-template-columns: 1fr 1fr; }
-  .supp-row { flex-direction: column; }
+  .hr-metrics { flex-wrap: wrap; }
+  .hr-metric { flex: 1 1 45%; }
+  .req-inputs { flex-direction: column; }
 }
-
-/* ── GAZELLE HISTORY ── */
-.history-section { margin-bottom: 2rem; }
-.history-grid {
-  display: flex;
-  flex-direction: column;
-  gap: .75rem;
-}
-.history-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: #1E293B;
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  border: 1px solid rgba(255,255,255,0.07);
-  position: relative;
-}
-.history-row.pass { border-left: 4px solid #10B981; }
-.history-row.fail { border-left: 4px solid #EF4444; }
-.history-row.pending { border-left: 4px solid #F59E0B; }
-.history-row.first-gazelle { border-color: #10B981; box-shadow: 0 0 0 1px #10B981; }
-.history-year {
-  font-family: 'SF Mono', monospace;
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #fff;
-  min-width: 60px;
-}
-.history-badge {
-  font-size: .7rem;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  padding: .2rem .6rem;
-  border-radius: 20px;
-  white-space: nowrap;
-}
-.badge-pass { background: rgba(16,185,129,.2); color: #10B981; }
-.badge-fail { background: rgba(239,68,68,.15); color: #EF4444; }
-.badge-pending { background: rgba(245,158,11,.15); color: #F59E0B; }
-.badge-first { background: #10B981; color: #fff; }
-.history-detail {
-  flex: 1;
-  font-size: .82rem;
-  color: rgba(255,255,255,0.5);
-  font-family: 'SF Mono', monospace;
-}
-.history-window {
-  font-size: .75rem;
-  color: rgba(255,255,255,0.3);
-  font-family: 'SF Mono', monospace;
-  white-space: nowrap;
-}
-.history-criteria {
-  display: flex;
-  gap: .4rem;
-  flex-wrap: wrap;
-}
-.hc { font-size: .7rem; padding: .15rem .4rem; border-radius: 4px; }
-.hc-ok { background: rgba(16,185,129,.15); color: #10B981; }
-.hc-fail { background: rgba(239,68,68,.1); color: #EF4444; }
-
-/* ── 2026 REQUIREMENT CARD ── */
-.req-card {
-  background: #1E293B;
-  border: 1px solid rgba(245,158,11,0.3);
-  border-left: 4px solid #F59E0B;
-  border-radius: 12px;
-  padding: 1.5rem 1.75rem;
-  margin-bottom: 2rem;
-}
-.req-label {
-  font-size: .68rem;
-  font-weight: 700;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: #F59E0B;
-  margin-bottom: .5rem;
-}
-.req-amount {
-  font-size: 2rem;
-  font-weight: 900;
-  color: #fff;
-  font-family: 'SF Mono', monospace;
-  margin-bottom: .25rem;
-}
-.req-sub {
-  font-size: .82rem;
-  color: rgba(255,255,255,0.45);
-  margin-bottom: 1.25rem;
-}
-.req-input-row {
-  display: flex;
-  gap: .75rem;
-  align-items: stretch;
-}
-.req-input {
-  flex: 1;
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid rgba(255,255,255,0.12);
-  border-radius: 9px;
-  padding: .75rem 1rem;
-  color: #fff;
-  font-family: 'SF Mono', monospace;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color .2s;
-}
-.req-input:focus { border-color: #F59E0B; }
-.req-input::placeholder { color: rgba(255,255,255,0.25); }
-.btn-req {
-  background: #F59E0B;
-  color: #000;
-  border: none;
-  border-radius: 9px;
-  padding: .75rem 1.5rem;
-  font-weight: 700;
-  font-size: .9rem;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background .15s;
-}
-.btn-req:hover { background: #D97706; }
-.req-result {
-  margin-top: 1rem;
-  padding: .9rem 1.1rem;
-  border-radius: 8px;
-  font-size: .9rem;
-  font-weight: 600;
-  display: none;
-}
-.req-result.pass { background: rgba(16,185,129,.15); color: #10B981; border: 1px solid rgba(16,185,129,.3); }
-.req-result.fail { background: rgba(239,68,68,.1); color: #EF4444; border: 1px solid rgba(239,68,68,.2); }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="site-nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">Gazelle<span>Checker</span></a>
@@ -558,118 +275,59 @@ footer a:hover { color: #fff; }
   </div>
 </nav>
 
-<!-- HERO -->
-<header class="hero">
-  <div class="hero-eyebrow">Gazelle Checker — Resultat</div>
-  <h1>Gazelle Analyse</h1>
-  <div class="hero-sub" id="heroSub">Analyserer din virksomheds Gazelle-potentiale</div>
-</header>
-
 <main class="container">
 
-  <a href="index.html" class="back-link">← Ny analyse</a>
-
-  <!-- NO DATA MESSAGE -->
-  <div id="noDataMsg" style="display:none; text-align:center; padding: 4rem 1rem;">
+  <!-- NO DATA -->
+  <div id="noDataMsg" style="display:none; text-align:center; padding: 5rem 1rem;">
     <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
-    <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:.75rem;color:#fff">Ingen analyse fundet</h2>
-    <p style="color:rgba(255,255,255,0.5);margin-bottom:1.5rem">Gå til forsiden og indtast dit CVR-nummer for at starte en analyse.</p>
+    <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:.75rem;color:#fff">Ingen analyse fundet</h2>
+    <p style="color:var(--text-soft);margin-bottom:1.5rem">Gå til forsiden og indtast dit CVR-nummer for at starte.</p>
     <a href="index.html" style="display:inline-block;padding:.85rem 2rem;background:var(--green);color:#fff;border-radius:10px;text-decoration:none;font-weight:700">← Tilbage til forsiden</a>
   </div>
 
   <!-- COMPANY CARD -->
   <div id="companyCard"></div>
 
-  <!-- MANUAL SECTION (shown if manualNeeded = true) -->
+  <!-- MANUAL INPUT (fallback) -->
   <div id="manualSection">
     <div class="manual-title">📋 Indtast regnskabstal manuelt</div>
     <div class="manual-desc">
       Vi kunne ikke hente regnskabsdata automatisk. Find tallene på
-      <a id="virkdataLink" href="https://virkdata.dk" target="_blank" rel="noopener">virkdata.dk</a>
+      <a id="virkdataLink" href="https://virkdata.dk" target="_blank" rel="noopener" style="color:var(--green)">virkdata.dk</a>
       og indtast dem herunder (de seneste 4 regnskabsår).
     </div>
     <table class="manual-table">
       <thead>
-        <tr>
-          <th>År</th>
-          <th>Bruttoresultat (kr.)</th>
-          <th>Årets resultat (kr.)</th>
-        </tr>
+        <tr><th>År</th><th>Bruttoresultat (kr.)</th><th>Årets resultat (kr.)</th></tr>
       </thead>
       <tbody id="manualBody"></tbody>
     </table>
     <button class="btn-calc" onclick="calcFromManual()">Beregn Gazelle →</button>
   </div>
 
-  <!-- GAZELLE HISTORY -->
+  <!-- HISTORY -->
   <div id="historySection" style="display:none">
-    <div class="eyebrow">GAZELLE HISTORIK</div>
-    <h2 class="section-title" style="margin-bottom:1.25rem">Alle Gazelle-år analyseret</h2>
+    <a href="index.html" class="back-link">← Ny analyse</a>
+    <div class="eyebrow">Gazelle Historik</div>
+    <h2 class="section-title">Alle Gazelle-år analyseret</h2>
     <div class="history-grid" id="historyGrid"></div>
-  </div>
 
-  <!-- 2026 REQUIREMENT -->
-  <div id="req2026Section" style="display:none">
-    <div class="eyebrow" style="margin-top:2rem">GAZELLE 2026 — HVAD KRÆVES?</div>
-    <h2 class="section-title" style="margin-bottom:1rem">Minimum bruttoresultat 2025</h2>
-    <div class="req-card">
-      <div class="req-label">Minimumskrav — Bruttoresultat 2025</div>
-      <div class="req-amount" id="reqAmount">—</div>
-      <div class="req-sub" id="reqSub">For at kvalificere til Gazelle 2026 baseret på 2022–2025</div>
-      <div class="req-input-row">
-        <input class="req-input" type="number" id="req2025Input" placeholder="Bruttoresultat 2025 (kr.)...">
-        <input class="req-input" type="number" id="req2025Drift" placeholder="Årets resultat 2025 (valgfrit)" style="max-width:260px">
-        <button class="btn-req" onclick="check2025()">Beregn →</button>
+    <!-- CHART -->
+    <div class="chart-card" id="chartCard" style="display:none">
+      <div class="chart-title">Bruttoresultat — Gazelle-vinduerne</div>
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:#10B981"></span>Gazelle-kvalificeret</span>
+        <span><span class="legend-dot" style="background:#F87171"></span>Ikke kvalificeret</span>
+        <span><span class="legend-dot" style="background:rgba(255,255,255,0.2);border:1.5px dashed rgba(255,255,255,0.4)"></span>Mål: 2× startår</span>
       </div>
-      <div class="req-result" id="reqResult"></div>
-    </div>
-  </div>
-
-  <!-- RESULTS -->
-  <div id="results">
-    <div class="eyebrow">Gazelle Status</div>
-    <h2 class="section-title">Del 1 — Aktuel Status</h2>
-    <div id="scorecardWrap"></div>
-    <div id="verdictWrap">
-      <div class="eyebrow" style="margin-bottom:.4rem">Gazelle Vurdering</div>
-      <div id="verdictEl"></div>
+      <div class="chart-wrap"><canvas id="growthChart"></canvas></div>
     </div>
 
-    <div class="chart-card">
-      <h3>Omsætningsudvikling (Bruttoresultat)</h3>
-      <div class="chart-wrap">
-        <canvas id="growthChart"></canvas>
-      </div>
-    </div>
-
-    <div class="eyebrow" style="margin-top:2rem">Fremtidig Plan</div>
-    <h2 class="section-title" id="del2Title">Del 2 — Fremtidig Gazelle Plan</h2>
-    <div id="phaseTimeline"></div>
-    <div id="futureIntro"></div>
-    <div id="futureGrid"></div>
-  </div>
-
-  <!-- SUPPLEMENT CARD -->
-  <div id="supplementCard">
-    <div class="eyebrow">Opdater Analyse</div>
-    <h2 class="section-title">Tilføj uindberettet regnskabsår</h2>
-    <div class="supplement-card">
-      <p class="supp-desc">Kender du allerede resultatet for <strong id="suppYear"></strong>, selvom det ikke er indberettet endnu? Tilføj det her for en opdateret Gazelle-beregning.</p>
-      <div class="supp-row">
-        <div class="supp-field">
-          <label>Regnskabsår</label>
-          <input type="number" id="suppYearInput" min="2000" max="2099">
-        </div>
-        <div class="supp-field">
-          <label>Bruttoresultat (kr.)</label>
-          <input type="number" id="suppGross" placeholder="f.eks. 5.000.000">
-        </div>
-        <div class="supp-field">
-          <label>Årets resultat (valgfrit)</label>
-          <input type="number" id="suppDrift" placeholder="valgfrit">
-        </div>
-      </div>
-      <button class="btn-supp" onclick="submitSupplement()">Opdater analyse →</button>
+    <!-- LINK TO FUTURE PAGE -->
+    <div id="fremtidenLink" style="display:none; margin-top:2rem; text-align:center">
+      <a href="fremtiden.html" style="display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 2rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:#fff;text-decoration:none;font-weight:700;font-size:.9rem;transition:border-color .2s">
+        Fremtidig Gazelle Plan →
+      </a>
     </div>
   </div>
 
@@ -682,368 +340,348 @@ footer a:hover { color: #fff; }
 <script>
 'use strict';
 
-// ── GLOBALS ──────────────────────────────────────────────────────────────────
-let _cvrData     = null;
-let _currentCVR  = null;
-let _storedTop4  = null;
-let chartInst    = null;
+let _cvrData    = null;
+let _currentCVR = null;
+let _allFin     = null;
+let chartInst   = null;
 
-// ── FORMATTERS ────────────────────────────────────────────────────────────────
+// ── FORMATTERS ───────────────────────────────────────────────────────────────
 function fmtDKK(n) {
   if (n == null || isNaN(n)) return '–';
   return new Intl.NumberFormat('da-DK', { style: 'currency', currency: 'DKK', maximumFractionDigits: 0 }).format(n);
 }
-
+function fmtNum(n) {
+  if (n == null || isNaN(n)) return '–';
+  return new Intl.NumberFormat('da-DK', { maximumFractionDigits: 0 }).format(n);
+}
 function fmtPct(n) {
   if (n == null || isNaN(n)) return '–';
   return (n >= 0 ? '+' : '') + n.toFixed(1) + ' %';
 }
-
-// ── HELPERS ───────────────────────────────────────────────────────────────────
 function normalise(str) {
   if (str == null) return null;
   const s = String(str).replace(/\s/g,'').replace(/\./g,'').replace(/,/g,'.').replace(/kr\.?/gi,'').trim();
   const n = parseFloat(s);
   return isNaN(n) ? null : n;
 }
-
 function extractSlug(name) {
-  return (name || '')
-    .toLowerCase()
+  return (name || '').toLowerCase()
     .replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g,'aa')
-    .replace(/[^a-z0-9]+/g,'-')
-    .replace(/^-+|-+$/g,'');
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 }
 
-function generateVirkdataSlug(name) {
-  return extractSlug(name);
-}
-
-// ── COMPANY CARD ──────────────────────────────────────────────────────────────
+// ── COMPANY CARD ─────────────────────────────────────────────────────────────
 function renderCompanyCard(data, cvr) {
   const el = document.getElementById('companyCard');
   if (!el) return;
   el.style.display = 'block';
   el.innerHTML = `
-    <div class="company-name">${data.name || 'Ukendt virksomhed'}</div>
-    <div class="company-meta">
+    <div class="co-name">${data.name || 'Ukendt virksomhed'}</div>
+    <div class="co-meta">
       <span>CVR: ${cvr || data.vat || '–'}</span>
-      ${data.address ? `<span>📍 ${data.address}</span>` : ''}
+      ${data.address  ? `<span>📍 ${data.address}</span>` : ''}
       ${data.industry ? `<span>🏭 ${data.industry}</span>` : ''}
-      ${data.founded ? `<span>📅 Stiftet ${data.founded}</span>` : ''}
+      ${data.founded  ? `<span>📅 Stiftet ${data.founded}</span>` : ''}
       ${data.employees != null ? `<span>👥 ${data.employees} ansatte</span>` : ''}
+      ${data.companytype ? `<span>⚖ ${data.companytype}</span>` : ''}
     </div>`;
-
-  // Update hero subtitle
-  const sub = document.getElementById('heroSub');
-  if (sub && data.name) sub.textContent = data.name;
 }
 
-// ── BUILD CHECKS ──────────────────────────────────────────────────────────────
-function buildChecks(cvrData, top4) {
-  // Gazelle criteria (Børsen standard):
-  // 1. Min. 4 regnskabsår med positiv vækst (bruttoresultat)
-  // 2. Dobbelt omsætning over 4 år (100% samlet vækst)
-  // 3. Positivt resultat i det seneste år
-  // 4. Minimum startværdi (bruttoresultat > 1 mio i basisår)
-
-  const sorted = [...top4].sort((a, b) => a.year - b.year); // ascending
+// ── BUILD CHECKS ─────────────────────────────────────────────────────────────
+function buildChecks(cvrData, window4) {
+  const sorted = [...window4].sort((a, b) => a.year - b.year);
   const n = sorted.length;
-
   const checks = [];
 
-  // Check 1: At least 4 years of data
-  checks.push({
-    label: 'Antal regnskabsår',
-    value: n + ' år',
-    sub: 'Krav: minimum 4 år',
-    pass: n >= 4,
-    warn: n === 3,
-  });
+  // 1. Min 4 years
+  checks.push({ label: 'Type', value: n + ' år', pass: n >= 4, warn: n === 3 });
 
-  // Check 2: Positive growth each year
-  let allGrowthPositive = true;
-  let growthYears = 0;
+  // 2. Positive growth every year
+  let allPositive = true, growthYears = 0;
   for (let i = 1; i < sorted.length; i++) {
-    const prev = sorted[i-1].gross_profit;
-    const curr = sorted[i].gross_profit;
-    if (prev && curr && curr > prev) {
-      growthYears++;
-    } else {
-      allGrowthPositive = false;
-    }
+    const prev = sorted[i-1].gross_profit, curr = sorted[i].gross_profit;
+    if (prev && curr && curr > prev) growthYears++;
+    else allPositive = false;
   }
-  checks.push({
-    label: 'Positiv vækst hvert år',
-    value: growthYears + ' ud af ' + (n - 1) + ' år',
-    sub: 'Krav: vækst hvert eneste år',
-    pass: allGrowthPositive && n >= 2,
-    warn: growthYears >= Math.ceil((n-1)/2) && !allGrowthPositive,
-  });
+  checks.push({ label: 'Vækst', value: growthYears + '/' + (n-1) + ' år', pass: allPositive && n >= 2, warn: growthYears >= Math.ceil((n-1)/2) && !allPositive });
 
-  // Check 3: At least 100% total growth over 4 years
+  // 3. 100% total growth
   let totalGrowth = null;
   if (n >= 2) {
-    const base = sorted[0].gross_profit;
-    const latest = sorted[n-1].gross_profit;
-    if (base && base > 0 && latest) {
-      totalGrowth = ((latest - base) / base) * 100;
-    }
+    const base = sorted[0].gross_profit, latest = sorted[n-1].gross_profit;
+    if (base && base > 0 && latest) totalGrowth = ((latest - base) / base) * 100;
   }
-  checks.push({
-    label: 'Samlet omsætningsvækst',
-    value: totalGrowth !== null ? fmtPct(totalGrowth) : '–',
-    sub: 'Krav: minimum +100% over perioden',
-    pass: totalGrowth !== null && totalGrowth >= 100,
-    warn: totalGrowth !== null && totalGrowth >= 50 && totalGrowth < 100,
-  });
+  checks.push({ label: '100%', value: totalGrowth !== null ? fmtPct(totalGrowth) : '–', pass: totalGrowth !== null && totalGrowth >= 100, warn: totalGrowth !== null && totalGrowth >= 50 && totalGrowth < 100 });
 
-  // Check 4: Positive result in latest year
-  const latestResult = sorted[n-1]?.balance_sheet_status;
-  checks.push({
-    label: 'Positivt årsresultat',
-    value: latestResult != null ? fmtDKK(latestResult) : '–',
-    sub: 'Krav: positivt resultat seneste år',
-    pass: latestResult != null && latestResult > 0,
-    warn: latestResult === 0,
-  });
+  // 4. Positive net result latest year
+  const latestNet = sorted[n-1]?.balance_sheet_status;
+  checks.push({ label: 'Drift', value: latestNet != null ? fmtDKK(latestNet) : '–', pass: latestNet != null && latestNet > 0, warn: latestNet === 0 });
 
-  // Check 5: Base year revenue > 1 mio
+  // 5. Base year > 1 mio
   const baseGross = sorted[0]?.gross_profit;
-  checks.push({
-    label: 'Startgrundlag',
-    value: baseGross != null ? fmtDKK(baseGross) : '–',
-    sub: 'Krav: bruttoresultat > 1 mio. i basisår',
-    pass: baseGross != null && baseGross >= 1_000_000,
-    warn: baseGross != null && baseGross >= 500_000 && baseGross < 1_000_000,
-  });
+  checks.push({ label: 'Start', value: baseGross != null ? fmtDKK(baseGross) : '–', pass: baseGross != null && baseGross >= 1_000_000, warn: baseGross != null && baseGross >= 500_000 && baseGross < 1_000_000 });
 
   return checks;
 }
 
-// ── RENDER SCORECARD ──────────────────────────────────────────────────────────
-function renderScorecard(checks) {
-  const wrap = document.getElementById('scorecardWrap');
-  if (!wrap) return;
-  wrap.innerHTML = '';
+// ── GAZELLE HISTORY ───────────────────────────────────────────────────────────
+function buildGazelleHistory(allFinancials, cvrData) {
+  const sorted = [...allFinancials].sort((a, b) => a.year - b.year);
+  const currentYear = new Date().getFullYear(); // 2026
+  const rows = [];
+  let firstGazelle = null;
 
-  let passCount = 0;
-  let warnCount = 0;
-  let failCount = 0;
+  for (let i = 0; i <= sorted.length - 4; i++) {
+    const w = sorted.slice(i, i + 4);
+    let consecutive = true;
+    for (let j = 1; j < 4; j++) {
+      if (w[j].year !== w[j-1].year + 1) { consecutive = false; break; }
+    }
+    if (!consecutive) continue;
 
-  checks.forEach((c, i) => {
-    if (c.pass) passCount++;
-    else if (c.warn) warnCount++;
-    else failCount++;
+    const gazelleYear = w[3].year + 1;
+    const checks = buildChecks(cvrData, w);
+    const pass = checks.every(c => c.pass === true);
+    if (pass && !firstGazelle) firstGazelle = gazelleYear;
 
-    const cls = c.pass ? 'check-ok' : c.warn ? 'check-warn' : 'check-fail';
-    const badgeCls = c.pass ? 'badge-ok' : c.warn ? 'badge-warn' : 'badge-fail';
-    const badgeTxt = c.pass ? '✓ Opfyldt' : c.warn ? '~ Delvist' : '✗ Ikke opfyldt';
-    const num = String(i + 1).padStart(2, '0');
-    const total = String(checks.length).padStart(2, '0');
-
-    const card = document.createElement('div');
-    card.className = `check-card ${cls}`;
-    card.innerHTML = `
-      <div class="c-num">${num} / ${total}</div>
-      <div class="check-label">${c.label}</div>
-      <div class="check-value">${c.value}</div>
-      <div class="check-sub">${c.sub}</div>
-      <div><span class="badge ${badgeCls}">${badgeTxt}</span></div>`;
-    wrap.appendChild(card);
-  });
-
-  // Verdict
-  const verdict = document.getElementById('verdictEl');
-  if (!verdict) return;
-
-  const allPass = failCount === 0 && warnCount === 0;
-  const mostPass = failCount === 0 && warnCount <= 1;
-  const somePass = passCount >= Math.ceil(checks.length / 2);
-
-  if (allPass) {
-    verdict.className = 'verdict-pass';
-    verdict.innerHTML = `
-      <div class="verdict-icon">🏆</div>
-      <div class="verdict-title">Du opfylder Gazelle-kravene!</div>
-      <div class="verdict-desc">Tillykke! Din virksomhed opfylder alle Børsen Gazelle-kriterier. Sørg for at tilmelde dig når ansøgningsvinduet åbner.</div>`;
-  } else if (mostPass) {
-    verdict.className = 'verdict-warn';
-    verdict.innerHTML = `
-      <div class="verdict-icon">🌟</div>
-      <div class="verdict-title">Næsten — du mangler lidt endnu</div>
-      <div class="verdict-desc">Din virksomhed opfylder de fleste Gazelle-kriterier, men der er stadig et par punkter, der skal forbedres. Se Fremtidig Gazelle Plan nedenfor.</div>`;
-  } else if (somePass) {
-    verdict.className = 'verdict-warn';
-    verdict.innerHTML = `
-      <div class="verdict-icon">📈</div>
-      <div class="verdict-title">Du er på vej mod Gazelle</div>
-      <div class="verdict-desc">Du opfylder nogle af kravene, men der er fortsat arbejde forude. Se vores plan for hvordan du når i mål.</div>`;
-  } else {
-    verdict.className = 'verdict-fail';
-    verdict.innerHTML = `
-      <div class="verdict-icon">💪</div>
-      <div class="verdict-title">Ikke Gazelle endnu</div>
-      <div class="verdict-desc">Din virksomhed opfylder ikke Gazelle-kravene på nuværende tidspunkt. Se planen nedenfor for konkrete næste skridt.</div>`;
-  }
-}
-
-// ── GAZELLE PHASE ─────────────────────────────────────────────────────────────
-function gazellePhase(top4) {
-  const sorted = [...top4].sort((a, b) => a.year - b.year);
-  const n = sorted.length;
-  if (n < 2) return { phase: 0, label: 'Ingen data', desc: 'Vi har ikke nok data til at vurdere din fase.' };
-
-  const base = sorted[0].gross_profit;
-  const latest = sorted[n-1].gross_profit;
-  const totalGrowth = base > 0 ? ((latest - base) / base) * 100 : 0;
-
-  let allPositive = true;
-  for (let i = 1; i < sorted.length; i++) {
-    if (sorted[i].gross_profit <= sorted[i-1].gross_profit) { allPositive = false; break; }
+    rows.push({ gazelleYear, window4: w, checks, pass, isFirst: pass && firstGazelle === gazelleYear });
   }
 
-  if (n >= 4 && allPositive && totalGrowth >= 100) {
-    return { phase: 4, label: 'Gazelle-klar', desc: 'Du opfylder alle grundlæggende vækst-kriterier for Gazelle-prisen.' };
-  } else if (n >= 3 && totalGrowth >= 60) {
-    return { phase: 3, label: 'Stærk vækst', desc: 'Du har stærk vækst og nærmer dig Gazelle-kriterierne.' };
-  } else if (n >= 2 && totalGrowth >= 25) {
-    return { phase: 2, label: 'Vækst i gang', desc: 'Din virksomhed er i vækst, men der er fortsat et stykke vej til Gazelle.' };
-  } else {
-    return { phase: 1, label: 'Tidlig fase', desc: 'Din virksomhed er i de tidlige stadier af vækst mod Gazelle-prisen.' };
-  }
-}
-
-// ── BUILD FUTURE PLAN ─────────────────────────────────────────────────────────
-function buildFuturePlan(top4) {
-  const sorted = [...top4].sort((a, b) => a.year - b.year);
-  const n = sorted.length;
-  if (n < 1) return [];
-
-  const latest = sorted[n-1];
-  const base = sorted[0].gross_profit || 1;
-  const latestGross = latest.gross_profit || 0;
-
-  // Calculate required growth to reach 2x base over 4 years
-  const targetTotal = base * 2;
-  const plans = [];
-
-  for (let i = 1; i <= 3; i++) {
-    const futureYear = latest.year + i;
-    // Assume 25% CAGR needed to reach target
-    const growthRate = 0.25;
-    const projected = latestGross * Math.pow(1 + growthRate, i);
-    const deltaVsLatest = ((projected - latestGross) / latestGross) * 100;
-
-    plans.push({
-      year: futureYear,
-      projected,
-      deltaVsLatest,
-      targetReached: projected >= targetTotal,
+  // Pending row if current year's last required account is missing
+  const latestYear = sorted[sorted.length - 1]?.year;
+  const neededLast = currentYear - 1;
+  if (latestYear < neededLast) {
+    const partialWindow = sorted.filter(f => f.year >= currentYear - 4 && f.year < currentYear);
+    rows.push({
+      gazelleYear: currentYear, window4: partialWindow,
+      checks: null, pass: null, pending: true, missingYear: neededLast,
     });
   }
 
-  return plans;
+  return rows;
 }
 
-// ── RENDER FUTURE PLAN ────────────────────────────────────────────────────────
-function renderFuturePlan(plans, top4) {
-  const phase = gazellePhase(top4);
-  const sorted = [...top4].sort((a, b) => a.year - b.year);
-  const n = sorted.length;
+// ── COMPUTE REQ FOR CURRENT YEAR ──────────────────────────────────────────────
+function computeReq(allFinancials) {
+  const currentYear = new Date().getFullYear();
+  const neededLast  = currentYear - 1;
+  const sorted = [...allFinancials].sort((a, b) => a.year - b.year);
+  const latestYear  = sorted[sorted.length - 1]?.year;
+  if (latestYear >= neededLast) return null; // data already available
 
-  // Phase timeline
-  const timeline = document.getElementById('phaseTimeline');
-  if (timeline) {
-    const phases = [
-      { label: 'Vækst begynder', desc: 'Virksomheden starter konsekvent vækstrejse', done: phase.phase >= 1 },
-      { label: 'Stabil vækst', desc: '2+ år med positiv vækst i bruttoresultat', done: phase.phase >= 2 },
-      { label: 'Acceleration', desc: '3+ år med stigende omsætning og stærke tal', done: phase.phase >= 3 },
-      { label: 'Gazelle-klar', desc: '4 år med vækst og minimum 100% samlet stigning', done: phase.phase >= 4 },
-    ];
+  const windowStart = currentYear - 4;
+  const known = sorted.filter(f => f.year >= windowStart && f.year < currentYear);
+  if (known.length < 3) return null;
 
-    timeline.innerHTML = phases.map((p, i) => {
-      const cls = p.done ? 'done' : (i === phase.phase ? 'prog' : 'future');
-      const icon = p.done ? '✅' : (i === phase.phase ? '🔄' : '○');
-      return `<div class="phase-item">
-        <div class="phase-dot ${cls}">${icon}</div>
-        <div class="phase-info">
-          <div class="phase-label">${p.label}</div>
-          <div class="phase-desc">${p.desc}</div>
+  const prev  = known[known.length - 1]; // e.g. 2024
+  const first = known[0];                // e.g. 2022
+  const minForGrowth   = prev.gross_profit + 1;
+  const minForDoubling = first.gross_profit * 2;
+  const minRequired    = Math.max(minForGrowth, minForDoubling);
+  const knownNetSum    = known.reduce((s, f) => s + (f.balance_sheet_status || 0), 0);
+
+  return { minRequired, minForGrowth, minForDoubling, knownNetSum, prev, first, known, neededLast, currentYear };
+}
+
+// ── RENDER HISTORY ────────────────────────────────────────────────────────────
+function renderGazelleHistory(rows, cvrData, allFin) {
+  const grid    = document.getElementById('historyGrid');
+  const section = document.getElementById('historySection');
+  if (!grid || !section || rows.length === 0) return;
+  section.style.display = 'block';
+
+  const req = computeReq(allFin);
+  window._req = req ? { ...req, cvrData, allFinancials: allFin } : null;
+
+  grid.innerHTML = '';
+
+  rows.forEach(row => {
+    const div = document.createElement('div');
+    let cls = 'hr';
+    if (row.pending) cls += ' pending';
+    else if (row.pass) { cls += ' pass'; if (row.isFirst) cls += ' first-pass'; }
+    else cls += ' fail';
+    div.className = cls;
+
+    // Window label
+    const winYears = row.window4.map(f => f.year);
+    let winStr = winYears.join(' · ');
+    if (row.pending && row.missingYear) winStr += ' · ?' + row.missingYear;
+
+    // Badge
+    let badge = '';
+    if (row.pending)       badge = `<span class="hr-badge badge-pending">⏳ Afventer ${row.missingYear}-data</span>`;
+    else if (row.isFirst)  badge = `<span class="hr-badge badge-first">🏆 Første Gazelle!</span>`;
+    else if (row.pass)     badge = `<span class="hr-badge badge-pass">✓ Gazelle</span>`;
+    else                   badge = `<span class="hr-badge badge-fail">✗ Ikke opfyldt</span>`;
+
+    // Header
+    div.innerHTML = `<div class="hr-top">
+      <div class="hr-year">${row.gazelleYear}</div>
+      ${badge}
+      <div class="hr-window">Regnskaber: ${winStr}</div>
+    </div>`;
+
+    // Criteria pills (for completed windows)
+    if (row.checks) {
+      const labels = ['Type', 'Vækst', '100%', 'Drift', 'Start'];
+      const pills = row.checks.map((c, i) =>
+        `<span class="hc ${c.pass ? 'hc-ok' : 'hc-fail'}">${c.pass ? '✓' : '✗'} ${labels[i]}: ${c.value}</span>`
+      ).join('');
+      div.innerHTML += `<div class="hr-criteria">${pills}</div>`;
+
+      // Metrics strip
+      const s = [...row.window4].sort((a, b) => a.year - b.year);
+      const n = s.length;
+      const base = s[0].gross_profit, last = s[n-1].gross_profit;
+      const totalGrowth = base > 0 ? ((last - base) / base) * 100 : null;
+      let allPos = true;
+      for (let i = 1; i < s.length; i++) if (s[i].gross_profit <= s[i-1].gross_profit) { allPos = false; break; }
+      const net = s[n-1].balance_sheet_status;
+
+      div.innerHTML += `<div class="hr-metrics">
+        <div class="hr-metric">
+          <div class="hm-label">Basisår gross.</div>
+          <div class="hm-val">${fmtDKK(base)}</div>
+        </div>
+        <div class="hr-metric">
+          <div class="hm-label">Seneste gross.</div>
+          <div class="hm-val">${fmtDKK(last)}</div>
+        </div>
+        <div class="hr-metric">
+          <div class="hm-label">Samlet vækst</div>
+          <div class="hm-val ${totalGrowth !== null && totalGrowth >= 100 ? 'good' : 'bad'}">${fmtPct(totalGrowth)}</div>
+        </div>
+        <div class="hr-metric">
+          <div class="hm-label">Årsresultat</div>
+          <div class="hm-val ${net > 0 ? 'good' : 'bad'}">${fmtDKK(net)}</div>
         </div>
       </div>`;
-    }).join('');
+    }
+
+    // Pending row: inline requirement + input
+    if (row.pending && req) {
+      const bigger = req.minForDoubling > req.minForGrowth
+        ? `fordobling af ${req.first.year} (${fmtNum(req.first.gross_profit)} × 2)`
+        : `overstiger ${req.prev.year} (${fmtNum(req.prev.gross_profit)} + 1)`;
+
+      div.innerHTML += `<div class="hr-req">
+        <div class="req-label">Minimumskrav — Bruttoresultat ${req.neededLast}</div>
+        <div class="req-amount">${fmtNum(Math.round(req.minRequired))} kr.</div>
+        <div class="req-sub">Bestemt af ${bigger}. Vindue: ${req.currentYear - 4}–${req.neededLast}.</div>
+        <div class="req-inputs">
+          <input class="req-input" type="number" id="reqGross" placeholder="Bruttoresultat ${req.neededLast} (kr.)">
+          <input class="req-input" type="number" id="reqDrift" placeholder="Årets resultat ${req.neededLast} (valgfrit)" style="max-width:250px">
+          <button class="btn-req" onclick="checkCurrentYear()">Beregn →</button>
+        </div>
+        <div class="req-result" id="reqResult"></div>
+      </div>`;
+    } else if (row.pending && !req) {
+      div.innerHTML += `<div class="hr-req" style="color:var(--text-soft);font-size:.85rem">Ikke nok kendte data til at beregne minimumskrav.</div>`;
+    }
+
+    grid.appendChild(div);
+  });
+
+  document.getElementById('fremtidenLink').style.display = 'block';
+}
+
+// ── CHECK CURRENT YEAR INPUT ──────────────────────────────────────────────────
+function checkCurrentYear() {
+  const resultEl = document.getElementById('reqResult');
+  const grossEl  = document.getElementById('reqGross');
+  const driftEl  = document.getElementById('reqDrift');
+  if (!resultEl || !grossEl || !window._req) return;
+
+  const gross = parseFloat(String(grossEl.value).replace(/[^\d.-]/g, ''));
+  const drift = driftEl?.value ? parseFloat(String(driftEl.value).replace(/[^\d.-]/g, '')) || 0 : 0;
+
+  if (isNaN(gross) || gross <= 0) {
+    resultEl.style.display = 'block';
+    resultEl.className = 'req-result fail';
+    resultEl.textContent = 'Indtast et gyldigt beløb.';
+    return;
   }
 
-  // Future intro
-  const intro = document.getElementById('futureIntro');
-  if (intro) {
-    const latestYear = sorted[n-1]?.year || new Date().getFullYear();
-    intro.innerHTML = `
-      <p>Baseret på din nuværende væksttrend viser vi en fremskrivning med <strong>25% CAGR</strong> for de kommende år.
-      Disse tal er estimater — din faktiske udvikling afhænger af din forretning.</p>`;
-  }
+  const { minRequired, knownNetSum, cvrData, allFinancials, neededLast } = window._req;
+  const meetsGrowth = gross >= minRequired;
+  const totalNet    = knownNetSum + drift;
+  const meetsDrift  = drift === 0 || totalNet > 0;
 
-  // Future grid
-  const grid = document.getElementById('futureGrid');
-  if (grid && plans.length) {
-    grid.innerHTML = plans.map(p => `
-      <div class="future-card">
-        <div class="future-year">${p.year} (estimat)</div>
-        <div class="future-val">${fmtDKK(Math.round(p.projected))}</div>
-        <div class="future-delta">${fmtPct(p.deltaVsLatest)} vs. nu ${p.targetReached ? '🏆' : ''}</div>
-      </div>`).join('');
+  resultEl.style.display = 'block';
+
+  if (meetsGrowth) {
+    const driftMsg = drift === 0
+      ? 'Tilføj årets resultat for at tjekke driftsresultatkravet.'
+      : (meetsDrift ? 'Driftsresultatkravet er også opfyldt ✓' : '⚠ Samlet driftsresultat er stadig negativt.');
+    resultEl.className = 'req-result pass';
+    resultEl.innerHTML = `✓ ${fmtNum(Math.round(gross))} kr. opfylder vækstkriteriet (min. ${fmtNum(Math.round(minRequired))} kr.) — ${driftMsg}`;
+
+    // Re-render history with input year injected
+    const newEntry = { year: neededLast, gross_profit: gross, balance_sheet_status: drift };
+    const newAll   = [...allFinancials.filter(f => f.year !== neededLast), newEntry];
+    const newRows  = buildGazelleHistory(newAll, cvrData);
+    window._req.allFinancials = newAll;
+    renderGazelleHistory(newRows, cvrData, newAll);
+    renderChart(newAll, newRows);
+
+    localStorage.setItem('gazelleResult', JSON.stringify({
+      ...JSON.parse(localStorage.getItem('gazelleResult') || '{}'),
+      allFinancials: newAll,
+      top4: [...newAll].sort((a,b) => b.year - a.year).slice(0, 4),
+    }));
+  } else {
+    const diff = minRequired - gross;
+    resultEl.className = 'req-result fail';
+    resultEl.innerHTML = `✗ Mangler ${fmtNum(Math.round(diff))} kr. for at nå minimumsgrænsen på ${fmtNum(Math.round(minRequired))} kr.`;
   }
 }
 
-// ── RENDER CHART ──────────────────────────────────────────────────────────────
-function renderChart(top4, plans) {
+// ── CHART ─────────────────────────────────────────────────────────────────────
+function renderChart(allFin, historyRows) {
   const canvas = document.getElementById('growthChart');
-  if (!canvas) return;
+  const card   = document.getElementById('chartCard');
+  if (!canvas || !card) return;
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
 
-  // Destroy existing chart
-  if (chartInst) {
-    chartInst.destroy();
-    chartInst = null;
-  }
+  const sorted = [...allFin].sort((a, b) => a.year - b.year);
+  if (sorted.length < 2) return;
+  card.style.display = 'block';
 
-  const sorted = [...top4].sort((a, b) => a.year - b.year);
+  // Years that are part of at least one passing Gazelle window
+  const gazelleYears = new Set();
+  historyRows.filter(r => r.pass).forEach(r => r.window4.forEach(y => gazelleYears.add(y.year)));
 
-  const actualLabels = sorted.map(d => String(d.year));
-  const actualData   = sorted.map(d => d.gross_profit);
-  const planLabels   = (plans || []).map(p => String(p.year));
-  const planData     = (plans || []).map(p => Math.round(p.projected));
+  const labels   = sorted.map(d => String(d.year));
+  const values   = sorted.map(d => d.gross_profit);
+  const colors   = sorted.map(d => gazelleYears.has(d.year) ? 'rgba(16,185,129,0.75)' : 'rgba(248,113,113,0.65)');
+  const borders  = sorted.map(d => gazelleYears.has(d.year) ? '#10B981' : '#F87171');
 
-  const allLabels = [...actualLabels, ...planLabels];
-  const mainData  = [...actualData, ...Array(planLabels.length).fill(null)];
-  const projData  = [...Array(actualLabels.length - 1).fill(null), actualData[actualData.length - 1], ...planData];
+  // Target line: 2x first year gross_profit
+  const target     = sorted[0].gross_profit * 2;
+  const targetData = sorted.map(() => target);
 
   chartInst = new Chart(canvas, {
-    type: 'line',
+    type: 'bar',
     data: {
-      labels: allLabels,
+      labels,
       datasets: [
         {
-          label: 'Bruttoresultat (faktisk)',
-          data: mainData,
-          borderColor: '#4F46E5',
-          backgroundColor: 'rgba(79,70,229,0.1)',
-          borderWidth: 2.5,
-          pointRadius: 5,
-          pointBackgroundColor: '#4F46E5',
-          tension: 0.3,
-          fill: true,
+          label: 'Bruttoresultat',
+          data: values,
+          backgroundColor: colors,
+          borderColor: borders,
+          borderWidth: 1.5,
+          borderRadius: 6,
         },
         {
-          label: 'Fremskrivning (25% CAGR)',
-          data: projData,
-          borderColor: '#7C3AED',
-          backgroundColor: 'rgba(124,58,237,0.05)',
-          borderWidth: 2,
-          borderDash: [6, 4],
-          pointRadius: 4,
-          pointBackgroundColor: '#7C3AED',
-          tension: 0.3,
+          label: 'Mål: 2× startår',
+          data: targetData,
+          type: 'line',
+          borderColor: 'rgba(255,255,255,0.35)',
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
           fill: false,
         },
       ],
@@ -1052,7 +690,7 @@ function renderChart(top4, plans) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, boxWidth: 14, color: 'rgba(255,255,255,0.6)' } },
+        legend: { display: false },
         tooltip: {
           callbacks: {
             label: ctx => `${ctx.dataset.label}: ${fmtDKK(ctx.raw)}`,
@@ -1068,12 +706,12 @@ function renderChart(top4, plans) {
               return v;
             },
             font: { family: 'Inter', size: 11 },
-            color: 'rgba(255,255,255,0.4)',
+            color: 'rgba(255,255,255,0.35)',
           },
-          grid: { color: 'rgba(255,255,255,0.06)' },
+          grid: { color: 'rgba(255,255,255,0.05)' },
         },
         x: {
-          ticks: { font: { family: 'Inter', size: 11 }, color: 'rgba(255,255,255,0.4)' },
+          ticks: { font: { family: 'Inter', size: 11 }, color: 'rgba(255,255,255,0.35)' },
           grid: { display: false },
         },
       },
@@ -1081,43 +719,8 @@ function renderChart(top4, plans) {
   });
 }
 
-// ── RENDER ALL ────────────────────────────────────────────────────────────────
-function renderAll(cvrData, top4) {
-  if (cvrData) renderCompanyCard(cvrData, _currentCVR);
-
-  const checks = buildChecks(cvrData, top4);
-  renderScorecard(checks);
-
-  const plans = buildFuturePlan(top4);
-  renderFuturePlan(plans, top4);
-  renderChart(top4, plans);
-
-  document.getElementById('results').style.display = 'block';
-
-  // Show supplement card
-  const suppCard = document.getElementById('supplementCard');
-  if (suppCard) {
-    suppCard.style.display = 'block';
-
-    const sortedDesc = [...top4].sort((a, b) => b.year - a.year);
-    const mostRecentYear = sortedDesc[0]?.year || (new Date().getFullYear() - 1);
-    const suppYear = mostRecentYear + 1;
-
-    const suppYearEl = document.getElementById('suppYear');
-    if (suppYearEl) suppYearEl.textContent = suppYear;
-
-    const suppInput = document.getElementById('suppYearInput');
-    if (suppInput) suppInput.value = suppYear;
-  }
-
-  // Scroll results into view
-  setTimeout(() => {
-    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
-}
-
-// ── MANUAL ROWS ───────────────────────────────────────────────────────────────
-function buildManualRows(cvr) {
+// ── MANUAL INPUT ──────────────────────────────────────────────────────────────
+function buildManualRows() {
   const tbody = document.getElementById('manualBody');
   if (!tbody) return;
   tbody.innerHTML = '';
@@ -1125,15 +728,13 @@ function buildManualRows(cvr) {
   for (let i = 0; i < 4; i++) {
     const yr = thisYear - 1 - i;
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${yr}</td>
+    tr.innerHTML = `<td>${yr}</td>
       <td><input type="number" id="mGross${i}" placeholder="f.eks. 5000000" step="1000"></td>
       <td><input type="number" id="mDrift${i}" placeholder="valgfrit" step="1000"></td>`;
     tbody.appendChild(tr);
   }
 }
 
-// ── CALC FROM MANUAL ──────────────────────────────────────────────────────────
 function calcFromManual() {
   const thisYear = new Date().getFullYear();
   const financials = [];
@@ -1141,304 +742,57 @@ function calcFromManual() {
     const yr    = thisYear - 1 - i;
     const gross = normalise(document.getElementById(`mGross${i}`)?.value);
     const drift = normalise(document.getElementById(`mDrift${i}`)?.value);
-    if (gross !== null) {
-      financials.push({ year: yr, gross_profit: gross, balance_sheet_status: drift || 0 });
-    }
+    if (gross !== null) financials.push({ year: yr, gross_profit: gross, balance_sheet_status: drift || 0 });
   }
-
-  if (financials.length < 2) {
-    alert('Indtast mindst 2 års data (Bruttoresultat) for at beregne.');
-    return;
-  }
-
+  if (financials.length < 2) { alert('Indtast mindst 2 års data.'); return; }
   financials.sort((a, b) => b.year - a.year);
-  _storedTop4 = financials.slice(0, 4);
-
-  // Hide manual section, show results
   document.getElementById('manualSection').style.display = 'none';
-
-  renderAll(_cvrData, _storedTop4);
-}
-
-// ── SUBMIT SUPPLEMENT ─────────────────────────────────────────────────────────
-function submitSupplement() {
-  const yr    = parseInt(document.getElementById('suppYearInput')?.value, 10);
-  const gross = normalise(document.getElementById('suppGross')?.value);
-  const drift = normalise(document.getElementById('suppDrift')?.value);
-
-  if (!yr || yr < 2000 || yr > 2099) {
-    alert('Indtast et gyldigt årstal (f.eks. 2025).');
-    return;
-  }
-  if (gross === null || gross <= 0) {
-    alert('Indtast et gyldigt bruttoresultat.');
-    return;
-  }
-
-  const newEntry = { year: yr, gross_profit: gross, balance_sheet_status: drift || 0 };
-
-  // Combine with existing top4, sort descending, take top 4
-  const existing = _storedTop4 ? [..._storedTop4] : [];
-  const filtered = existing.filter(e => e.year !== yr); // remove same year if exists
-  const combined = [newEntry, ...filtered].sort((a, b) => b.year - a.year).slice(0, 4);
-
-  _storedTop4 = combined;
-
-  // Update localStorage
-  localStorage.setItem('gazelleResult', JSON.stringify({
-    cvrData: _cvrData,
-    top4: combined,
-    currentCVR: _currentCVR,
-    manualNeeded: false,
-    timestamp: Date.now()
-  }));
-
-  renderAll(_cvrData, combined);
-}
-
-// ── GAZELLE HISTORY ────────────────────────────────────────────────────────
-function buildGazelleHistory(allFinancials, cvrData) {
-  const sorted = [...allFinancials].sort((a, b) => a.year - b.year);
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  // Current Gazelle year: the one being announced this year or next
-  // Gazelle N uses accounts N-4 to N-1
-  // In 2026: Gazelle 2026 uses 2022-2025
-  const currentGazelleYear = currentYear; // 2026
-
-  const rows = [];
-  let firstGazelle = null;
-
-  // Check all possible 4-year windows from available data
-  for (let i = 0; i <= sorted.length - 4; i++) {
-    const window4 = sorted.slice(i, i + 4);
-    // Must be consecutive years
-    let consecutive = true;
-    for (let j = 1; j < 4; j++) {
-      if (window4[j].year !== window4[j-1].year + 1) { consecutive = false; break; }
-    }
-    if (!consecutive) continue;
-
-    const gazelleYear = window4[3].year + 1;
-    const checks = buildChecks(cvrData, window4);
-    const pass = checks.every(c => c.pass === true);
-
-    if (pass && !firstGazelle) firstGazelle = gazelleYear;
-
-    rows.push({
-      gazelleYear,
-      window4,
-      checks,
-      pass,
-      isFirst: pass && firstGazelle === gazelleYear,
-      isCurrent: gazelleYear === currentGazelleYear,
-    });
-  }
-
-  // Add current/next Gazelle year if 2025 data missing
-  const latestYear = sorted[sorted.length - 1]?.year;
-  const neededLastYear = currentGazelleYear - 1; // 2025
-  if (latestYear < neededLastYear) {
-    // 2025 not available — show pending row
-    const partialWindow = sorted.filter(f => f.year >= currentGazelleYear - 4 && f.year < currentGazelleYear);
-    rows.push({
-      gazelleYear: currentGazelleYear,
-      window4: partialWindow,
-      checks: null,
-      pass: null,
-      pending: true,
-      isCurrent: true,
-      missingYear: neededLastYear,
-    });
-  }
-
-  return rows;
-}
-
-function renderGazelleHistory(rows, cvrData) {
-  const grid = document.getElementById('historyGrid');
-  const section = document.getElementById('historySection');
-  if (!grid || !section || rows.length === 0) return;
-
-  section.style.display = 'block';
-  grid.innerHTML = '';
-
-  rows.forEach(row => {
-    const div = document.createElement('div');
-    let cls = 'history-row';
-    if (row.pending) cls += ' pending';
-    else if (row.pass) { cls += ' pass'; if (row.isFirst) cls += ' first-gazelle'; }
-    else cls += ' fail';
-    div.className = cls;
-
-    const windowYears = row.window4.map(f => f.year).join('–');
-    const windowStr = row.window4.length < 4
-      ? `${windowYears}–${row.missingYear || '?'}`
-      : windowYears;
-
-    let badgeHtml = '';
-    if (row.pending) {
-      badgeHtml = `<span class="history-badge badge-pending">⏳ Afventer 2025-data</span>`;
-    } else if (row.isFirst) {
-      badgeHtml = `<span class="history-badge badge-first">🏆 Første Gazelle!</span>`;
-    } else if (row.pass) {
-      badgeHtml = `<span class="history-badge badge-pass">✓ Gazelle</span>`;
-    } else {
-      badgeHtml = `<span class="history-badge badge-fail">✗ Ikke opfyldt</span>`;
-    }
-
-    let criteriaHtml = '';
-    if (row.checks) {
-      const labels = ['Type', '4 år', 'Vækst', '100%', 'Drift'];
-      criteriaHtml = `<div class="history-criteria">${row.checks.map((c, i) =>
-        `<span class="hc ${c.pass ? 'hc-ok' : 'hc-fail'}">${labels[i]}</span>`
-      ).join('')}</div>`;
-    } else {
-      criteriaHtml = `<div style="font-size:.8rem;color:rgba(255,255,255,0.4)">Indtast 2025-data for at beregne</div>`;
-    }
-
-    div.innerHTML = `
-      <div class="history-year">${row.gazelleYear}</div>
-      ${badgeHtml}
-      <div class="history-detail">${criteriaHtml}</div>
-      <div class="history-window">Regnskaber: ${windowStr}</div>`;
-
-    grid.appendChild(div);
-  });
-}
-
-function buildAndRender2026Requirement(allFinancials, cvrData) {
-  const section = document.getElementById('req2026Section');
-  if (!section) return;
-
-  const now = new Date();
-  const currentGazelleYear = now.getFullYear(); // 2026
-  const neededLastYear = currentGazelleYear - 1; // 2025
-
-  const sorted = [...allFinancials].sort((a, b) => a.year - b.year);
-  const latestAvailable = sorted[sorted.length - 1]?.year;
-
-  // Only show if 2025 is missing
-  if (latestAvailable >= neededLastYear) return;
-
-  // Get the 3 known years of the Gazelle 2026 window (2022, 2023, 2024)
-  const windowStart = currentGazelleYear - 4; // 2022
-  const knownYears = sorted.filter(f => f.year >= windowStart && f.year < currentGazelleYear);
-
-  if (knownYears.length < 3) return; // Not enough data to compute requirements
-
-  const prevYear = knownYears[knownYears.length - 1]; // 2024 data
-  const firstYear = knownYears[0]; // 2022 data
-
-  // Criterion 3: must exceed previous year
-  const minForGrowth = prevYear.gross_profit + 1;
-  // Criterion 4: total growth >= 100% (last/first >= 2)
-  const minForDoubling = firstYear.gross_profit * 2;
-  const minRequired = Math.max(minForGrowth, minForDoubling);
-
-  // Criterion 5: net result sum must be positive
-  const knownNetSum = knownYears.reduce((s, f) => s + (f.balance_sheet_status || 0), 0);
-
-  section.style.display = 'block';
-  document.getElementById('reqAmount').textContent = new Intl.NumberFormat('da-DK').format(Math.round(minRequired)) + ' kr.';
-  document.getElementById('reqSub').textContent =
-    `Minimum bruttoresultat i 2025 for at kvalificere til Gazelle 2026 (vindue: ${windowStart}–2025). Skal overgå 2024 (${new Intl.NumberFormat('da-DK').format(prevYear.gross_profit)} kr.) og fordoble 2022 (${new Intl.NumberFormat('da-DK').format(firstYear.gross_profit)} kr. × 2).`;
-
-  // Store for check2025
-  window._req2026 = { minRequired, knownNetSum, knownYears, cvrData, allFinancials };
-}
-
-function check2025() {
-  const input = document.getElementById('req2025Input');
-  const resultEl = document.getElementById('reqResult');
-  if (!input || !resultEl || !window._req2026) return;
-
-  const val = parseFloat(String(input.value).replace(/[^\d.-]/g, ''));
-  if (isNaN(val) || val <= 0) {
-    resultEl.style.display = 'block';
-    resultEl.className = 'req-result fail';
-    resultEl.textContent = 'Indtast et gyldigt beløb.';
-    return;
-  }
-
-  const { minRequired, knownNetSum, knownYears, cvrData, allFinancials } = window._req2026;
-  const driftInput = document.getElementById('req2025Drift');
-  const drift2025 = driftInput && driftInput.value ? parseFloat(String(driftInput.value).replace(/[^\d.-]/g, '')) || 0 : 0;
-
-  const meetsGrowth = val >= minRequired;
-  const totalNet = knownNetSum + drift2025;
-  const meetsDrift = totalNet > 0;
-
-  resultEl.style.display = 'block';
-
-  if (meetsGrowth && (drift2025 === 0 || meetsDrift)) {
-    resultEl.className = 'req-result pass';
-    resultEl.innerHTML = `✓ Med et bruttoresultat på ${new Intl.NumberFormat('da-DK').format(Math.round(val))} kr. i 2025 opfylder I vækstkriteriet. ${drift2025 ? (meetsDrift ? 'Driftsresultatkravet er også opfyldt.' : 'OBS: Samlet driftsresultat er stadig negativt.') : 'Tilføj årets resultat for at tjekke driftsresultatkravet.'}`;
-
-    // Re-render history with 2025 data added
-    const year2025 = { year: 2025, gross_profit: val, balance_sheet_status: drift2025 };
-    const newAll = [...allFinancials.filter(f => f.year !== 2025), year2025];
-    const newRows = buildGazelleHistory(newAll, cvrData);
-    renderGazelleHistory(newRows, cvrData);
-
-    // Store updated data
-    localStorage.setItem('gazelleResult', JSON.stringify({
-      ...JSON.parse(localStorage.getItem('gazelleResult') || '{}'),
-      allFinancials: newAll,
-      top4: newAll.sort((a,b) => b.year - a.year).slice(0,4),
-    }));
-  } else {
-    resultEl.className = 'req-result fail';
-    const diff = minRequired - val;
-    resultEl.innerHTML = `✗ Ikke nok — mangler ${new Intl.NumberFormat('da-DK').format(Math.round(diff))} kr. i bruttoresultat for at nå minimumsgrænsen på ${new Intl.NumberFormat('da-DK').format(Math.round(minRequired))} kr.`;
-  }
+  boot(_cvrData, financials, _currentCVR);
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
+function boot(cvrData, allFin, cvr) {
+  _cvrData    = cvrData;
+  _currentCVR = cvr;
+  _allFin     = allFin;
+
+  if (cvrData) renderCompanyCard(cvrData, cvr);
+
+  const rows = buildGazelleHistory(allFin, cvrData);
+  renderGazelleHistory(rows, cvrData, allFin);
+  renderChart(allFin, rows);
+
+  // Store for fremtiden.html
+  localStorage.setItem('gazelleFremtid', JSON.stringify({
+    cvrData, allFinancials: allFin,
+    top4: [...allFin].sort((a,b) => b.year - a.year).slice(0, 4),
+    currentCVR: cvr,
+  }));
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   const stored = localStorage.getItem('gazelleResult');
-  if (!stored) {
-    document.getElementById('noDataMsg').style.display = 'block';
-    return;
-  }
+  if (!stored) { document.getElementById('noDataMsg').style.display = 'block'; return; }
 
   let data;
-  try {
-    data = JSON.parse(stored);
-  } catch (_) {
-    document.getElementById('noDataMsg').style.display = 'block';
+  try { data = JSON.parse(stored); } catch (_) { document.getElementById('noDataMsg').style.display = 'block'; return; }
+
+  const allFin = data.allFinancials || data.top4 || [];
+
+  if (data.manualNeeded || allFin.length === 0) {
+    if (data.cvrData) renderCompanyCard(data.cvrData, data.currentCVR);
+    document.getElementById('manualSection').style.display = 'block';
+    buildManualRows();
+    _cvrData = data.cvrData; _currentCVR = data.currentCVR;
+    if (data.cvrData?.name) {
+      const slug = extractSlug(data.cvrData.name);
+      const link = document.getElementById('virkdataLink');
+      if (link) { link.href = `https://virkdata.dk/firmaer/${data.currentCVR}/${slug}`; link.textContent = `virkdata.dk → ${data.cvrData.name}`; }
+    }
     return;
   }
 
-  _cvrData    = data.cvrData    || null;
-  _currentCVR = data.currentCVR || null;
-  _storedTop4 = data.top4       || null;
-
-  if (data.cvrData) renderCompanyCard(data.cvrData, data.currentCVR);
-
-  if (data.manualNeeded) {
-    document.getElementById('manualSection').style.display = 'block';
-    buildManualRows(data.currentCVR);
-
-    // Update virkdata link
-    if (data.cvrData && data.cvrData.name) {
-      const slug = generateVirkdataSlug(data.cvrData.name);
-      const link = document.getElementById('virkdataLink');
-      if (link) {
-        link.href = `https://virkdata.dk/firmaer/${data.currentCVR}/${slug}`;
-        link.textContent = `virkdata.dk → ${data.cvrData.name}`;
-      }
-    }
-  } else if (data.top4) {
-    // Render history and 2026 requirement BEFORE main scorecard
-    const allFin = data.allFinancials || data.top4 || [];
-    if (allFin.length > 0) {
-      const historyRows = buildGazelleHistory(allFin, data.cvrData);
-      renderGazelleHistory(historyRows, data.cvrData);
-      buildAndRender2026Requirement(allFin, data.cvrData);
-    }
-    renderAll(data.cvrData, data.top4);
-  }
+  boot(data.cvrData, allFin, data.currentCVR);
 });
 </script>
 </body>
