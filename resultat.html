@@ -410,16 +410,16 @@ function buildChecks(cvrData, window4) {
   let allPositive = true, growthYears = 0;
   for (let i = 1; i < sorted.length; i++) {
     const prev = sorted[i-1].gross_profit, curr = sorted[i].gross_profit;
-    if (prev && curr && curr > prev) growthYears++;
+    if (prev != null && curr != null && curr > prev) growthYears++;
     else allPositive = false;
   }
   checks.push({ label: 'Vækst', value: growthYears + '/' + (n-1) + ' år', pass: allPositive && n >= 2, warn: growthYears >= Math.ceil((n-1)/2) && !allPositive });
 
-  // 3. 100% total growth
+  // 3. 100% total growth (base must be positive for meaningful percentage)
   let totalGrowth = null;
   if (n >= 2) {
     const base = sorted[0].gross_profit, latest = sorted[n-1].gross_profit;
-    if (base && base > 0 && latest) totalGrowth = ((latest - base) / base) * 100;
+    if (base != null && base > 0 && latest != null) totalGrowth = ((latest - base) / base) * 100;
   }
   checks.push({ label: '100%', value: totalGrowth !== null ? fmtPct(totalGrowth) : '–', pass: totalGrowth !== null && totalGrowth >= 100, warn: totalGrowth !== null && totalGrowth >= 50 && totalGrowth < 100 });
 
@@ -583,19 +583,21 @@ function renderGazelleHistory(rows, cvrData, allFin) {
       const s = [...row.window4].sort((a, b) => a.year - b.year);
       const n = s.length;
       const base = s[0].gross_profit, last = s[n-1].gross_profit;
-      const totalGrowth = base > 0 ? ((last - base) / base) * 100 : null;
+      const totalGrowth = (base != null && base > 0 && last != null) ? ((last - base) / base) * 100 : null;
       let allPos = true;
-      for (let i = 1; i < s.length; i++) if (s[i].gross_profit <= s[i-1].gross_profit) { allPos = false; break; }
+      for (let i = 1; i < s.length; i++) {
+        if (s[i].gross_profit == null || s[i-1].gross_profit == null || s[i].gross_profit <= s[i-1].gross_profit) { allPos = false; break; }
+      }
       const net = s[n-1].balance_sheet_status;
 
       div.innerHTML += `<div class="hr-metrics">
         <div class="hr-metric">
           <div class="hm-label">Basisår gross.</div>
-          <div class="hm-val">${fmtDKK(base)}</div>
+          <div class="hm-val ${base != null && base < 0 ? 'bad' : ''}">${fmtDKK(base)}</div>
         </div>
         <div class="hr-metric">
           <div class="hm-label">Seneste gross.</div>
-          <div class="hm-val">${fmtDKK(last)}</div>
+          <div class="hm-val ${last != null && last < 0 ? 'bad' : ''}">${fmtDKK(last)}</div>
         </div>
         <div class="hr-metric">
           <div class="hm-label">Samlet vækst</div>
@@ -603,7 +605,7 @@ function renderGazelleHistory(rows, cvrData, allFin) {
         </div>
         <div class="hr-metric">
           <div class="hm-label">Årsresultat</div>
-          <div class="hm-val ${net > 0 ? 'good' : 'bad'}">${fmtDKK(net)}</div>
+          <div class="hm-val ${net != null && net > 0 ? 'good' : net != null && net < 0 ? 'bad' : ''}">${net != null ? fmtDKK(net) : '–'}</div>
         </div>
       </div>`;
     }

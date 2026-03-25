@@ -731,12 +731,19 @@ function deepFind(obj, key) {
 function normalise(arr) {
   if (!Array.isArray(arr)) return [];
   return arr
-    .map(item => ({
-      year:                 parseInt(item.year ?? item.regnskabsaar ?? item.fiscal_year, 10),
-      gross_profit:         parseFloat(item.gross_profit ?? item.bruttoresultat ?? 0),
-      balance_sheet_status: parseFloat(item.balance_sheet_status ?? item.arets_resultat ?? item.result ?? 0),
-    }))
-    .filter(d => !isNaN(d.year) && d.year > 2000 && isFinite(d.gross_profit));
+    .map(item => {
+      const rawGross = item.gross_profit ?? item.bruttoresultat ?? null;
+      const rawNet   = item.balance_sheet_status ?? item.arets_resultat
+                    ?? item.result ?? item.profit_loss ?? item.net_result
+                    ?? item.resultat ?? item.aarsresultat ?? item.resultat_efter_skat
+                    ?? null;
+      return {
+        year:                 parseInt(item.year ?? item.regnskabsaar ?? item.fiscal_year, 10),
+        gross_profit:         rawGross != null ? parseFloat(rawGross) : null,
+        balance_sheet_status: rawNet   != null ? parseFloat(rawNet)   : null,
+      };
+    })
+    .filter(d => !isNaN(d.year) && d.year > 2000 && d.gross_profit != null && isFinite(d.gross_profit));
 }
 
 function parseFinancials(html) {
@@ -920,8 +927,8 @@ function calcWithManual() {
     const yr   = thisYear - 1 - i;
     const gross = parseFloat(String(document.getElementById(`mGross${i}`)?.value || '').replace(/[^\d.-]/g, ''));
     const drift = parseFloat(String(document.getElementById(`mDrift${i}`)?.value || '').replace(/[^\d.-]/g, ''));
-    if (!isNaN(gross) && gross > 0) {
-      financials.push({ year: yr, gross_profit: gross, balance_sheet_status: isNaN(drift) ? 0 : drift });
+    if (!isNaN(gross)) {
+      financials.push({ year: yr, gross_profit: gross, balance_sheet_status: isNaN(drift) ? null : drift });
     }
   }
 
