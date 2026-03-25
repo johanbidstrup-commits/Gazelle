@@ -490,7 +490,7 @@ function computeReq(allFinancials) {
   const minForGrowth   = prev.gross_profit + 1;
   const minForDoubling = first.gross_profit * 2;
   const minRequired    = Math.max(minForGrowth, minForDoubling);
-  const knownNetSum    = known.reduce((s, f) => s + (f.balance_sheet_status || 0), 0);
+  const knownNetSum    = known.reduce((s, f) => s + (f.balance_sheet_status ?? 0), 0);
 
   return { minRequired, minForGrowth, minForDoubling, knownNetSum, prev, first, known, neededLast, currentYear };
 }
@@ -510,7 +510,7 @@ function computeReqForEdit(allFin, targetYear) {
   const minForGrowth   = prev.gross_profit + 1;
   const minForDoubling = first.gross_profit * 2;
   const minRequired    = Math.max(minForGrowth, minForDoubling);
-  const knownNetSum    = known.reduce((s, f) => s + (f.balance_sheet_status || 0), 0);
+  const knownNetSum    = known.reduce((s, f) => s + (f.balance_sheet_status ?? 0), 0);
   return { minRequired, minForGrowth, minForDoubling, knownNetSum, prev, first, known,
            neededLast: targetYear, currentYear: gazelleYear };
 }

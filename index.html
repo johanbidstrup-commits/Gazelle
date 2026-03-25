@@ -737,13 +737,19 @@ function normalise(arr) {
                     ?? item.result ?? item.profit_loss ?? item.net_result
                     ?? item.resultat ?? item.aarsresultat ?? item.resultat_efter_skat
                     ?? null;
+      const gross = rawGross != null ? parseFloat(rawGross) : null;
+      const net   = rawNet   != null ? parseFloat(rawNet)   : null;
       return {
         year:                 parseInt(item.year ?? item.regnskabsaar ?? item.fiscal_year, 10),
-        gross_profit:         rawGross != null ? parseFloat(rawGross) : null,
-        balance_sheet_status: rawNet   != null ? parseFloat(rawNet)   : null,
+        gross_profit:         gross,
+        // Treat net=0 as null (unknown) only when gross is also 0 — virkdata uses all-zeros
+        // as a placeholder for years not yet imported. When gross is real, 0 net is genuine.
+        balance_sheet_status: (gross === 0 && net === 0) ? null : net,
       };
     })
-    .filter(d => !isNaN(d.year) && d.year > 2000 && d.gross_profit != null && isFinite(d.gross_profit));
+    // Exclude years with no gross profit data (0 = virkdata placeholder, null = missing)
+    .filter(d => !isNaN(d.year) && d.year > 2000 && d.gross_profit != null
+             && isFinite(d.gross_profit) && d.gross_profit !== 0);
 }
 
 function parseFinancials(html) {
