@@ -96,6 +96,79 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 }
 .yr-missing-notice strong { color: var(--amber); }
 
+/* ── YEAR CARD INPUT ── */
+.yr-input-prompt { margin-top: .25rem; }
+.yr-input-prompt p { font-size: .84rem; color: var(--text-soft); margin-bottom: .85rem; line-height: 1.5; }
+.yr-input-row { display: flex; gap: .6rem; flex-wrap: wrap; }
+.yr-input {
+  flex: 1; min-width: 180px;
+  background: rgba(255,255,255,0.06); border: 1.5px solid var(--border);
+  border-radius: 9px; padding: .65rem 1rem; font-size: .9rem; font-family: inherit;
+  color: #fff; outline: none; transition: border-color .15s;
+}
+.yr-input:focus { border-color: var(--indigo); }
+.yr-btn {
+  background: var(--indigo); color: #fff; border: none; border-radius: 9px;
+  padding: .65rem 1.25rem; font-size: .88rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; white-space: nowrap; transition: background .15s;
+}
+.yr-btn:hover { background: #4F46E5; }
+.yr-entered-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .25rem; }
+.yr-entered-val { font-size: .82rem; color: var(--text-soft); }
+.yr-entered-val strong { color: #fff; }
+.yr-edit-btn {
+  background: none; border: 1px solid var(--border); border-radius: 7px;
+  color: var(--text-soft); font-size: .75rem; font-family: inherit;
+  padding: .3rem .7rem; cursor: pointer; white-space: nowrap; transition: color .15s, border-color .15s;
+}
+.yr-edit-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+
+/* ── QUIZ CARD ── */
+.quiz-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem 1.5rem;
+  margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.1rem;
+}
+.quiz-heading { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .18em; color: var(--text-soft); margin-bottom: .1rem; }
+.quiz-q { display: flex; flex-direction: column; gap: .5rem; }
+.quiz-q-label { font-size: .85rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+.quiz-q-label span { font-weight: 400; color: var(--text-soft); font-size: .78rem; }
+.quiz-btns { display: flex; gap: .5rem; flex-wrap: wrap; }
+.quiz-btn {
+  background: rgba(255,255,255,0.05); border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--text-soft); font-size: .82rem; font-weight: 600;
+  font-family: inherit; padding: .45rem .9rem; cursor: pointer;
+  transition: all .15s; white-space: nowrap;
+}
+.quiz-btn:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+.quiz-btn.active { background: rgba(99,102,241,.18); border-color: var(--indigo); color: #fff; }
+.quiz-input-sm {
+  background: rgba(255,255,255,0.06); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: .45rem .9rem; font-size: .85rem; font-family: inherit;
+  color: #fff; outline: none; transition: border-color .15s; width: 100%; max-width: 280px;
+}
+.quiz-input-sm:focus { border-color: var(--indigo); }
+
+/* ── TIPS CONTEXT NOTE ── */
+.tips-context {
+  font-size: .82rem; color: var(--text-soft); background: rgba(255,255,255,0.04);
+  border-radius: 8px; padding: .65rem .9rem; margin-bottom: 1.1rem;
+  border-left: 3px solid var(--indigo); line-height: 1.5;
+}
+.tips-context strong { color: var(--text); }
+
+/* ── GROWTH TARGET PANEL ── */
+.growth-target {
+  background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 10px; padding: .9rem 1.1rem; margin-bottom: 1.25rem;
+}
+.gt-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--emerald); margin-bottom: .3rem; }
+.gt-main { font-size: 1.2rem; font-weight: 800; color: #fff; }
+.gt-main span { font-size: .9rem; font-weight: 600; color: var(--text-soft); margin-left: .4rem; }
+.gt-subs { margin-top: .4rem; display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; }
+.gt-sub { font-size: .78rem; color: var(--text-soft); }
+.gt-sub strong { color: rgba(255,255,255,0.7); }
+
 /* ── TIPS SECTION ── */
 .tips-card {
   background: var(--surface);
@@ -103,7 +176,7 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   border-top: 3px solid var(--emerald);
   border-radius: 14px;
   padding: 1.5rem 1.6rem;
-  margin-top: 2.5rem;
+  margin-top: 1rem;
 }
 .tips-header { margin-bottom: 1.25rem; }
 .tips-category { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .15em; color: var(--emerald); margin-bottom: .3rem; }
@@ -170,6 +243,7 @@ footer a:hover { color: #fff; }
     <div class="section-label">Minimumskrav per år</div>
     <div id="yearCards"></div>
 
+    <div id="quizSection"></div>
     <div id="tipsSection"></div>
 
   </div>
@@ -181,6 +255,9 @@ footer a:hover { color: #fff; }
 
 <script>
 'use strict';
+
+// Global state
+let _allFin = [], _cvrData = {};
 
 function fmtDKK(n) {
   if (n == null || isNaN(n)) return '–';
@@ -195,12 +272,35 @@ function fmtPct(n) {
   return (n >= 0 ? '+' : '') + n.toFixed(0) + ' %';
 }
 
+// ── FINANCIAL CONTEXT ─────────────────────────────────────────────────────────
+function getFinancialContext(allFin) {
+  const sorted = [...allFin].sort((a, b) => a.year - b.year);
+  const n = sorted.length;
+  if (n < 1) return {};
+  const latest = sorted[n - 1];
+  const prev   = n >= 2 ? sorted[n - 2] : null;
+  const recentGrowth = (prev && prev.gross_profit > 0)
+    ? ((latest.gross_profit - prev.gross_profit) / prev.gross_profit) * 100
+    : null;
+  const latestNet = latest.balance_sheet_status;
+  return {
+    recentGrowth,
+    latestNet,
+    latestGross: latest.gross_profit,
+    latestYear: latest.year,
+    isUnprofitable: latestNet != null && latestNet < 0,
+    isSlowGrowth:   recentGrowth != null && recentGrowth < 20,
+    isFastGrowth:   recentGrowth != null && recentGrowth >= 50,
+  };
+}
+
 // ── COMPUTE FUTURE YEAR REQUIREMENTS ─────────────────────────────────────────
 function computeFutureRequirements(allFin) {
   const currentYear = new Date().getFullYear();
   const sorted = [...allFin].sort((a, b) => a.year - b.year);
 
-  // Build lookup map of known gross_profits
+  // Track which years come from actual data vs. cascaded estimates
+  const actualYears = new Set(sorted.map(f => f.year));
   const virtual = {};
   sorted.forEach(f => { if (f.gross_profit) virtual[f.year] = f.gross_profit; });
 
@@ -209,33 +309,26 @@ function computeFutureRequirements(allFin) {
   for (let i = 0; i < 3; i++) {
     const accountYear = currentYear + i;
     const gazelleYear = accountYear + 1;
-    const windowStart = gazelleYear - 4;   // first year of the 4-year window
+    const windowStart = gazelleYear - 4;
+    const prevYear    = accountYear - 1;
+    const prevGross   = virtual[prevYear];
+    const baseGross   = virtual[windowStart];
 
-    const prevYear  = accountYear - 1;
-    const prevGross = virtual[prevYear];
-    const baseGross = virtual[windowStart];
-
-    // Which window years are missing from known data?
     const missingWindowYears = [];
     for (let y = windowStart; y < accountYear; y++) {
       if (!virtual[y]) missingWindowYears.push(y);
     }
 
-    let minForGrowth   = null;
-    let minForDoubling = null;
-    let minRequired    = null;
-
+    let minForGrowth = null, minForDoubling = null, minRequired = null;
     if (prevGross != null && baseGross != null) {
       minForGrowth   = prevGross + 1;
       minForDoubling = baseGross * 2;
       minRequired    = Math.max(minForGrowth, minForDoubling);
     }
 
-    // Cascade: store the requirement (or estimate) for subsequent years
     if (minRequired != null) {
       virtual[accountYear] = minRequired;
     } else {
-      // Fall back to 25% CAGR estimate for cascading
       const latestKnown = sorted[sorted.length - 1];
       if (latestKnown) {
         const yearsAhead = accountYear - latestKnown.year;
@@ -243,38 +336,65 @@ function computeFutureRequirements(allFin) {
       }
     }
 
+    // Is the blocking missing year the immediately prior year (i.e. input can help)?
+    const prevYearIsInput = !actualYears.has(prevYear) && i === 0;
+
     results.push({
-      accountYear,
-      gazelleYear,
-      windowStart,
-      minRequired,
-      minForGrowth,
-      minForDoubling,
-      prevGross,
-      baseGross,
-      missingWindowYears,
+      accountYear, gazelleYear, windowStart,
+      minRequired, minForGrowth, minForDoubling,
+      prevGross, prevYear, baseGross,
+      missingWindowYears, prevYearIsInput,
       growthPct: (minRequired != null && prevGross != null && prevGross > 0)
-        ? ((minRequired - prevGross) / prevGross) * 100
-        : null,
+        ? ((minRequired - prevGross) / prevGross) * 100 : null,
     });
   }
-
   return results;
+}
+
+// ── SAVE/EDIT PREV YEAR INPUT ─────────────────────────────────────────────────
+function savePrevYearData() {
+  const yr = new Date().getFullYear() - 1; // 2025
+  const rawVal = document.getElementById('inputPrevGross')?.value?.trim();
+  if (!rawVal) return;
+  const gross = parseFloat(rawVal.replace(/[^\d.-]/g, ''));
+  if (isNaN(gross) || gross === 0) { alert('Indtast et gyldigt bruttoresultat.'); return; }
+
+  const newEntry = { year: yr, gross_profit: gross, balance_sheet_status: null };
+  _allFin = [..._allFin.filter(f => f.year !== yr), newEntry];
+
+  // Persist in both localStorage keys
+  const stored = JSON.parse(localStorage.getItem('gazelleResult') || '{}');
+  stored.allFinancials = _allFin;
+  localStorage.setItem('gazelleResult', JSON.stringify(stored));
+  const fremtid = JSON.parse(localStorage.getItem('gazelleFremtid') || '{}');
+  fremtid.allFinancials = _allFin;
+  localStorage.setItem('gazelleFremtid', JSON.stringify(fremtid));
+
+  renderYearCards(_allFin);
+}
+
+function editPrevYearData() {
+  const yr = new Date().getFullYear() - 1;
+  _allFin = _allFin.filter(f => f.year !== yr);
+  renderYearCards(_allFin);
 }
 
 // ── RENDER YEAR CARDS ─────────────────────────────────────────────────────────
 function renderYearCards(allFin) {
-  const reqs  = computeFutureRequirements(allFin);
-  const grid  = document.getElementById('yearCards');
+  const reqs = computeFutureRequirements(allFin);
+  const grid = document.getElementById('yearCards');
   if (!grid) return;
   grid.innerHTML = '';
 
-  reqs.forEach(r => {
+  reqs.forEach((r, i) => {
     const div = document.createElement('div');
-    const hasMissing = r.missingWindowYears.length > 0;
+    // For the first card: prevYear (2025) data was manually entered since it's not yet filed via API
+    const showEditPrev = i === 0 && allFin.some(f => f.year === r.prevYear);
 
     if (r.minRequired != null) {
       const dominant = r.minForDoubling >= r.minForGrowth ? 'doubling' : 'growth';
+      const hasMissing = r.missingWindowYears.length > 0;
+
       div.className = 'yr-card';
       div.innerHTML = `
         <div class="yr-top">
@@ -289,7 +409,7 @@ function renderYearCards(allFin) {
           <div class="yr-constraint" style="${dominant==='growth' ? 'border-color:rgba(99,102,241,.35)' : ''}">
             <div class="c-label">Vækst krav</div>
             <div class="c-val">> ${fmtNum(r.prevGross)} kr.</div>
-            <div class="c-sub">${r.prevGross != null ? `Overstiger ${r.accountYear - 1}` : '–'}</div>
+            <div class="c-sub">Overstiger ${r.prevYear}</div>
           </div>
           <div class="yr-constraint" style="${dominant==='doubling' ? 'border-color:rgba(99,102,241,.35)' : ''}">
             <div class="c-label">Fordobling krav</div>
@@ -297,65 +417,86 @@ function renderYearCards(allFin) {
             <div class="c-sub">${r.baseGross != null ? `${r.windowStart} × 2 (${fmtNum(r.baseGross)} kr.)` : '–'}</div>
           </div>
         </div>
-        ${hasMissing ? `<div style="margin-top:.85rem;font-size:.77rem;color:var(--amber)">⚠ Mangler regnskabsdata for ${r.missingWindowYears.join(', ')} — krav kan ændre sig</div>` : ''}`;
+        ${showEditPrev ? `
+        <div class="yr-entered-row" style="margin-top:.85rem">
+          <div class="yr-entered-val">Beregnet ud fra manuelt indtastet <strong>${r.prevYear}: ${fmtNum(r.prevGross)} kr.</strong></div>
+          <button class="yr-edit-btn" onclick="editPrevYearData()">✏ Rediger ${r.prevYear}</button>
+        </div>` : ''}
+        ${hasMissing ? `<div style="margin-top:.75rem;font-size:.77rem;color:var(--amber)">⚠ Mangler regnskabsdata for ${r.missingWindowYears.join(', ')} — krav kan ændre sig</div>` : ''}`;
+    } else if (r.prevYearIsInput) {
+      // First card, prev year missing — show input
+      div.className = 'yr-card yr-warn';
+      div.innerHTML = `
+        <div class="yr-top">
+          <div class="yr-year">${r.accountYear}</div>
+          <div class="yr-gazelle-tag">→ Gazelle ${r.gazelleYear}</div>
+        </div>
+        <div class="yr-input-prompt">
+          <p>Vi mangler bruttoresultat for <strong style="color:#fff">${r.prevYear}</strong> for at beregne det præcise krav for ${r.accountYear}. Kender du tallet?</p>
+          <div class="yr-input-row">
+            <input type="number" id="inputPrevGross" class="yr-input" placeholder="Bruttoresultat ${r.prevYear} (kr.)" step="1000">
+            <button class="yr-btn" onclick="savePrevYearData()">Beregn krav</button>
+          </div>
+        </div>`;
     } else {
-      // Not enough data to compute exact requirement
       div.className = 'yr-card yr-missing';
       const missing = r.missingWindowYears.length > 0
         ? r.missingWindowYears.join(' og ')
-        : `${r.accountYear - 1}`;
+        : `${r.prevYear}`;
       div.innerHTML = `
         <div class="yr-top">
           <div class="yr-year">${r.accountYear}</div>
           <div class="yr-gazelle-tag">→ Gazelle ${r.gazelleYear}</div>
         </div>
         <div class="yr-missing-notice">
-          Kan ikke beregne præcist krav — mangler regnskabsdata for
-          <strong>${missing}</strong>.<br>
-          Indberettet data for de manglende år vil låse kravet fast.
+          Mangler regnskabsdata for <strong>${missing}</strong> — kravet låses fast når disse år er indberettet.
         </div>`;
     }
-
     grid.appendChild(div);
   });
 }
 
 // ── INDUSTRY TIPS ─────────────────────────────────────────────────────────────
-function getIndustryTips(cvrData) {
+function getIndustryTips(cvrData, ctx) {
   const code3 = String(cvrData?.industrycode || '').substring(0, 3);
   const desc  = (cvrData?.industrydesc || '').toLowerCase();
 
-  // IT & Software
+  // Context-driven note for top of tips
+  let contextNote = null;
+  if (ctx?.isUnprofitable && ctx?.latestNet != null) {
+    contextNote = `Jeres seneste årsresultat er negativt (${fmtDKK(ctx.latestNet)}). Prioritér ydelser med stærk margin, og hold styr på omkostningsvæksten, mens I skalerer omsætningen.`;
+  } else if (ctx?.isSlowGrowth) {
+    contextNote = `Væksten er under 20% det seneste år. Fokusér på at finde og investere i den kannal der kan skalere — nye markeder, nye kunder eller ny prismodel.`;
+  } else if (ctx?.isFastGrowth) {
+    contextNote = `I vokser hurtigt (+${ctx.recentGrowth?.toFixed(0)}%). Fokusér nu på at bygge de processer og det team der kan fastholde farten uden at kvaliteten lider.`;
+  }
+
+  let result;
+
   if (['620','621','631'].includes(code3) || desc.includes('software') || desc.includes('it-') || desc.includes('programmering') || desc.includes('databehandling') || desc.includes('app')) {
-    return {
+    result = {
       category: 'IT & Software', title: 'Vækststrategi for tech-virksomheder',
       tips: [
         { icon: '🔁', title: 'Byg til recurring revenue', desc: 'Abonnementer og SaaS-modeller giver forudsigelig vækst og øger virksomhedens værdisætning markant i forhold til projektbaseret omsætning.' },
         { icon: '🌍', title: 'Skalér til Norden og EU', desc: 'Dit produkt er landegrænse-uafhængigt. Prioritér ét nyt europæisk nøglemarked ad gangen fremfor at sprede ressourcerne.' },
         { icon: '🤝', title: 'Partnerskaber og integrationer', desc: 'API-integrationer med store platforme (Microsoft, Salesforce, SAP) skaber ny distribution uden tilsvarende salgsomkostninger.' },
-        { icon: '🚀', title: 'Automatisér onboarding', desc: 'Jo hurtigere nye kunder er live, jo lavere churn og jo højere NPS. Strømlinet onboarding er kritisk for at skalere uden at tilsvarende ansætte support.' },
+        { icon: '🚀', title: 'Automatisér onboarding', desc: 'Jo hurtigere nye kunder er live, jo lavere churn og jo højere NPS. Strømlinet onboarding er kritisk for at skalere uden tilsvarende at ansætte support.' },
         { icon: '📊', title: 'Investér i et SDR-team', desc: 'Et dedikeret outbound salgsteam er den hurtigste vej til at skalere B2B-omsætning, særligt hvis produktet allerede er markedsmodent.' },
       ]
     };
-  }
-
-  // Consulting & management
-  if (['700','701','702','703','749'].includes(code3) || desc.includes('konsulent') || desc.includes('rådgivning') || desc.includes('management')) {
-    return {
+  } else if (['700','701','702','703','749'].includes(code3) || desc.includes('konsulent') || desc.includes('rådgivning') || desc.includes('management')) {
+    result = {
       category: 'Konsulentvirksomhed', title: 'Vækststrategi for konsulenter',
       tips: [
         { icon: '📦', title: 'Produktificer dine ydelser', desc: 'Faste pakker, moduler og retainer-aftaler er lettere at sælge og skalere end skræddersyede projekter.' },
         { icon: '🏢', title: 'Udbyg eksisterende kunder', desc: 'Det koster 5-7× mere at finde en ny kunde end at sælge mere til en eksisterende. Prioritér key account management.' },
         { icon: '✍️', title: 'Thought leadership driver leads', desc: 'Artikler, webinarer og konferencetaler positionerer virksomheden og tiltrækker kunder organisk uden dyre annoncekroner.' },
-        { icon: '👥', title: 'Kapacitetsudbygning', desc: 'Vækst i konsulentbranchen er direkte koblet til antal kompetente medarbejdere. Investér tidligt i rekruttering og onboarding-processer.' },
-        { icon: '🌐', title: 'Nordisk ekspansion', desc: 'Sverige, Norge og Finland er naturlige næste markeder for danske konsulenthuse — samme kultur og relativt lavt markedsindtrædelsesbehov.' },
+        { icon: '👥', title: 'Kapacitetsudbygning', desc: 'Vækst i konsulentbranchen er direkte koblet til antal kompetente medarbejdere. Investér tidligt i rekruttering og onboarding.' },
+        { icon: '🌐', title: 'Nordisk ekspansion', desc: 'Sverige, Norge og Finland er naturlige næste markeder for danske konsulenthuse — samme kultur og lavt markedsindtrædelsesbehov.' },
       ]
     };
-  }
-
-  // Wholesale
-  if (code3.startsWith('46') || desc.includes('engros') || desc.includes('grossist')) {
-    return {
+  } else if (code3.startsWith('46') || desc.includes('engros') || desc.includes('grossist')) {
+    result = {
       category: 'Engroshandel', title: 'Vækststrategi for engrosvirksomheder',
       tips: [
         { icon: '🛒', title: 'Udvid produktsortimentet', desc: 'Bredere katalog øger gennemsnitlig ordrestørrelse hos eksisterende kunder uden proportionelt større salgsomkostning.' },
@@ -365,87 +506,84 @@ function getIndustryTips(cvrData) {
         { icon: '📦', title: 'Lager- og logistikoptimering', desc: 'Reducér bundet kapital i lager og forbedr leveringstider — det frigiver likviditet til vækstinvesteringer.' },
       ]
     };
-  }
-
-  // Retail
-  if (code3.startsWith('47') || desc.includes('detailhandel') || desc.includes('butik')) {
-    return {
+  } else if (code3.startsWith('47') || desc.includes('detailhandel') || desc.includes('butik')) {
+    result = {
       category: 'Detailhandel', title: 'Vækststrategi for detailhandel',
       tips: [
         { icon: '🛍️', title: 'Omnichannel tilstedeværelse', desc: 'Kombinér fysisk butik med stærk e-commerce. De to kanaler forstærker hinanden og giver bredest mulig kundeopnåelse.' },
         { icon: '🏷️', title: 'Private label produkter', desc: 'Eget varemærke giver høje marginer, differentierer fra konkurrenter og er ikke tilgængeligt hos Amazon.' },
-        { icon: '💌', title: 'Loyalitetsprogram', desc: 'Gennemkøbende kunder er virksomhedens vigtigste aktiv — en relativt simpel loyalitetsmekanik kan øge LTV markant.' },
+        { icon: '💌', title: 'Loyalitetsprogram', desc: 'Tilbagevendende kunder er virksomhedens vigtigste aktiv — en simpel loyalitetsmekanik øger LTV markant.' },
         { icon: '📊', title: 'Sortimentsoptimering med data', desc: 'Fokusér ressourcerne på de 20 % produkter der skaber 80 % af omsætningen. Skær det der ikke konverterer.' },
-        { icon: '📱', title: 'Social commerce', desc: 'Instagram Shopping, TikTok Shop og Pinterest-køb åbner for ny kundeopnåelse direkte i sociale medier.' },
+        { icon: '📱', title: 'Social commerce', desc: 'Instagram Shopping, TikTok Shop og Pinterest-køb åbner for kundeopnåelse direkte i sociale medier.' },
       ]
     };
-  }
-
-  // Construction
-  if (code3.startsWith('41') || code3.startsWith('42') || code3.startsWith('43') || desc.includes('bygge') || desc.includes('anlæg') || desc.includes('entreprise')) {
-    return {
+  } else if (code3.startsWith('41') || code3.startsWith('42') || code3.startsWith('43') || desc.includes('bygge') || desc.includes('anlæg') || desc.includes('entreprise')) {
+    result = {
       category: 'Byggeri & Anlæg', title: 'Vækststrategi for byggebranchen',
       tips: [
-        { icon: '📋', title: 'Rammeaftaler sikrer forudsigelig omsætning', desc: 'Faste samarbejdsaftaler med kommuner, regioner og store bygherrer giver basis-omsætning og reducerer tid brugt på udbud.' },
+        { icon: '📋', title: 'Rammeaftaler sikrer forudsigelig omsætning', desc: 'Faste aftaler med kommuner, regioner og store bygherrer giver basis-omsætning og reducerer tid brugt på udbud.' },
         { icon: '🔧', title: 'Specialisering frem for bredde', desc: 'Nichespecialisering (energirenovering, modularbyggeri, klimatilpasning) giver bedre priser og færre direkte konkurrenter.' },
-        { icon: '👷', title: 'Rekruttering som strategisk prioritet', desc: 'Vækst i byggebranchen begrænses typisk af manglende arbejdskraft. Investér i rekrutteringsprocesser og evt. samarbejder med erhvervsskoler tidligt.' },
+        { icon: '👷', title: 'Rekruttering som strategisk prioritet', desc: 'Vækst i byggebranchen begrænses typisk af manglende arbejdskraft — investér i rekruttering tidligt.' },
         { icon: '🌿', title: 'Bæredygtighed som differentiator', desc: 'DGNB-, BREEAM- og LEED-certificeringer åbner for EU-finansierede projekter og premium-prissætning.' },
-        { icon: '🤝', title: 'Stærkt underleverandørnetværk', desc: 'Et kvalitetssikret underleverandørnetværk sætter dig i stand til at tage større projekter uden at tilsvarende udvide fast kapacitet.' },
+        { icon: '🤝', title: 'Stærkt underleverandørnetværk', desc: 'Et kvalitetssikret netværk sætter dig i stand til at tage større projekter uden at udvide fast kapacitet.' },
       ]
     };
-  }
-
-  // Manufacturing
-  if (parseInt(code3) >= 100 && parseInt(code3) <= 330 || desc.includes('fremstill') || desc.includes('produktion') || desc.includes('fabrik')) {
-    return {
+  } else if ((parseInt(code3) >= 100 && parseInt(code3) <= 330) || desc.includes('fremstill') || desc.includes('produktion') || desc.includes('fabrik')) {
+    result = {
       category: 'Produktion & Fremstilling', title: 'Vækststrategi for produktionsvirksomheder',
       tips: [
-        { icon: '🤖', title: 'Automatisering øger kapaciteten', desc: 'Investering i automatisering og robotteknologi reducerer produktionsomkostninger og øger kapaciteten uden tilsvarende vækst i lønonkostninger.' },
-        { icon: '🌍', title: 'Eksport til nye markeder', desc: 'DACH-regionen (Tyskland, Østrig, Schweiz) og de nordiske markeder er naturlige første eksporttrin for danske produktionsvirksomheder.' },
-        { icon: '🔬', title: 'Produktudvikling og innovation', desc: 'Nye produktvarianter og forbedringer af eksisterende sortiment åbner for mersalg og øger barrieren for konkurrenter.' },
-        { icon: '📦', title: 'Egne brands og OEM', desc: 'Produkter under eget varemærke giver markant bedre marginer end ren underleverandørproduktion.' },
+        { icon: '🤖', title: 'Automatisering øger kapaciteten', desc: 'Investering i robotteknologi reducerer produktionsomkostninger og øger kapaciteten uden tilsvarende lønstigninger.' },
+        { icon: '🌍', title: 'Eksport til nye markeder', desc: 'DACH-regionen og de nordiske markeder er naturlige eksporttrin for danske produktionsvirksomheder.' },
+        { icon: '🔬', title: 'Produktudvikling og innovation', desc: 'Nye produktvarianter åbner for mersalg og øger konkurrencebarrieren.' },
+        { icon: '📦', title: 'Egne brands og OEM', desc: 'Produkter under eget varemærke giver markant bedre marginer end underleverandørproduktion.' },
         { icon: '⚡', title: 'Energieffektivitet som konkurrencefordel', desc: 'Lavere energiomkostninger forbedrer marginen og kan bruges aktivt i markedsføring overfor klimabevidste kunder.' },
       ]
     };
-  }
-
-  // Healthcare & social
-  if (code3.startsWith('86') || code3.startsWith('87') || code3.startsWith('88') || desc.includes('sundhed') || desc.includes('pleje') || desc.includes('klinik')) {
-    return {
+  } else if (code3.startsWith('86') || code3.startsWith('87') || code3.startsWith('88') || desc.includes('sundhed') || desc.includes('pleje') || desc.includes('klinik')) {
+    result = {
       category: 'Sundhed & Omsorg', title: 'Vækststrategi for sundhedssektoren',
       tips: [
         { icon: '🏥', title: 'Privatmarkedets stærke vækst', desc: 'Privat sundhedssektor vokser markant — overvej privatbehandlingstilbud ved siden af offentlige serviceleveranceaftaler.' },
-        { icon: '💊', title: 'Specialisering giver premium-prissætning', desc: 'Specialiserede behandlingstilbud tiltrækker kunder fra hele landet og muliggør markant højere prissætning end generelle ydelser.' },
-        { icon: '📱', title: 'Digitale sundhedsydelser', desc: 'Telemedicin og digitale konsultationer skalerer omsætningen uden tilsvarende kapacitetsbegrænsninger fra fysiske lokaler.' },
+        { icon: '💊', title: 'Specialisering giver premium-prissætning', desc: 'Specialiserede behandlingstilbud tiltrækker kunder fra hele landet og muliggør markant højere prissætning.' },
+        { icon: '📱', title: 'Digitale sundhedsydelser', desc: 'Telemedicin og digitale konsultationer skalerer omsætningen uden kapacitetsbegrænsninger fra fysiske lokaler.' },
         { icon: '📋', title: 'Offentlige rammeaftaler', desc: 'Kommunale og regionale rammeaftaler giver forudsigelig grundomsætning og troværdighed der åbner privatdøre.' },
-        { icon: '👥', title: 'Specialistrekruttering er flaskehalsen', desc: 'Rekruttering og fastholdelse af specialiseret klinisk personale er den afgørende vækstbegrænsning — investér i employer branding.' },
+        { icon: '👥', title: 'Specialistrekruttering er flaskehalsen', desc: 'Rekruttering og fastholdelse af klinisk personale er den afgørende vækstbegrænsning — investér i employer branding.' },
+      ]
+    };
+  } else {
+    result = {
+      category: 'Generel strategi', title: 'Vækststrategi mod Gazelle',
+      tips: [
+        { icon: '🎯', title: 'Fokus på kerneforretningen', desc: 'Identifikér de produkter og ydelser der har bedst margin og skalerbarhed — og koncentrér ressourcerne der.' },
+        { icon: '🤝', title: 'Udbyg eksisterende kunderelationer', desc: 'Det koster 5-7× mere at finde en ny kunde end at sælge mere til en eksisterende. Systematisk key account-arbejde betaler sig.' },
+        { icon: '🔄', title: 'Recurring revenue-modeller', desc: 'Abonnementer, servicekontrakter og retainer-aftaler giver stabil og forudsigelig omsætningsvækst.' },
+        { icon: '📣', title: 'Investér i salg og marketing', desc: 'En struktureret salgsproces er den direkte vej til omsætningsvækst. Mål systematisk på hvad der virker.' },
+        { icon: '🌍', title: 'Geografisk ekspansion', desc: 'Nordiske markeder er naturlige næste skridt — relativt lav kulturel og juridisk barriere for indtrædelse.' },
       ]
     };
   }
 
-  // Default
-  return {
-    category: 'Generel strategi', title: 'Vækststrategi mod Gazelle',
-    tips: [
-      { icon: '🎯', title: 'Fokus på kerneforretningen', desc: 'Identifikér de produkter og ydelser der har bedst margin og skalerbarhed — og koncentrér ressourcerne der.' },
-      { icon: '🤝', title: 'Udbyg eksisterende kunderelationer', desc: 'Det koster 5-7× mere at finde en ny kunde end at sælge mere til en eksisterende. Systematisk key account-arbejde betaler sig.' },
-      { icon: '🔄', title: 'Recurring revenue-modeller', desc: 'Abonnementer, servicekontrakter og retainer-aftaler giver stabil og forudsigelig omsætningsvækst.' },
-      { icon: '📣', title: 'Investér i salg og marketing', desc: 'En struktureret salgsproces og marketing-investering er den direkte vej til omsætningsvækst. Mål systematisk på hvad der virker.' },
-      { icon: '🌍', title: 'Geografisk ekspansion', desc: 'Nordiske markeder er naturlige næste skridt for danske virksomheder — relativt lav kulturel og juridisk barriere for indtrædelse.' },
-    ]
-  };
+  // If unprofitable: bump a margin-focus tip to the top
+  if (ctx?.isUnprofitable) {
+    result.tips.unshift({ icon: '💰', title: 'Margin over volumen', desc: 'Negativt årsresultat betyder at vækst i sig selv ikke er nok — prioritér ydelser og kunder med stærk bruttomargin fremfor at jagte omsætning for enhver pris.' });
+    result.tips = result.tips.slice(0, 5); // keep max 5
+  }
+
+  return { ...result, contextNote };
 }
 
-function renderTips(cvrData) {
+function renderTips(cvrData, allFin) {
   const section = document.getElementById('tipsSection');
   if (!section) return;
-  const info = getIndustryTips(cvrData);
+  const ctx  = getFinancialContext(allFin);
+  const info = getIndustryTips(cvrData, ctx);
   section.innerHTML = `
     <div class="tips-card">
       <div class="tips-header">
         <div class="tips-category">${info.category}</div>
         <div class="tips-title">${info.title}</div>
       </div>
+      ${info.contextNote ? `<div class="tips-context"><strong>Baseret på jeres data:</strong> ${info.contextNote}</div>` : ''}
       <div class="tip-list">
         ${info.tips.map(t => `
           <div class="tip-item">
@@ -467,21 +605,22 @@ window.addEventListener('DOMContentLoaded', () => {
   let data;
   try { data = JSON.parse(raw); } catch (_) { document.getElementById('noDataMsg').style.display = 'block'; return; }
 
-  const allFin = data.allFinancials || data.top4 || [];
-  if (allFin.length === 0) { document.getElementById('noDataMsg').style.display = 'block'; return; }
+  _allFin  = data.allFinancials || data.top4 || [];
+  _cvrData = data.cvrData || {};
+
+  if (_allFin.length === 0) { document.getElementById('noDataMsg').style.display = 'block'; return; }
 
   document.getElementById('mainContent').style.display = 'block';
 
-  // Company strip
-  if (data.cvrData) {
+  if (_cvrData.name) {
     const strip = document.getElementById('companyStrip');
     strip.style.display = 'block';
-    strip.innerHTML = `<div class="co-name">${data.cvrData.name || '–'}</div>
-      <div class="co-meta">CVR: ${data.currentCVR || '–'}${data.cvrData.industrydesc ? ' · ' + data.cvrData.industrydesc : ''}</div>`;
+    strip.innerHTML = `<div class="co-name">${_cvrData.name}</div>
+      <div class="co-meta">CVR: ${data.currentCVR || '–'}${_cvrData.industrydesc ? ' · ' + _cvrData.industrydesc : ''}</div>`;
   }
 
-  renderYearCards(allFin);
-  renderTips(data.cvrData || {});
+  renderYearCards(_allFin);
+  renderTips(_cvrData, _allFin);
 });
 </script>
 </body>
