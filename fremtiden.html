@@ -130,6 +130,9 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
   margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.1rem;
 }
 .quiz-heading { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .18em; color: var(--text-soft); margin-bottom: .1rem; }
+.quiz-progress { display: flex; gap: .3rem; margin-bottom: .25rem; }
+.quiz-pip { height: 3px; flex: 1; border-radius: 99px; background: rgba(255,255,255,0.1); transition: background .2s; }
+.quiz-pip.done { background: var(--indigo); }
 .quiz-q { display: flex; flex-direction: column; gap: .5rem; }
 .quiz-q-label { font-size: .85rem; font-weight: 600; color: rgba(255,255,255,0.7); }
 .quiz-q-label span { font-weight: 400; color: var(--text-soft); font-size: .78rem; }
@@ -189,6 +192,19 @@ body { font-family: 'Inter', sans-serif; background: #0F172A; color: var(--text)
 .tip-body {}
 .tip-title { font-size: .9rem; font-weight: 700; color: #fff; margin-bottom: .15rem; }
 .tip-desc { font-size: .82rem; color: var(--text-soft); line-height: 1.55; }
+
+/* ── TIPS LOCKED ── */
+.tips-locked {
+  margin-top: 1rem; background: var(--surface);
+  border: 1px dashed rgba(255,255,255,0.12); border-radius: 14px;
+  padding: 2.5rem 1.5rem; text-align: center;
+}
+.lock-icon { font-size: 1.8rem; margin-bottom: .75rem; opacity: .6; }
+.lock-title { font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: .4rem; }
+.lock-desc { font-size: .85rem; color: var(--text-soft); margin-bottom: 1rem; line-height: 1.5; }
+.lock-pips { display: flex; gap: .4rem; justify-content: center; }
+.lock-pip { width: 28px; height: 4px; border-radius: 99px; background: rgba(255,255,255,0.1); }
+.lock-pip.done { background: var(--indigo); }
 
 /* ── NO DATA ── */
 #noDataMsg { text-align: center; padding: 5rem 1rem; display: none; }
@@ -326,22 +342,23 @@ function computeFutureRequirements(allFin) {
       minRequired    = Math.max(minForGrowth, minForDoubling);
     }
 
+    let minEstimated = minRequired;
     if (minRequired != null) {
       virtual[accountYear] = minRequired;
     } else {
       const latestKnown = sorted[sorted.length - 1];
       if (latestKnown) {
         const yearsAhead = accountYear - latestKnown.year;
-        virtual[accountYear] = Math.round(latestKnown.gross_profit * Math.pow(1.25, yearsAhead));
+        minEstimated = Math.round(latestKnown.gross_profit * Math.pow(1.25, yearsAhead));
+        virtual[accountYear] = minEstimated;
       }
     }
 
-    // Is the blocking missing year the immediately prior year (i.e. input can help)?
     const prevYearIsInput = !actualYears.has(prevYear) && i === 0;
 
     results.push({
       accountYear, gazelleYear, windowStart,
-      minRequired, minForGrowth, minForDoubling,
+      minRequired, minEstimated, minForGrowth, minForDoubling,
       prevGross, prevYear, baseGross,
       missingWindowYears, prevYearIsInput,
       growthPct: (minRequired != null && prevGross != null && prevGross > 0)
@@ -457,12 +474,14 @@ function renderYearCards(allFin) {
 }
 
 // ── QUIZ PREFS ────────────────────────────────────────────────────────────────
-let _prefs = { type: null, market: null, avgCustomer: null };
+const QUIZ_REQUIRED = ['type', 'market', 'model', 'employees']; // all 4 must be set
+let _prefs = { type: null, market: null, model: null, employees: null, avgCustomer: null };
 
 function loadPrefs() {
   try { _prefs = { ..._prefs, ...JSON.parse(localStorage.getItem('gazellePrefs') || '{}') }; } catch (_) {}
 }
 function savePrefs() { localStorage.setItem('gazellePrefs', JSON.stringify(_prefs)); }
+function isQuizComplete() { return QUIZ_REQUIRED.every(k => _prefs[k] != null); }
 
 function setQuizPref(key, val) {
   if (key === 'avgCustomer') {
@@ -472,27 +491,31 @@ function setQuizPref(key, val) {
     _prefs[key] = val;
   }
   savePrefs();
-  renderTips(_cvrData, _allFin);
-  // Re-render quiz to update active states (keep avgCustomer input value)
-  const avg = document.getElementById('avgCustomerInput');
-  const savedVal = avg?.value;
-  renderQuiz(_allFin);
-  if (savedVal && document.getElementById('avgCustomerInput')) {
-    document.getElementById('avgCustomerInput').value = savedVal;
+  const avgVal = document.getElementById('avgCustomerInput')?.value;
+  renderQuiz();
+  if (avgVal && document.getElementById('avgCustomerInput')) {
+    document.getElementById('avgCustomerInput').value = avgVal;
   }
+  renderTips(_cvrData, _allFin);
 }
 
-function renderQuiz(allFin) {
+function renderQuiz() {
   const el = document.getElementById('quizSection');
   if (!el) return;
   const btn = (key, val, label) =>
     `<button class="quiz-btn${_prefs[key] === val ? ' active' : ''}" onclick="setQuizPref('${key}','${val}')">${label}</button>`;
+  const done = QUIZ_REQUIRED.filter(k => _prefs[k] != null).length;
+  const pips = QUIZ_REQUIRED.map((k, i) =>
+    `<div class="quiz-pip${i < done ? ' done' : ''}"></div>`).join('');
 
   el.innerHTML = `
     <div class="quiz-card">
-      <div class="quiz-heading">Tilpas strategi</div>
+      <div>
+        <div class="quiz-heading">Tilpas din vækststrategi</div>
+        <div class="quiz-progress">${pips}</div>
+      </div>
       <div class="quiz-q">
-        <div class="quiz-q-label">Jeres primære kunder</div>
+        <div class="quiz-q-label">1. Jeres primære kunder</div>
         <div class="quiz-btns">
           ${btn('type','b2b','B2B — Virksomheder')}
           ${btn('type','b2c','B2C — Forbrugere')}
@@ -500,7 +523,7 @@ function renderQuiz(allFin) {
         </div>
       </div>
       <div class="quiz-q">
-        <div class="quiz-q-label">Jeres primære marked</div>
+        <div class="quiz-q-label">2. Jeres primære marked</div>
         <div class="quiz-btns">
           ${btn('market','dk','Danmark')}
           ${btn('market','nordic','Norden')}
@@ -508,7 +531,23 @@ function renderQuiz(allFin) {
         </div>
       </div>
       <div class="quiz-q">
-        <div class="quiz-q-label">Gennemsnitlig kundeværdi pr. år <span>(valgfri — for at beregne antal kunder)</span></div>
+        <div class="quiz-q-label">3. Jeres forretningsmodel</div>
+        <div class="quiz-btns">
+          ${btn('model','subscription','Abonnement / SaaS')}
+          ${btn('model','project','Projekt / Konsulent')}
+          ${btn('model','product','Produkt / Handel')}
+        </div>
+      </div>
+      <div class="quiz-q">
+        <div class="quiz-q-label">4. Antal ansatte</div>
+        <div class="quiz-btns">
+          ${btn('employees','1-10','1–10')}
+          ${btn('employees','11-50','11–50')}
+          ${btn('employees','51+','51+')}
+        </div>
+      </div>
+      <div class="quiz-q">
+        <div class="quiz-q-label">Gennemsnitlig kundeværdi pr. år <span>(valgfri — beregner antal kunder)</span></div>
         <input type="number" id="avgCustomerInput" class="quiz-input-sm"
           placeholder="f.eks. 250000" step="1000"
           value="${_prefs.avgCustomer || ''}"
@@ -621,31 +660,47 @@ function buildFinalTips(base, ctx, prefs, sizeSegment) {
   let tips = [...base.tips];
 
   // Filter by B2B/B2C preference
-  if (prefs.type === 'b2b')  tips = tips.filter(t => !t.forB2C);
-  if (prefs.type === 'b2c')  tips = tips.filter(t => !t.forB2B);
+  if (prefs.type === 'b2b') tips = tips.filter(t => !t.forB2C);
+  if (prefs.type === 'b2c') tips = tips.filter(t => !t.forB2B);
 
-  // Prepend size-specific tip (replaces last slot)
-  const sizeTip = getSizeTip(sizeSegment, prefs.type);
-  if (sizeTip) tips = [sizeTip, ...tips.slice(0, 4)];
+  // Business model modifier: prepend a model-specific tip
+  const modelTips = {
+    subscription: { icon: '🔁', title: 'Churn er din vigtigste vækstfjende', desc: 'Med abonnementsmodel er fastholdelse mindst lige så vigtigt som nykundeopnåelse. Reducer churn med 2-3 procentpoint — det svarer til mange nye kunder pr. år.' },
+    project:      { icon: '📦', title: 'Produktificer dine mest solgte ydelser', desc: 'Faste pakker og moduler er lettere at sælge, lettere at skalere og giver mere forudsigelig omsætning end skræddersyede projekter fra bunden.' },
+    product:      { icon: '📊', title: 'Data-drevet sortimentsoptimering', desc: 'Fokusér 80% af ressourcerne på de 20% produkter der giver størst margin og skalerbarhed. Skær det der ikke vokser.' },
+  };
+  if (prefs.model && modelTips[prefs.model]) {
+    tips = [modelTips[prefs.model], ...tips.slice(0, 4)];
+  }
 
-  // Market: if Norden/EU, boost the international tip to top if present, else add one
+  // Employees modifier: override size tip based on actual headcount
+  const empTip = {
+    '1-10':  { icon: '🎯', title: 'Founder-led salg er jeres styrke nu', desc: 'Med 1-10 ansatte er founder-involvement i salg afgørende — I er den bedste sælger, og tillid bygges hurtigere person til person end via salgsteam.' },
+    '11-50': { icon: '🏗️', title: 'Byg skalerbare salgs- og leveringsprocesser', desc: 'Med 11-50 ansatte er risikoen at vækst drukner i ad hoc-processer. Investér i en dokumenteret salgsplaybook og onboarding-pipeline.' },
+    '51+':   { icon: '⚙️', title: 'Operationel excellence driver marginerne', desc: 'Over 50 ansatte er operationel effektivitet og delegation afgørende — vækst uden stram styring af processer og omkostninger spiser marginen.' },
+  };
+  if (prefs.employees && empTip[prefs.employees]) {
+    tips = [empTip[prefs.employees], ...tips.slice(0, 4)];
+  }
+
+  // Market: boost/add international tip
   if (prefs.market === 'nordic' || prefs.market === 'eu') {
     const intlIdx = tips.findIndex(t => t.title.toLowerCase().includes('ekspansion') || t.title.toLowerCase().includes('eksport') || t.title.toLowerCase().includes('international'));
     if (intlIdx > 0) {
       const [intlTip] = tips.splice(intlIdx, 1);
-      tips.unshift(intlTip);
+      tips = [intlTip, ...tips];
     } else if (intlIdx === -1) {
-      const label = prefs.market === 'eu' ? 'EU-ekspansion' : 'Nordisk ekspansion';
+      const label = prefs.market === 'eu' ? 'EU-ekspansion som næste vækstspring' : 'Nordisk ekspansion';
       const detail = prefs.market === 'eu'
-        ? 'EU er et naturligt næste skridt — Norden, DACH og Benelux er lavest-hængende markeder med stærk dansk eksporthistorik.'
-        : 'Sverige, Norge og Finland deler kultur, sprog og forretningslogik med Danmark — Norden er typisk første eksporttrin med laveste friktion.';
-      tips = [{ icon: '🌍', title: label, desc: detail }, ...tips.slice(0, 4)];
+        ? 'EU-markedet er åbent for danske virksomheder. DACH, Benelux og Norden er lavest-hængende markeder med stærk dansk eksporthistorik og lave indtrædelsesbarrierer.'
+        : 'Sverige, Norge og Finland deler kultur og forretningslogik med Danmark — Norden er typisk første eksporttrin med laveste friktion og højest sandsynlighed for succes.';
+      tips = [{ icon: '🌍', title: label, desc: detail }, ...tips];
     }
   }
 
   // Unprofitable: prepend margin tip
   if (ctx?.isUnprofitable) {
-    tips = [{ icon: '💰', title: 'Margin over volumen', desc: 'Negativt årsresultat betyder at vækst alene ikke er nok — prioritér ydelser og kunder med stærk bruttomargin fremfor at jagte omsætning for enhver pris.' }, ...tips.slice(0, 4)];
+    tips = [{ icon: '💰', title: 'Margin over volumen', desc: 'Negativt årsresultat betyder at vækst alene ikke er nok — prioritér ydelser og kunder med stærk bruttomargin fremfor at jagte omsætning for enhver pris.' }, ...tips];
   }
 
   return tips.slice(0, 5);
@@ -668,27 +723,47 @@ function getContextNote(ctx, prefs) {
 function renderTips(cvrData, allFin) {
   const section = document.getElementById('tipsSection');
   if (!section) return;
+
+  // Gate: require all 4 quiz questions answered
+  if (!isQuizComplete()) {
+    const done = QUIZ_REQUIRED.filter(k => _prefs[k] != null).length;
+    const remaining = QUIZ_REQUIRED.length - done;
+    const pips = QUIZ_REQUIRED.map((k, i) =>
+      `<div class="lock-pip${i < done ? ' done' : ''}"></div>`).join('');
+    section.innerHTML = `
+      <div class="tips-locked">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-title">Din personlige vækststrategi</div>
+        <div class="lock-desc">Besvar ${remaining === QUIZ_REQUIRED.length ? 'de 4 spørgsmål' : `de resterende ${remaining} spørgsmål`} ovenfor for at låse din skræddersyede strategi op.</div>
+        <div class="lock-pips">${pips}</div>
+      </div>`;
+    return;
+  }
+
   const ctx         = getFinancialContext(allFin);
   const sizeSegment = getSizeSegment(ctx.latestGross);
   const base        = getIndustryBaseTips(cvrData);
   const tips        = buildFinalTips(base, ctx, _prefs, sizeSegment);
   const contextNote = getContextNote(ctx, _prefs);
 
-  // Growth target numbers (using first future requirement)
+  // Growth target: use minRequired (exact) or minEstimated (CAGR) for first year
   const reqs = computeFutureRequirements(allFin);
   const req0 = reqs[0];
   let growthTargetHtml = '';
-  if (req0?.minRequired != null && req0?.prevGross != null) {
-    const gap    = req0.minRequired - req0.prevGross;
-    const pct    = req0.prevGross > 0 ? ((gap / req0.prevGross) * 100) : null;
+  const targetAmt = req0?.minRequired ?? req0?.minEstimated;
+  const prevAmt   = req0?.prevGross ?? ctx.latestGross;
+  if (targetAmt != null && prevAmt != null && prevAmt > 0) {
+    const gap     = targetAmt - prevAmt;
+    const pct     = (gap / prevAmt) * 100;
     const monthly = gap / 12;
-    const customerLine = _prefs.avgCustomer
+    const isEst   = req0?.minRequired == null; // using CAGR estimate
+    const customerLine = _prefs.avgCustomer && gap > 0
       ? `<div class="gt-sub">Svarende til ca. <strong>~${Math.ceil(gap / _prefs.avgCustomer)} nye kunder</strong> à ${fmtNum(_prefs.avgCustomer)} kr./år</div>`
       : '';
     growthTargetHtml = `
       <div class="growth-target">
-        <div class="gt-label">Vækstmål ${req0.accountYear} — Gazelle ${req0.gazelleYear}</div>
-        <div class="gt-main">+${fmtNum(Math.round(gap))} kr.${pct != null ? `<span>(+${pct.toFixed(0)}%)</span>` : ''}</div>
+        <div class="gt-label">Vækstmål ${req0.accountYear} — Gazelle ${req0.gazelleYear}${isEst ? ' (estimeret)' : ''}</div>
+        <div class="gt-main">+${fmtNum(Math.round(gap))} kr.<span>(+${pct.toFixed(0)}%)</span></div>
         <div class="gt-subs">
           <div class="gt-sub">Ca. <strong>${fmtNum(Math.round(monthly))} kr./md.</strong> i ekstra bruttoresultat</div>
           ${customerLine}
@@ -696,16 +771,14 @@ function renderTips(cvrData, allFin) {
       </div>`;
   }
 
-  // Title based on selections
-  let title = `Vækststrategi — ${base.category}`;
-  if (_prefs.type === 'b2b') title += ' · B2B';
-  else if (_prefs.type === 'b2c') title += ' · B2C';
+  const modelLabel = { subscription: 'Abonnement/SaaS', project: 'Projekt/Konsulent', product: 'Produkt/Handel' }[_prefs.model] || '';
+  const typeLabel  = { b2b: 'B2B', b2c: 'B2C', both: 'B2B+B2C' }[_prefs.type] || '';
 
   section.innerHTML = `
     <div class="tips-card">
       <div class="tips-header">
-        <div class="tips-category">${base.category}${sizeSegment === 'small' ? ' · Tidlig fase' : sizeSegment === 'large' ? ' · Skaleringsmode' : ''}</div>
-        <div class="tips-title">${title}</div>
+        <div class="tips-category">${base.category} · ${typeLabel} · ${modelLabel}</div>
+        <div class="tips-title">Din vækststrategi mod Gazelle</div>
       </div>
       ${growthTargetHtml}
       ${contextNote ? `<div class="tips-context"><strong>Baseret på jeres data:</strong> ${contextNote}</div>` : ''}
