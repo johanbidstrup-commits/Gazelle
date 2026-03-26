@@ -456,136 +456,261 @@ function renderYearCards(allFin) {
   });
 }
 
+// ── QUIZ PREFS ────────────────────────────────────────────────────────────────
+let _prefs = { type: null, market: null, avgCustomer: null };
+
+function loadPrefs() {
+  try { _prefs = { ..._prefs, ...JSON.parse(localStorage.getItem('gazellePrefs') || '{}') }; } catch (_) {}
+}
+function savePrefs() { localStorage.setItem('gazellePrefs', JSON.stringify(_prefs)); }
+
+function setQuizPref(key, val) {
+  if (key === 'avgCustomer') {
+    const n = parseFloat(String(val).replace(/[^\d.-]/g, ''));
+    _prefs.avgCustomer = isNaN(n) || n <= 0 ? null : n;
+  } else {
+    _prefs[key] = val;
+  }
+  savePrefs();
+  renderTips(_cvrData, _allFin);
+  // Re-render quiz to update active states (keep avgCustomer input value)
+  const avg = document.getElementById('avgCustomerInput');
+  const savedVal = avg?.value;
+  renderQuiz(_allFin);
+  if (savedVal && document.getElementById('avgCustomerInput')) {
+    document.getElementById('avgCustomerInput').value = savedVal;
+  }
+}
+
+function renderQuiz(allFin) {
+  const el = document.getElementById('quizSection');
+  if (!el) return;
+  const btn = (key, val, label) =>
+    `<button class="quiz-btn${_prefs[key] === val ? ' active' : ''}" onclick="setQuizPref('${key}','${val}')">${label}</button>`;
+
+  el.innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-heading">Tilpas strategi</div>
+      <div class="quiz-q">
+        <div class="quiz-q-label">Jeres primære kunder</div>
+        <div class="quiz-btns">
+          ${btn('type','b2b','B2B — Virksomheder')}
+          ${btn('type','b2c','B2C — Forbrugere')}
+          ${btn('type','both','Begge')}
+        </div>
+      </div>
+      <div class="quiz-q">
+        <div class="quiz-q-label">Jeres primære marked</div>
+        <div class="quiz-btns">
+          ${btn('market','dk','Danmark')}
+          ${btn('market','nordic','Norden')}
+          ${btn('market','eu','EU & internationalt')}
+        </div>
+      </div>
+      <div class="quiz-q">
+        <div class="quiz-q-label">Gennemsnitlig kundeværdi pr. år <span>(valgfri — for at beregne antal kunder)</span></div>
+        <input type="number" id="avgCustomerInput" class="quiz-input-sm"
+          placeholder="f.eks. 250000" step="1000"
+          value="${_prefs.avgCustomer || ''}"
+          oninput="setQuizPref('avgCustomer', this.value)">
+      </div>
+    </div>`;
+}
+
+// ── SIZE SEGMENT ──────────────────────────────────────────────────────────────
+function getSizeSegment(gross) {
+  if (!gross || gross <= 0) return 'medium';
+  if (gross < 5_000_000)  return 'small';
+  if (gross < 30_000_000) return 'medium';
+  return 'large';
+}
+
+function getSizeTip(segment, type) {
+  if (segment === 'small') {
+    return type === 'b2c'
+      ? { icon: '🎯', title: 'Find din første skalerbare kanal', desc: 'Under 5 mio. i bruttoresultat handler det om at finde den ene marketingkanal der konverterer konsekvent — SEO, paid, influencer — og investere der fuldt ud.' }
+      : { icon: '🎯', title: 'Fokusér på de første 20 betalende kunder', desc: 'Under 5 mio. i bruttoresultat handler det om at bevise product-market fit og betalingsvilje i ét markedssegment. Bred dig ikke for tidligt.' };
+  }
+  if (segment === 'large') {
+    return { icon: '🌐', title: 'Næste vækstspring: internationalisering eller opkøb', desc: 'Over 30 mio. i bruttoresultat er det nationale marked typisk modent. Næste spring kræver enten systematisk eksport, EU-ekspansion eller strategiske opkøb.' };
+  }
+  // medium
+  return type === 'b2c'
+    ? { icon: '🏗️', title: 'Investér i marketing automation og retention', desc: 'Mellem 5-30 mio. er vækstdriveren systematiseret kundeopnåelse og fastholdelse — email flows, retargeting og LTV-optimering frem for manuel one-off-marketing.' }
+    : { icon: '🏗️', title: 'Byg et struktureret B2B-salgsteam', desc: 'Mellem 5-30 mio. er næste vækstdriver typisk et skalerbart salgsteam med klare mål, pipeline-styring og en dokumenteret salgsplaybook.' };
+}
+
 // ── INDUSTRY TIPS ─────────────────────────────────────────────────────────────
-function getIndustryTips(cvrData, ctx) {
+function getIndustryBaseTips(cvrData) {
   const code3 = String(cvrData?.industrycode || '').substring(0, 3);
   const desc  = (cvrData?.industrydesc || '').toLowerCase();
 
-  // Context-driven note for top of tips
-  let contextNote = null;
-  if (ctx?.isUnprofitable && ctx?.latestNet != null) {
-    contextNote = `Jeres seneste årsresultat er negativt (${fmtDKK(ctx.latestNet)}). Prioritér ydelser med stærk margin, og hold styr på omkostningsvæksten, mens I skalerer omsætningen.`;
-  } else if (ctx?.isSlowGrowth) {
-    contextNote = `Væksten er under 20% det seneste år. Fokusér på at finde og investere i den kannal der kan skalere — nye markeder, nye kunder eller ny prismodel.`;
-  } else if (ctx?.isFastGrowth) {
-    contextNote = `I vokser hurtigt (+${ctx.recentGrowth?.toFixed(0)}%). Fokusér nu på at bygge de processer og det team der kan fastholde farten uden at kvaliteten lider.`;
-  }
-
-  let result;
-
   if (['620','621','631'].includes(code3) || desc.includes('software') || desc.includes('it-') || desc.includes('programmering') || desc.includes('databehandling') || desc.includes('app')) {
-    result = {
-      category: 'IT & Software', title: 'Vækststrategi for tech-virksomheder',
-      tips: [
-        { icon: '🔁', title: 'Byg til recurring revenue', desc: 'Abonnementer og SaaS-modeller giver forudsigelig vækst og øger virksomhedens værdisætning markant i forhold til projektbaseret omsætning.' },
-        { icon: '🌍', title: 'Skalér til Norden og EU', desc: 'Dit produkt er landegrænse-uafhængigt. Prioritér ét nyt europæisk nøglemarked ad gangen fremfor at sprede ressourcerne.' },
-        { icon: '🤝', title: 'Partnerskaber og integrationer', desc: 'API-integrationer med store platforme (Microsoft, Salesforce, SAP) skaber ny distribution uden tilsvarende salgsomkostninger.' },
-        { icon: '🚀', title: 'Automatisér onboarding', desc: 'Jo hurtigere nye kunder er live, jo lavere churn og jo højere NPS. Strømlinet onboarding er kritisk for at skalere uden tilsvarende at ansætte support.' },
-        { icon: '📊', title: 'Investér i et SDR-team', desc: 'Et dedikeret outbound salgsteam er den hurtigste vej til at skalere B2B-omsætning, særligt hvis produktet allerede er markedsmodent.' },
-      ]
-    };
-  } else if (['700','701','702','703','749'].includes(code3) || desc.includes('konsulent') || desc.includes('rådgivning') || desc.includes('management')) {
-    result = {
-      category: 'Konsulentvirksomhed', title: 'Vækststrategi for konsulenter',
-      tips: [
-        { icon: '📦', title: 'Produktificer dine ydelser', desc: 'Faste pakker, moduler og retainer-aftaler er lettere at sælge og skalere end skræddersyede projekter.' },
-        { icon: '🏢', title: 'Udbyg eksisterende kunder', desc: 'Det koster 5-7× mere at finde en ny kunde end at sælge mere til en eksisterende. Prioritér key account management.' },
-        { icon: '✍️', title: 'Thought leadership driver leads', desc: 'Artikler, webinarer og konferencetaler positionerer virksomheden og tiltrækker kunder organisk uden dyre annoncekroner.' },
-        { icon: '👥', title: 'Kapacitetsudbygning', desc: 'Vækst i konsulentbranchen er direkte koblet til antal kompetente medarbejdere. Investér tidligt i rekruttering og onboarding.' },
-        { icon: '🌐', title: 'Nordisk ekspansion', desc: 'Sverige, Norge og Finland er naturlige næste markeder for danske konsulenthuse — samme kultur og lavt markedsindtrædelsesbehov.' },
-      ]
-    };
-  } else if (code3.startsWith('46') || desc.includes('engros') || desc.includes('grossist')) {
-    result = {
-      category: 'Engroshandel', title: 'Vækststrategi for engrosvirksomheder',
-      tips: [
-        { icon: '🛒', title: 'Udvid produktsortimentet', desc: 'Bredere katalog øger gennemsnitlig ordrestørrelse hos eksisterende kunder uden proportionelt større salgsomkostning.' },
-        { icon: '🤝', title: 'Forhandl bedre leverandøraftaler', desc: 'Volumenrabatter og eksklusivaftaler forbedrer marginen og giver mulighed for skarpere prissætning mod markedet.' },
-        { icon: '🏭', title: 'Private label', desc: 'Egne varemærker giver markant bedre marginer og reducerer afhængighed af leverandørers prispolitik.' },
-        { icon: '🌍', title: 'Eksport til Norden og Baltikum', desc: 'Nordiske og baltiske markeder er naturlige første eksportmarkeder for danske engrosvirksomheder.' },
-        { icon: '📦', title: 'Lager- og logistikoptimering', desc: 'Reducér bundet kapital i lager og forbedr leveringstider — det frigiver likviditet til vækstinvesteringer.' },
-      ]
-    };
-  } else if (code3.startsWith('47') || desc.includes('detailhandel') || desc.includes('butik')) {
-    result = {
-      category: 'Detailhandel', title: 'Vækststrategi for detailhandel',
-      tips: [
-        { icon: '🛍️', title: 'Omnichannel tilstedeværelse', desc: 'Kombinér fysisk butik med stærk e-commerce. De to kanaler forstærker hinanden og giver bredest mulig kundeopnåelse.' },
-        { icon: '🏷️', title: 'Private label produkter', desc: 'Eget varemærke giver høje marginer, differentierer fra konkurrenter og er ikke tilgængeligt hos Amazon.' },
-        { icon: '💌', title: 'Loyalitetsprogram', desc: 'Tilbagevendende kunder er virksomhedens vigtigste aktiv — en simpel loyalitetsmekanik øger LTV markant.' },
-        { icon: '📊', title: 'Sortimentsoptimering med data', desc: 'Fokusér ressourcerne på de 20 % produkter der skaber 80 % af omsætningen. Skær det der ikke konverterer.' },
-        { icon: '📱', title: 'Social commerce', desc: 'Instagram Shopping, TikTok Shop og Pinterest-køb åbner for kundeopnåelse direkte i sociale medier.' },
-      ]
-    };
-  } else if (code3.startsWith('41') || code3.startsWith('42') || code3.startsWith('43') || desc.includes('bygge') || desc.includes('anlæg') || desc.includes('entreprise')) {
-    result = {
-      category: 'Byggeri & Anlæg', title: 'Vækststrategi for byggebranchen',
-      tips: [
-        { icon: '📋', title: 'Rammeaftaler sikrer forudsigelig omsætning', desc: 'Faste aftaler med kommuner, regioner og store bygherrer giver basis-omsætning og reducerer tid brugt på udbud.' },
-        { icon: '🔧', title: 'Specialisering frem for bredde', desc: 'Nichespecialisering (energirenovering, modularbyggeri, klimatilpasning) giver bedre priser og færre direkte konkurrenter.' },
-        { icon: '👷', title: 'Rekruttering som strategisk prioritet', desc: 'Vækst i byggebranchen begrænses typisk af manglende arbejdskraft — investér i rekruttering tidligt.' },
-        { icon: '🌿', title: 'Bæredygtighed som differentiator', desc: 'DGNB-, BREEAM- og LEED-certificeringer åbner for EU-finansierede projekter og premium-prissætning.' },
-        { icon: '🤝', title: 'Stærkt underleverandørnetværk', desc: 'Et kvalitetssikret netværk sætter dig i stand til at tage større projekter uden at udvide fast kapacitet.' },
-      ]
-    };
-  } else if ((parseInt(code3) >= 100 && parseInt(code3) <= 330) || desc.includes('fremstill') || desc.includes('produktion') || desc.includes('fabrik')) {
-    result = {
-      category: 'Produktion & Fremstilling', title: 'Vækststrategi for produktionsvirksomheder',
-      tips: [
-        { icon: '🤖', title: 'Automatisering øger kapaciteten', desc: 'Investering i robotteknologi reducerer produktionsomkostninger og øger kapaciteten uden tilsvarende lønstigninger.' },
-        { icon: '🌍', title: 'Eksport til nye markeder', desc: 'DACH-regionen og de nordiske markeder er naturlige eksporttrin for danske produktionsvirksomheder.' },
-        { icon: '🔬', title: 'Produktudvikling og innovation', desc: 'Nye produktvarianter åbner for mersalg og øger konkurrencebarrieren.' },
-        { icon: '📦', title: 'Egne brands og OEM', desc: 'Produkter under eget varemærke giver markant bedre marginer end underleverandørproduktion.' },
-        { icon: '⚡', title: 'Energieffektivitet som konkurrencefordel', desc: 'Lavere energiomkostninger forbedrer marginen og kan bruges aktivt i markedsføring overfor klimabevidste kunder.' },
-      ]
-    };
-  } else if (code3.startsWith('86') || code3.startsWith('87') || code3.startsWith('88') || desc.includes('sundhed') || desc.includes('pleje') || desc.includes('klinik')) {
-    result = {
-      category: 'Sundhed & Omsorg', title: 'Vækststrategi for sundhedssektoren',
-      tips: [
-        { icon: '🏥', title: 'Privatmarkedets stærke vækst', desc: 'Privat sundhedssektor vokser markant — overvej privatbehandlingstilbud ved siden af offentlige serviceleveranceaftaler.' },
-        { icon: '💊', title: 'Specialisering giver premium-prissætning', desc: 'Specialiserede behandlingstilbud tiltrækker kunder fra hele landet og muliggør markant højere prissætning.' },
-        { icon: '📱', title: 'Digitale sundhedsydelser', desc: 'Telemedicin og digitale konsultationer skalerer omsætningen uden kapacitetsbegrænsninger fra fysiske lokaler.' },
-        { icon: '📋', title: 'Offentlige rammeaftaler', desc: 'Kommunale og regionale rammeaftaler giver forudsigelig grundomsætning og troværdighed der åbner privatdøre.' },
-        { icon: '👥', title: 'Specialistrekruttering er flaskehalsen', desc: 'Rekruttering og fastholdelse af klinisk personale er den afgørende vækstbegrænsning — investér i employer branding.' },
-      ]
-    };
-  } else {
-    result = {
-      category: 'Generel strategi', title: 'Vækststrategi mod Gazelle',
-      tips: [
-        { icon: '🎯', title: 'Fokus på kerneforretningen', desc: 'Identifikér de produkter og ydelser der har bedst margin og skalerbarhed — og koncentrér ressourcerne der.' },
-        { icon: '🤝', title: 'Udbyg eksisterende kunderelationer', desc: 'Det koster 5-7× mere at finde en ny kunde end at sælge mere til en eksisterende. Systematisk key account-arbejde betaler sig.' },
-        { icon: '🔄', title: 'Recurring revenue-modeller', desc: 'Abonnementer, servicekontrakter og retainer-aftaler giver stabil og forudsigelig omsætningsvækst.' },
-        { icon: '📣', title: 'Investér i salg og marketing', desc: 'En struktureret salgsproces er den direkte vej til omsætningsvækst. Mål systematisk på hvad der virker.' },
-        { icon: '🌍', title: 'Geografisk ekspansion', desc: 'Nordiske markeder er naturlige næste skridt — relativt lav kulturel og juridisk barriere for indtrædelse.' },
-      ]
-    };
+    return { category: 'IT & Software', tips: [
+      { icon: '🔁', title: 'Byg til recurring revenue', desc: 'Abonnementer og SaaS-modeller giver forudsigelig vækst og øger virksomhedens værdisætning markant i forhold til projektbaseret omsætning.', forB2B: true },
+      { icon: '🤝', title: 'Partnerskaber og integrationer', desc: 'API-integrationer med store platforme (Microsoft, Salesforce, SAP) skaber ny distribution uden tilsvarende salgsomkostninger.', forB2B: true },
+      { icon: '🚀', title: 'Automatisér onboarding', desc: 'Jo hurtigere nye kunder er live, jo lavere churn. Strømlinet onboarding er kritisk for at skalere uden at ansætte support tilsvarende.' },
+      { icon: '📊', title: 'Investér i et SDR-team', desc: 'Et dedikeret outbound salgsteam er den hurtigste vej til at skalere B2B-omsætning, særligt hvis produktet allerede er markedsmodent.', forB2B: true },
+      { icon: '📱', title: 'Product-led growth og freemium', desc: 'Lad produktet selv drive brugeropnåelse via freemium, gratis prøveperioder og virale delingsmekanismer.', forB2C: true },
+    ]};
+  }
+  if (['700','701','702','703','749'].includes(code3) || desc.includes('konsulent') || desc.includes('rådgivning') || desc.includes('management')) {
+    return { category: 'Konsulentvirksomhed', tips: [
+      { icon: '📦', title: 'Produktificer dine ydelser', desc: 'Faste pakker, moduler og retainer-aftaler er lettere at sælge og skalere end skræddersyede projekter.' },
+      { icon: '🏢', title: 'Udbyg eksisterende kunder', desc: 'Det koster 5-7× mere at finde en ny kunde end at sælge mere til en eksisterende. Prioritér key account management.', forB2B: true },
+      { icon: '✍️', title: 'Thought leadership driver leads', desc: 'Artikler, webinarer og konferencetaler positionerer virksomheden og tiltrækker kunder organisk uden dyre annoncekroner.' },
+      { icon: '👥', title: 'Kapacitetsudbygning er vækstmotoren', desc: 'Vækst i konsulentbranchen er direkte koblet til antal kompetente medarbejdere. Investér tidligt i rekruttering og onboarding.' },
+      { icon: '🌐', title: 'Nordisk ekspansion', desc: 'Sverige, Norge og Finland er naturlige næste markeder — samme kultur og lavt markedsindtrædelsesbehov.' },
+    ]};
+  }
+  if (code3.startsWith('46') || desc.includes('engros') || desc.includes('grossist')) {
+    return { category: 'Engroshandel', tips: [
+      { icon: '🛒', title: 'Udvid produktsortimentet', desc: 'Bredere katalog øger gennemsnitlig ordrestørrelse hos eksisterende kunder uden proportionelt større salgsomkostning.' },
+      { icon: '🤝', title: 'Forhandl bedre leverandøraftaler', desc: 'Volumenrabatter og eksklusivaftaler forbedrer marginen og giver mulighed for skarpere prissætning mod markedet.' },
+      { icon: '🏭', title: 'Private label', desc: 'Egne varemærker giver markant bedre marginer og reducerer afhængighed af leverandørers prispolitik.' },
+      { icon: '🌍', title: 'Eksport til Norden og Baltikum', desc: 'Nordiske og baltiske markeder er naturlige første eksportmarkeder for danske engrosvirksomheder.' },
+      { icon: '📦', title: 'Lager- og logistikoptimering', desc: 'Reducér bundet kapital i lager og forbedr leveringstider — det frigiver likviditet til vækstinvesteringer.' },
+    ]};
+  }
+  if (code3.startsWith('47') || desc.includes('detailhandel') || desc.includes('butik')) {
+    return { category: 'Detailhandel', tips: [
+      { icon: '🛍️', title: 'Omnichannel tilstedeværelse', desc: 'Kombinér fysisk butik med stærk e-commerce. De to kanaler forstærker hinanden og giver bredest mulig kundeopnåelse.', forB2C: true },
+      { icon: '🏷️', title: 'Private label produkter', desc: 'Eget varemærke giver høje marginer, differentierer fra konkurrenter og er ikke tilgængeligt hos Amazon.' },
+      { icon: '💌', title: 'Loyalitetsprogram', desc: 'Tilbagevendende kunder er virksomhedens vigtigste aktiv — en simpel loyalitetsmekanik øger LTV markant.', forB2C: true },
+      { icon: '📊', title: 'Sortimentsoptimering med data', desc: 'Fokusér ressourcerne på de 20% produkter der skaber 80% af omsætningen. Skær det der ikke konverterer.' },
+      { icon: '📱', title: 'Social commerce', desc: 'Instagram Shopping, TikTok Shop og Pinterest-køb åbner for direkte kundeopnåelse i sociale medier.', forB2C: true },
+    ]};
+  }
+  if (code3.startsWith('41') || code3.startsWith('42') || code3.startsWith('43') || desc.includes('bygge') || desc.includes('anlæg') || desc.includes('entreprise')) {
+    return { category: 'Byggeri & Anlæg', tips: [
+      { icon: '📋', title: 'Rammeaftaler sikrer forudsigelig omsætning', desc: 'Faste aftaler med kommuner, regioner og store bygherrer giver basis-omsætning og reducerer tid brugt på udbud.', forB2B: true },
+      { icon: '🔧', title: 'Specialisering frem for bredde', desc: 'Nichespecialisering (energirenovering, modularbyggeri, klimatilpasning) giver bedre priser og færre direkte konkurrenter.' },
+      { icon: '👷', title: 'Rekruttering som strategisk prioritet', desc: 'Vækst i byggebranchen begrænses typisk af manglende arbejdskraft — investér i rekrutteringsprocesser tidligt.' },
+      { icon: '🌿', title: 'Bæredygtighed som differentiator', desc: 'DGNB-, BREEAM- og LEED-certificeringer åbner for EU-finansierede projekter og premium-prissætning.' },
+      { icon: '🤝', title: 'Stærkt underleverandørnetværk', desc: 'Et kvalitetssikret netværk sætter dig i stand til at tage større projekter uden at udvide fast kapacitet.' },
+    ]};
+  }
+  if ((parseInt(code3) >= 100 && parseInt(code3) <= 330) || desc.includes('fremstill') || desc.includes('produktion') || desc.includes('fabrik')) {
+    return { category: 'Produktion & Fremstilling', tips: [
+      { icon: '🤖', title: 'Automatisering øger kapaciteten', desc: 'Investering i robotteknologi reducerer produktionsomkostninger og øger kapaciteten uden tilsvarende lønstigninger.' },
+      { icon: '🌍', title: 'Eksport til nye markeder', desc: 'DACH-regionen og de nordiske markeder er naturlige eksporttrin for danske produktionsvirksomheder.' },
+      { icon: '🔬', title: 'Produktudvikling og innovation', desc: 'Nye produktvarianter åbner for mersalg og øger konkurrencebarrieren mod konkurrenter.' },
+      { icon: '📦', title: 'Egne brands og OEM', desc: 'Produkter under eget varemærke giver markant bedre marginer end ren underleverandørproduktion.' },
+      { icon: '⚡', title: 'Energieffektivitet som konkurrencefordel', desc: 'Lavere energiomkostninger forbedrer marginen og kan bruges aktivt i markedsføring overfor klimabevidste kunder.' },
+    ]};
+  }
+  if (code3.startsWith('86') || code3.startsWith('87') || code3.startsWith('88') || desc.includes('sundhed') || desc.includes('pleje') || desc.includes('klinik')) {
+    return { category: 'Sundhed & Omsorg', tips: [
+      { icon: '🏥', title: 'Privatmarkedets stærke vækst', desc: 'Privat sundhedssektor vokser markant — overvej privatbehandlingstilbud ved siden af offentlige serviceleveranceaftaler.' },
+      { icon: '💊', title: 'Specialisering giver premium-prissætning', desc: 'Specialiserede behandlingstilbud tiltrækker kunder fra hele landet og muliggør markant højere prissætning.' },
+      { icon: '📱', title: 'Digitale sundhedsydelser', desc: 'Telemedicin og digitale konsultationer skalerer omsætningen uden kapacitetsbegrænsninger fra fysiske lokaler.' },
+      { icon: '📋', title: 'Offentlige rammeaftaler', desc: 'Kommunale og regionale rammeaftaler giver forudsigelig grundomsætning og troværdighed der åbner privatdøre.' },
+      { icon: '👥', title: 'Specialistrekruttering er flaskehalsen', desc: 'Rekruttering og fastholdelse af klinisk personale er den afgørende vækstbegrænsning — investér i employer branding.' },
+    ]};
+  }
+  return { category: 'Generel strategi', tips: [
+    { icon: '🎯', title: 'Fokus på kerneforretningen', desc: 'Identifikér de produkter og ydelser der har bedst margin og skalerbarhed — og koncentrér ressourcerne der.' },
+    { icon: '🤝', title: 'Udbyg eksisterende kunderelationer', desc: 'Det koster 5-7× mere at finde en ny kunde end at sælge mere til en eksisterende. Key account-arbejde betaler sig.' },
+    { icon: '🔄', title: 'Recurring revenue-modeller', desc: 'Abonnementer, servicekontrakter og retainer-aftaler giver stabil og forudsigelig omsætningsvækst.' },
+    { icon: '📣', title: 'Investér i salg og marketing', desc: 'En struktureret salgsproces er den direkte vej til omsætningsvækst. Mål systematisk på hvad der virker.' },
+    { icon: '🌍', title: 'Geografisk ekspansion', desc: 'Nordiske markeder er naturlige næste skridt — relativt lav kulturel og juridisk barriere for indtrædelse.' },
+  ]};
+}
+
+function buildFinalTips(base, ctx, prefs, sizeSegment) {
+  let tips = [...base.tips];
+
+  // Filter by B2B/B2C preference
+  if (prefs.type === 'b2b')  tips = tips.filter(t => !t.forB2C);
+  if (prefs.type === 'b2c')  tips = tips.filter(t => !t.forB2B);
+
+  // Prepend size-specific tip (replaces last slot)
+  const sizeTip = getSizeTip(sizeSegment, prefs.type);
+  if (sizeTip) tips = [sizeTip, ...tips.slice(0, 4)];
+
+  // Market: if Norden/EU, boost the international tip to top if present, else add one
+  if (prefs.market === 'nordic' || prefs.market === 'eu') {
+    const intlIdx = tips.findIndex(t => t.title.toLowerCase().includes('ekspansion') || t.title.toLowerCase().includes('eksport') || t.title.toLowerCase().includes('international'));
+    if (intlIdx > 0) {
+      const [intlTip] = tips.splice(intlIdx, 1);
+      tips.unshift(intlTip);
+    } else if (intlIdx === -1) {
+      const label = prefs.market === 'eu' ? 'EU-ekspansion' : 'Nordisk ekspansion';
+      const detail = prefs.market === 'eu'
+        ? 'EU er et naturligt næste skridt — Norden, DACH og Benelux er lavest-hængende markeder med stærk dansk eksporthistorik.'
+        : 'Sverige, Norge og Finland deler kultur, sprog og forretningslogik med Danmark — Norden er typisk første eksporttrin med laveste friktion.';
+      tips = [{ icon: '🌍', title: label, desc: detail }, ...tips.slice(0, 4)];
+    }
   }
 
-  // If unprofitable: bump a margin-focus tip to the top
+  // Unprofitable: prepend margin tip
   if (ctx?.isUnprofitable) {
-    result.tips.unshift({ icon: '💰', title: 'Margin over volumen', desc: 'Negativt årsresultat betyder at vækst i sig selv ikke er nok — prioritér ydelser og kunder med stærk bruttomargin fremfor at jagte omsætning for enhver pris.' });
-    result.tips = result.tips.slice(0, 5); // keep max 5
+    tips = [{ icon: '💰', title: 'Margin over volumen', desc: 'Negativt årsresultat betyder at vækst alene ikke er nok — prioritér ydelser og kunder med stærk bruttomargin fremfor at jagte omsætning for enhver pris.' }, ...tips.slice(0, 4)];
   }
 
-  return { ...result, contextNote };
+  return tips.slice(0, 5);
+}
+
+function getContextNote(ctx, prefs) {
+  if (ctx?.isUnprofitable && ctx?.latestNet != null) {
+    return `Jeres seneste årsresultat er negativt (${fmtDKK(ctx.latestNet)}). Fokusér på marginen mens I vokser — ellers forværres likviditeten med skalaen.`;
+  }
+  if (ctx?.isSlowGrowth && prefs.type) {
+    const channel = prefs.type === 'b2c' ? 'marketingkanalen' : 'salgsmotoren';
+    return `Væksten er under 20% seneste år. Det vigtigste nu er at identificere og investere i den ${channel} der kan skalere — ikke at sprede ressourcerne bredt.`;
+  }
+  if (ctx?.isFastGrowth) {
+    return `I vokser hurtigt (+${ctx.recentGrowth?.toFixed(0)}% senest). Prioritér nu de processer og det team der kan fastholde farten — skalering afslører svage led hurtigt.`;
+  }
+  return null;
 }
 
 function renderTips(cvrData, allFin) {
   const section = document.getElementById('tipsSection');
   if (!section) return;
-  const ctx  = getFinancialContext(allFin);
-  const info = getIndustryTips(cvrData, ctx);
+  const ctx         = getFinancialContext(allFin);
+  const sizeSegment = getSizeSegment(ctx.latestGross);
+  const base        = getIndustryBaseTips(cvrData);
+  const tips        = buildFinalTips(base, ctx, _prefs, sizeSegment);
+  const contextNote = getContextNote(ctx, _prefs);
+
+  // Growth target numbers (using first future requirement)
+  const reqs = computeFutureRequirements(allFin);
+  const req0 = reqs[0];
+  let growthTargetHtml = '';
+  if (req0?.minRequired != null && req0?.prevGross != null) {
+    const gap    = req0.minRequired - req0.prevGross;
+    const pct    = req0.prevGross > 0 ? ((gap / req0.prevGross) * 100) : null;
+    const monthly = gap / 12;
+    const customerLine = _prefs.avgCustomer
+      ? `<div class="gt-sub">Svarende til ca. <strong>~${Math.ceil(gap / _prefs.avgCustomer)} nye kunder</strong> à ${fmtNum(_prefs.avgCustomer)} kr./år</div>`
+      : '';
+    growthTargetHtml = `
+      <div class="growth-target">
+        <div class="gt-label">Vækstmål ${req0.accountYear} — Gazelle ${req0.gazelleYear}</div>
+        <div class="gt-main">+${fmtNum(Math.round(gap))} kr.${pct != null ? `<span>(+${pct.toFixed(0)}%)</span>` : ''}</div>
+        <div class="gt-subs">
+          <div class="gt-sub">Ca. <strong>${fmtNum(Math.round(monthly))} kr./md.</strong> i ekstra bruttoresultat</div>
+          ${customerLine}
+        </div>
+      </div>`;
+  }
+
+  // Title based on selections
+  let title = `Vækststrategi — ${base.category}`;
+  if (_prefs.type === 'b2b') title += ' · B2B';
+  else if (_prefs.type === 'b2c') title += ' · B2C';
+
   section.innerHTML = `
     <div class="tips-card">
       <div class="tips-header">
-        <div class="tips-category">${info.category}</div>
-        <div class="tips-title">${info.title}</div>
+        <div class="tips-category">${base.category}${sizeSegment === 'small' ? ' · Tidlig fase' : sizeSegment === 'large' ? ' · Skaleringsmode' : ''}</div>
+        <div class="tips-title">${title}</div>
       </div>
-      ${info.contextNote ? `<div class="tips-context"><strong>Baseret på jeres data:</strong> ${info.contextNote}</div>` : ''}
+      ${growthTargetHtml}
+      ${contextNote ? `<div class="tips-context"><strong>Baseret på jeres data:</strong> ${contextNote}</div>` : ''}
       <div class="tip-list">
-        ${info.tips.map(t => `
+        ${tips.map(t => `
           <div class="tip-item">
             <div class="tip-icon">${t.icon}</div>
             <div class="tip-body">
@@ -610,6 +735,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   if (_allFin.length === 0) { document.getElementById('noDataMsg').style.display = 'block'; return; }
 
+  loadPrefs();
   document.getElementById('mainContent').style.display = 'block';
 
   if (_cvrData.name) {
@@ -620,6 +746,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   renderYearCards(_allFin);
+  renderQuiz(_allFin);
   renderTips(_cvrData, _allFin);
 });
 </script>

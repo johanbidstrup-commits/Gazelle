@@ -704,10 +704,15 @@ function checkCurrentYear() {
     renderGazelleHistory(newRows, cvrData, newAll);
     renderChart(newAll, newRows);
 
+    const _top4 = [...newAll].sort((a,b) => b.year - a.year).slice(0, 4);
     localStorage.setItem('gazelleResult', JSON.stringify({
       ...JSON.parse(localStorage.getItem('gazelleResult') || '{}'),
-      allFinancials: newAll,
-      top4: [...newAll].sort((a,b) => b.year - a.year).slice(0, 4),
+      allFinancials: newAll, top4: _top4,
+    }));
+    // Keep gazelleFremtid in sync so fremtiden.html sees the updated 2025 data
+    localStorage.setItem('gazelleFremtid', JSON.stringify({
+      ...JSON.parse(localStorage.getItem('gazelleFremtid') || '{}'),
+      allFinancials: newAll, top4: _top4,
     }));
   } else {
     const diff = minRequired - gross;
